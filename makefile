@@ -1,15 +1,13 @@
 #COMPILER  = icpc
 COMPILER  = g++
 #CFLAGS    = -std=c++11 -qmkl -g -MMD -MP -Wall -Wextra -Winit-self -Wno-missing-field-initializers
-CFLAGS    = -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -ldl -lpthread -lm
-CFLAGS   += -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/local/include
-CFLAGS   += -L/usr/local/lib -lgts -lglib-2.0 -lm
+CFLAGS    = -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -ldl -lpthread -lm -frounding-math -lgmp -lmpfr
 ifeq "$(shell getconf LONG_BIT)" "64"
 	LDFLAGS =
 else
 	LDFLAGS =
 endif
-HEADDIR   = ./header
+HEADDIR   = ./include
 SRCDIR    = ./src
 OBJDIR    = ./obj
 EXEDIR    = ./bin
@@ -17,7 +15,7 @@ LIBDIR    = ./lib
 HEADS     = parameters.hpp
 LIBS      = initialize.cpp \
 			hamiltonian.cpp \
-			dispersion.cpp
+			fermi_surface.cpp
 INCLUDE   = -I$(LIBDIR) -I$(HEADDIR)
 TARGET  = $(notdir $(SOURCES:%.cpp=%))
 SOURCES   = $(wildcard $(SRCDIR)/*.cpp)
