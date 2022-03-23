@@ -32,24 +32,6 @@ matrixComplex set_L(int valley, vectorReal k) {
     return value;
 };
 
-extern "C" {
-  void zheev_ ( const char& JOBZ, const char& UPLO,
-		const int& N, Complex** A, const int& LDA,
-		double* W, Complex* WORK, const int& LWORK,
-		double* RWORK,
-		int& INFO, int JOBZlen, int UPLOlen );
-};
-
-template <int N> int zheev( Complex H[N][N], Complex U[N][N], double E[N] )
-{
-  int i, j, info;
-
-
-
-
-  return info;
-}
-
 vectorReal diagonalize_N(matrixComplex A) {
     const int N = A.size();
     Complex H[N][N];

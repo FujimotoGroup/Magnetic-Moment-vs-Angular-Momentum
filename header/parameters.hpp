@@ -50,10 +50,28 @@ extern vectorReal ET;
 extern std::vector<vectorReal> EL;
 
 extern matrixComplex Hamiltonian;
-
 void initialize();
 matrixComplex set_T(vectorReal k);
 matrixComplex set_L(int valley, vectorReal k);
 vectorReal diagonalize_N(matrixComplex A);
+
+extern "C" {
+    #include "gts.h"
+}
+
+extern int band_index;
+extern int valley_index;
+void dispersionT(gdouble ** f, GtsCartesianGrid g, guint k, gpointer data);
+void dispersionL(gdouble ** f, GtsCartesianGrid g, guint k, gpointer data);
+
+extern "C" {
+    void zheev_ ( const char& JOBZ, const char& UPLO,
+        const int& N, Complex** A, const int& LDA,
+        double* W, Complex* WORK, const int& LWORK,
+        double* RWORK,
+        int& INFO, int JOBZlen, int UPLOlen );
+};
+
+int test();
 
 #endif // PARAMETERS_HPP
