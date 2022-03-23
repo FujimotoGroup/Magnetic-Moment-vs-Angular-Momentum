@@ -16,6 +16,21 @@ matrixComplex set_T(vectorReal k) {
     return value;
 };
 
+matrixComplex set_L(int valley, vectorReal k) {
+    matrixComplex value(bandsL, vectorComplex(bandsL, 0e0));
+    for(int i=0; i<bandsL; i++) {
+        double ene = std::inner_product(k.begin(), k.end(), k.begin(), 0e0);
+        ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass);
+        value[i][i] = EL[valley][i] + ene;
+        for(int j=i+1; j<bandsL; j++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                value[i][j] += hbar/angstrom*k[axis]*vL[valley][axis][i][j];
+                value[j][i] += hbar/angstrom*k[axis]*vL[valley][axis][j][i];
+            }
+        }
+    }
+    return value;
+};
 
 extern "C" {
   void zheev_ ( const char& JOBZ, const char& UPLO,

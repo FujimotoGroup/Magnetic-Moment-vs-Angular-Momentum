@@ -39,6 +39,8 @@ extern const int space_dim;
 extern const int spin_dim;
 extern const double eps_phys;
 
+extern const double cutoff;
+
 extern const std::string axises[];
 extern const int valleys;
 
@@ -51,6 +53,7 @@ extern matrixComplex Hamiltonian;
 
 void initialize();
 matrixComplex set_T(vectorReal k);
+matrixComplex set_L(int valley, vectorReal k);
 vectorReal diagonalize_N(matrixComplex A);
 
 #endif // PARAMETERS_HPP

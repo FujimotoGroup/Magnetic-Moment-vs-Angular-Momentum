@@ -18,6 +18,8 @@ const double a =  4.5332e0; // angstrom
 const double c = 11.7967e0; // angstrom
 const double g0 = 1.3861e0; // angstrom^-1
 
+const double cutoff = 2e-1*g0;
+
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b3 = { 0e0   , 2e0*std::sqrt(3e0)*g0/3e0   , (a/c)*g0 };
@@ -25,7 +27,7 @@ const vectorReal b3 = { 0e0   , 2e0*std::sqrt(3e0)*g0/3e0   , (a/c)*g0 };
 const std::string axises[] = {"x", "y", "z"};
 const int valleys = 3;
 
-std::vector<matrixComplex> vT(space_dim);
+std::vector<matrixComplex> vT;
 std::vector<std::vector<matrixComplex>> vL;
 vectorReal ET(bandsT);
 std::vector<vectorReal> EL(valleys, vectorReal(bandsL));
@@ -37,6 +39,7 @@ void initialize() {
     // T point {{{
     int l = lowest_band_T - 1;
     int n = lowest_band_T + bandsT - 1;
+    vT.resize(space_dim);
     for (int axis=0; axis<space_dim; axis++) {
         matrixComplex v;
         string file_name = "./lib/izaki_Bi_SPH_data/v"+axises[axis]+"_T.dat";
@@ -80,10 +83,14 @@ void initialize() {
 //    }
     // }}}
     // L points {{{
+    l = lowest_band_L - 1;
+    n = lowest_band_L + bandsL - 1;
+    vL.resize(valleys);
     for (int valley=0; valley<valleys; valley++) {
+        vL[valley].resize(space_dim);
         for (int axis=0; axis<space_dim; axis++) {
-            string file_name = "./lib/izaki_Bi_SPH_data/v"+axises[axis]+"_L"+to_string(valley+1)+".dat";
-//            cout << file_name << endl;
+            matrixComplex v;
+            string file_name = "./lib/izaki_Bi_SPH_data/v"+axises[axis]+"_L-"+to_string(valley+1)+".dat";
             ifstream file(file_name);
             string line;
             while ( getline(file,line) ) {
@@ -93,13 +100,19 @@ void initialize() {
                 while ( stream >> c ) {
                     row.push_back(c);
                 }
-                vL[valley][axis].push_back(row);
+                v.push_back(row);
+            }
+            vL[valley][axis].resize(bandsL);
+            for(int i=l; i<n; i++) {
+                vL[valley][axis][i-l].resize(bandsL);
+                for(int j=l; j<n; j++) {
+                    vL[valley][axis][i-l][j-l] = v[i][j];
+                }
             }
         }
 
         vector<double> e(bands);
         string file_name = "./lib/izaki_Bi_SPH_data/Liu_allen_E_L-"+to_string(valley+1)+".dat";
-//        cout << file_name << endl;
         ifstream file(file_name);
         string line;
         getline(file,line);
@@ -110,9 +123,6 @@ void initialize() {
             i++;
         }
         EL[valley].assign(&e[lowest_band_L-1], &e[lowest_band_L+bandsL-1]);
-//        for (int i=0; i<EL[valley].size(); i++) {
-//            cout << EL[valley][i] << endl;
-//        }
         }
     // }}}
     // }}}

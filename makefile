@@ -1,6 +1,7 @@
 COMPILER  = icpc
 #COMPILER  = g++
 CFLAGS    = -std=c++11 -qmkl -g -MMD -MP -Wall -Wextra -Winit-self -Wno-missing-field-initializers
+CFLAGS   += -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/local/include
 ifeq "$(shell getconf LONG_BIT)" "64"
 	LDFLAGS =
 else
