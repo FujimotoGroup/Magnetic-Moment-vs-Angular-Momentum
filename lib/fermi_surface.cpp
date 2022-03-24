@@ -10,6 +10,9 @@
 #include <CGAL/Implicit_surface_3.h>
 
 
+#include <CGAL/Exact_predicates_exact_constructions_kernel_with_sqrt.h>
+typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
+typedef Kernel::Vector_3 Vector3;
 // default triangulation for Surface_mesher
 typedef CGAL::Surface_mesh_default_triangulation_3 Tr;
 // c2t3
@@ -32,7 +35,7 @@ int test() {
                 vectorReal momentum = {x, y, z};
                 matrixComplex H_T = set_T(momentum);
                 vectorReal E_T = diagonalize_N(H_T);
-//                Vector3 vec = Vector3(momentum);
+                Vector3 vec = Vector3();
 //                f[i][j][l] = E_T[band_index];
 
                 k++;
