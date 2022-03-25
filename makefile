@@ -2,6 +2,7 @@
 COMPILER  = g++
 #CFLAGS    = -std=c++11 -qmkl -g -MMD -MP -Wall -Wextra -Winit-self -Wno-missing-field-initializers
 CFLAGS    = -Wl,--no-as-needed -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -ldl -lpthread -lm -frounding-math -lgmp -lmpfr
+
 ifeq "$(shell getconf LONG_BIT)" "64"
 	LDFLAGS =
 else
@@ -15,7 +16,9 @@ LIBDIR    = ./lib
 HEADS     = parameters.hpp
 LIBS      = initialize.cpp \
 			hamiltonian.cpp \
-			fermi_surface.cpp
+			fermi_surface.cpp \
+			band.cpp \
+			system.cpp
 INCLUDE   = -I$(LIBDIR) -I$(HEADDIR)
 TARGET  = $(notdir $(SOURCES:%.cpp=%))
 SOURCES   = $(wildcard $(SRCDIR)/*.cpp)

@@ -9,7 +9,7 @@ int main(){
     std::ofstream file(file_name);
     for (int i=-n; i<=n; i++) {
         double kx = cutoff*double(i)/double(2*n);
-        vectorReal k = {kx,0e0,0e0};
+        double k[3] = {kx,0e0,0e0};
         matrixComplex H_T = set_T(k);
 
         vectorReal E_T = diagonalize_N(H_T);
@@ -29,7 +29,7 @@ int main(){
         std::ofstream file(file_name);
         for (int i=-n; i<=n; i++) {
             double kx = cutoff*double(i)/double(2*n);
-            vectorReal k = {kx,0e0,0e0};
+            double k[3] = {kx,0e0,0e0};
             matrixComplex H_L = set_L(valley, k);
 
             vectorReal E_L = diagonalize_N(H_L);
@@ -45,7 +45,8 @@ int main(){
     };
 /// }}}
 
-    test();
+    sys T = get_T();
+    sys_write(T);
 
     return 0;
 }

@@ -1,72 +1,116 @@
 #include "parameters.hpp"
 
-#include <CGAL/Surface_mesh_default_triangulation_3.h>
-#include <CGAL/Surface_mesh_default_criteria_3.h>
-#include <CGAL/Complex_2_in_triangulation_3.h>
-#include <CGAL/IO/Complex_2_in_triangulation_3_file_writer.h>
-#include <fstream>
-#include <CGAL/make_surface_mesh.h>
-#include <CGAL/Gray_level_image_3.h>
-#include <CGAL/Implicit_surface_3.h>
+double get_E_T(int band_index, kpoint k) {
+    matrixComplex H_T = set_T(k.vec);
+    vectorReal E_T = diagonalize_N(H_T);
+    return E_T[band_index];
+};
 
+kpoint bisec_T(int band_index, chemical_potential mu, double ene, kpoint k, int axis, double r) {
+    bool flag = false;
+    kpoint p = k;
+    double e;
+    int loop_max = 50;
+    double x1 = p.vec[axis];
+    double x2 = r;
 
-#include <CGAL/Exact_predicates_exact_constructions_kernel_with_sqrt.h>
-typedef CGAL::Exact_predicates_inexact_constructions_kernel Kernel;
-typedef Kernel::Vector_3 Vector3;
-// default triangulation for Surface_mesher
-typedef CGAL::Surface_mesh_default_triangulation_3 Tr;
-// c2t3
-typedef CGAL::Complex_2_in_triangulation_3<Tr> C2t3;
-typedef Tr::Geom_traits GT;
-typedef CGAL::Gray_level_image_3<GT::FT, GT::Point_3> Gray_level_image;
-typedef CGAL::Implicit_surface_3<GT, Gray_level_image> Surface_3;
+    for(int i=0; i<loop_max; i++) {
+        p.vec[axis] = (x1 + x2)*0.5e0;
+        e = get_E_T(band_index, p) - mu;
+        if ( std::abs(e) < eps_phys ) {
+            flag = true;
+            break;
+        }
 
-int test() {
-    int n = 10;
+        if (e * ene > 0e0) {
+            x1 = p.vec[axis];
+        } else {
+            x2 = p.vec[axis];
+        }
+    }
+    if (flag == true) {
+        return p;
+    } else {
+        return {0e0,0e0,0e0};
+    }
+};
 
-    int k = 0;
-    double x, y, z;
-    for (int i = -n; i < n; i++) {
-        x = cutoff * double(i)/double(2*n);
-        for (int j = -n; j < n; j++) {
-            y = cutoff * double(j)/double(2*n);
-            for (int l = -n; l < n; l++) {
-                z = cutoff * double(l)/double(2*n);
-                vectorReal momentum = {x, y, z};
-                matrixComplex H_T = set_T(momentum);
-                vectorReal E_T = diagonalize_N(H_T);
-                Vector3 vec = Vector3();
-//                f[i][j][l] = E_T[band_index];
+velocity get_velocity(int band_index, chemical_potential mu, kpoint k) {
+    velocity v = {0e0, 0e0, 0e0};
+    for(int axis=0; axis<space_dim; axis++) {
+        for(int pm=-1; pm <1; pm=pm+2) {
+            double p = double(pm);
+            kpoint kp = k;
+            kp.vec[axis] += eps_phys*p;
+            double ene = get_E_T(band_index, kp) - mu;
+            v.vec[axis] += ene*p;
+        }
+        v.vec[axis] = v.vec[axis] / (2e0*eps_phys);
+    }
+    return v;
+};
 
-                k++;
+fermi_surface get_fermi_suraceT(int band_index, chemical_potential mu) {
+    int n = mesh;
+
+    fermi_surface fs;
+    fs.e = mu;
+
+    double z, x[2*n], y[2*n];
+    double ene[2*n][2*n];
+    double dn = 1e0/double(n);
+    for (int i_z = 0; i_z < 2*n; i_z++) {
+        z = cutoff * double(i_z-n)*dn;
+        for (int i_y = 0; i_y < 2*n; i_y++) {
+            y[i_y] = cutoff * double(i_y-n)*dn;
+            for (int i_x = 0; i_x < 2*n; i_x++) {
+                x[i_x] = cutoff * double(i_x-n)*dn;
+                kpoint p = {x[i_x], y[i_y], z};
+                ene[i_y][i_x] = get_E_T(band_index, p) - mu;
             }
+        }
+
+        for (int i_y = 0; i_y < 2*n-1; i_y++) {
+            for (int i_x = 0; i_x < 2*n-1; i_x++) {
+                if (ene[i_y][i_x+1] * ene[i_y][i_x] < 0e0) {
+                    int axis = 0;
+                    kpoint p = {x[i_x], y[i_y], z};
+                    kpoint k = bisec_T(band_index, mu, ene[i_y][i_x], p, axis, x[i_x+1]);
+                    fs.kset.push_back(k);
+                    fs.vset.push_back(get_velocity(band_index, mu, k));
+                }
+
+                if (ene[i_y+1][i_x] * ene[i_y][i_x] < 0e0) {
+                    int axis = 1;
+                    kpoint p = {x[i_x], y[i_y], z};
+                    kpoint k = bisec_T(band_index, mu, ene[i_y][i_x], p, axis, y[i_y+1]);
+                    fs.kset.push_back(k);
+                    fs.vset.push_back(get_velocity(band_index, mu, k));
+                }
+            }
+        }
+
+    }
+
+    return fs;
+};
+
+int fermi_surface_write(fermi_surface fs, std::string filename) {
+    if (fs.kset.size() > 0) {
+        std::ofstream ofs(filename);
+        if (!ofs) {
+            std::cout << filename << " cannot be opened." << std::endl;
+            return 1;
+        }
+
+        for (int i=0; i<fs.kset.size(); i++) {
+            ofs << std::scientific
+                << fs.kset[i].vec[0] << ", " << fs.kset[i].vec[1] << ", " << fs.kset[i].vec[2] << ", "
+                << fs.vset[i].vec[0] << ", " << fs.vset[i].vec[1] << ", " << fs.vset[i].vec[2] << ", "
+                << fs.e
+                << std::endl;
         }
     }
 
-
-  Tr tr;            // 3D-Delaunay triangulation
-  C2t3 c2t3 (tr);   // 2D-complex in 3D-Delaunay triangulation
-  // the 'function' is a 3D gray level image
-//  Gray_level_image image(CGAL::data_file_path("images/skull_2.9.inr"), 2.9f);
-  Gray_level_image image();
-  // Carefully chosen bounding sphere: the center must be inside the
-  // surface defined by 'image' and the radius must be high enough so that
-  // the sphere actually bounds the whole image.
-//  GT::Point_3 bounding_sphere_center(122., 102., 117.);
-//  GT::FT bounding_sphere_squared_radius = 200.*200.*2.;
-//  GT::Sphere_3 bounding_sphere(bounding_sphere_center,
-//                                   bounding_sphere_squared_radius);
-//  // definition of the surface, with 10^-5 as relative precision
-//  Surface_3 surface(image, bounding_sphere, 1e-5);
-//  // defining meshing criteria
-//  CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,
-//                                                     5.,
-//                                                     5.);
-//  // meshing surface, with the "manifold without boundary" algorithm
-//  CGAL::make_surface_mesh(c2t3, surface, criteria, CGAL::Manifold_tag());
-//  std::ofstream out("out.off");
-//  CGAL::output_surface_facets_to_off (out, c2t3);
-//  std::cout << "Final number of points: " << tr.number_of_vertices() << "\n";
-
-  return 0;
-}
+    return 0;
+};

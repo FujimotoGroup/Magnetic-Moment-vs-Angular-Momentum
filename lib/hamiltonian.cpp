@@ -1,10 +1,10 @@
 #include "parameters.hpp"
 
-matrixComplex set_T(vectorReal k) {
+matrixComplex set_T(double k[3]) {
     matrixComplex value(bandsT, vectorComplex(bandsT, 0e0));
+    double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];
+    ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass);
     for(int i=0; i<bandsT; i++) {
-        double ene = std::inner_product(k.begin(), k.end(), k.begin(), 0e0);
-        ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass);
         value[i][i] = ET[i] + ene;
         for(int j=i+1; j<bandsT; j++) {
             for(int axis=0; axis<space_dim; axis++) {
@@ -16,11 +16,11 @@ matrixComplex set_T(vectorReal k) {
     return value;
 };
 
-matrixComplex set_L(int valley, vectorReal k) {
+matrixComplex set_L(int valley, double k[3]) {
     matrixComplex value(bandsL, vectorComplex(bandsL, 0e0));
+    double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];
+    ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass);
     for(int i=0; i<bandsL; i++) {
-        double ene = std::inner_product(k.begin(), k.end(), k.begin(), 0e0);
-        ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass);
         value[i][i] = EL[valley][i] + ene;
         for(int j=i+1; j<bandsL; j++) {
             for(int axis=0; axis<space_dim; axis++) {
