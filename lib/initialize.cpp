@@ -19,7 +19,7 @@ const double a =  4.5332e0; // angstrom
 const double c = 11.7967e0; // angstrom
 const double g0 = 1.3861e0; // angstrom^-1
 
-const double cutoff = 3e-1*g0;
+const double cutoff = 1e-1*g0;
 const int mesh = 30;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
@@ -36,6 +36,8 @@ std::vector<matrixComplex> vT;
 std::vector<std::vector<matrixComplex>> vL;
 vectorReal ET(bandsT);
 std::vector<vectorReal> EL(valleys, vectorReal(bandsL));
+
+std::mutex mtx;
 
 void initialize() {
     using namespace std;

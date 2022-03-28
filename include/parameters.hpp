@@ -11,6 +11,9 @@
 #include <sstream>
 #include <numeric>
 #include <thread>
+#include <mutex>
+
+extern std::mutex mtx;
 
 using Complex = std::complex<double>;
 using vectorReal    = std::vector<double>;
