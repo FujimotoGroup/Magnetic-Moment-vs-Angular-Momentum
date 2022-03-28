@@ -14,6 +14,7 @@ void get_band_T(band& b, int band_index, chemical_potential mu_min, chemical_pot
         chemical_potential mu = b.mu_min + b.dmu*double(i_mu);
         b.fs[i_mu] = get_fermi_surace_T(band_index, mu);
     }
+    std::cout << "T point; band#" << band_index << " search end" << std::endl;
 }; // }}}
 
 void get_band_L(band& b, int valley, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh) { // {{{
@@ -29,4 +30,5 @@ void get_band_L(band& b, int valley, int band_index, chemical_potential mu_min, 
         chemical_potential mu = b.mu_min + b.dmu*double(i_mu);
         b.fs.push_back(get_fermi_surace_L(valley, band_index, mu));
     }
+    std::cout << "L point; valley#" << valley << ", band#" << band_index << " search end" << std::endl;
 }; // }}}
