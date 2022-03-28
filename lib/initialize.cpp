@@ -8,8 +8,8 @@ const double charge   = 1.60217662e-19; // [C]
 
 const int H_dim = 16;
 const int bands = H_dim;
-//const int bandsT = 8; const int lowest_band_T = 5;
-const int bandsT = 6; const int lowest_band_T = 7;
+const int bandsT = 8; const int lowest_band_T = 5;
+//const int bandsT = 6; const int lowest_band_T = 7;
 const int bandsL = 4; const int lowest_band_L = 9;
 
 const int space_dim = 3;
@@ -20,7 +20,7 @@ const double a =  4.5332e0; // angstrom
 const double c = 11.7967e0; // angstrom
 const double g0 = 1.3861e0; // angstrom^-1
 
-const double cutoff = 3e-1*g0;
+const double cutoff = 1e-1*g0;
 const int k_mesh = 30;
 const int mu_mesh = 10;
 
