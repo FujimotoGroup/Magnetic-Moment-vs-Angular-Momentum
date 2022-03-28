@@ -70,11 +70,11 @@ int main(){
     };
 /// }}}
 
-    sys_T T = get_T();
-    sys_T_write(T);
-
-    sys_L L = get_L();
-    sys_L_write(L);
+//    sys_T T = get_T();
+//    sys_T_write(T);
+//
+//    sys_L L = get_L();
+//    sys_L_write(L);
 
     return 0;
 }
