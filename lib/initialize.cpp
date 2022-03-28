@@ -8,7 +8,7 @@ const double charge   = 1.60217662e-19;
 
 const int H_dim = 16;
 const int bands = H_dim;
-const int bandsT = 8; const int lowest_band_T = 5;
+const int bandsT = 8; const int lowest_band_T = 8;
 const int bandsL = 4; const int lowest_band_L = 9;
 
 const int space_dim = 3;
