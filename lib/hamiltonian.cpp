@@ -20,6 +20,7 @@ matrixComplex set_L(int valley, double k[3]) { // {{{
     matrixComplex value(bandsL, vectorComplex(bandsL, 0e0));
     double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];
     ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass);
+    ene = 0e0;
     for(int i=0; i<bandsL; i++) {
         value[i][i] = EL[valley][i] + ene;
         for(int j=i+1; j<bandsL; j++) {
