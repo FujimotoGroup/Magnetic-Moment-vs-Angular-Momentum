@@ -32,7 +32,6 @@ sys_T get_T() { // {{{
 void sys_T_write(sys_T s) { // {{{
     for(int band_index=0; band_index<bandsT; band_index++) {
         for(int i_mu=0; i_mu<s.bands[band_index].mu_mesh; i_mu++) {
-            std::cout << i_mu << std::endl;
             std::string filename = "dat/T_band"+std::to_string(band_index)+"k"+std::to_string(i_mu)+".csv";
             fermi_surface_write(s.bands[band_index].fs[i_mu], filename);
         }
@@ -48,7 +47,6 @@ sys_L get_L() { // {{{
     const int mu_mesh = 10;
     s.bands.resize(valleys);
     for(int valley=0; valley<valleys; valley++) {
-        std::cout << "hoge" << valley << std::endl;
         for(int i=0; i<bandsL; i++) {
             mu_max[i] = double(EL[valley][i])+1e-1;
             mu_min[i] = double(EL[valley][i])-1e-1;
@@ -75,7 +73,6 @@ void sys_L_write(sys_L s) { // {{{
     for(int valley=0; valley<valleys; valley++) {
         for(int band_index=0; band_index<bandsL; band_index++) {
             for(int i_mu=0; i_mu<s.bands[valley][band_index].mu_mesh; i_mu++) {
-                std::cout << i_mu << std::endl;
                 std::string filename = "dat/L"+std::to_string(valley)+"_band"+std::to_string(band_index)+"k"+std::to_string(i_mu)+".csv";
                 fermi_surface_write(s.bands[valley][band_index].fs[i_mu], filename);
             }
