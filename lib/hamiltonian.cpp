@@ -4,6 +4,7 @@ matrixComplex set_T(double k[3]) { // {{{
     matrixComplex value(bandsT, vectorComplex(bandsT, 0e0));
     double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];
     ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass);
+    ene = 0e0;
     for(int i=0; i<bandsT; i++) {
         value[i][i] = ET[i] + ene;
         for(int j=i+1; j<bandsT; j++) {
