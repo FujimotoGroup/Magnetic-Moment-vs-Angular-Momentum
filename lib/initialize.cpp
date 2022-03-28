@@ -1,14 +1,14 @@
 #include "parameters.hpp"
 #include <algorithm>
 
-const double angstrom = 1e-10;
-const double hbar     = 6.582119569e-16;
-const double mass     = 9.10938356e-31;
-const double charge   = 1.60217662e-19;
+const double angstrom = 1e-10; // [m]
+const double hbar     = 6.582119569e-16; // [eV s]
+const double mass     = 9.10938356e-31; // [kg]
+const double charge   = 1.60217662e-19; // [C]
 
 const int H_dim = 16;
 const int bands = H_dim;
-const int bandsT = 8; const int lowest_band_T = 8;
+const int bandsT = 8; const int lowest_band_T = 5;
 const int bandsL = 4; const int lowest_band_L = 9;
 
 const int space_dim = 3;
