@@ -1,6 +1,6 @@
 #include "parameters.hpp"
 
-matrixComplex set_T(double k[3]) {
+matrixComplex set_T(double k[3]) { // {{{
     matrixComplex value(bandsT, vectorComplex(bandsT, 0e0));
     double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];
     ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass);
@@ -14,9 +14,9 @@ matrixComplex set_T(double k[3]) {
         }
     }
     return value;
-};
+}; // }}}
 
-matrixComplex set_L(int valley, double k[3]) {
+matrixComplex set_L(int valley, double k[3]) { // {{{
     matrixComplex value(bandsL, vectorComplex(bandsL, 0e0));
     double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];
     ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass);
@@ -30,9 +30,9 @@ matrixComplex set_L(int valley, double k[3]) {
         }
     }
     return value;
-};
+}; // }}}
 
-vectorReal diagonalize_N(matrixComplex A) {
+vectorReal diagonalize_N(matrixComplex A) { // {{{
     const int N = A.size();
     Complex H[N][N];
     Complex U[N][N];
@@ -67,4 +67,4 @@ vectorReal diagonalize_N(matrixComplex A) {
     }
 
     return res;
-};
+}; // }}}

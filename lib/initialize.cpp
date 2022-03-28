@@ -1,4 +1,5 @@
 #include "parameters.hpp"
+#include <algorithm>
 
 const double angstrom = 1e-10;
 const double hbar     = 6.582119569e-16;
@@ -25,6 +26,9 @@ const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b3 = { 0e0   , 2e0*std::sqrt(3e0)*g0/3e0   , (a/c)*g0 };
 
+vectorReal kT;
+vectorReal kL[3];
+
 const std::string axises[] = {"x", "y", "z"};
 const int valleys = 3;
 
@@ -36,6 +40,20 @@ std::vector<vectorReal> EL(valleys, vectorReal(bandsL));
 void initialize() {
     using namespace std;
 
+// set kT, kL[3] {{{
+    kT.resize(3);
+    kT = vectorReal(space_dim, 0e0);
+    for (int valley=0; valley<valleys; valley++) {
+        kL[valley].resize(3);
+        kL[valley] = vectorReal(space_dim, 0e0);
+    };
+    for (int i=0; i<3; i++) {
+        kT[i] = 5e-1* ( b1[i] + b2[i] + b3[i] );
+        kL[0][i] = 5e-1 * b1[i];
+        kL[1][i] = 5e-1 * b2[i];
+        kL[2][i] = 5e-1 * b3[i];
+    };
+/// }}}
     // load data by Dr. Izaki {{{
     // T point {{{
     int l = lowest_band_T - 1;

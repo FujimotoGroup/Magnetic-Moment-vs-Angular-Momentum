@@ -37,6 +37,9 @@ extern const vectorReal b1;
 extern const vectorReal b2;
 extern const vectorReal b3;
 
+extern vectorReal kT;
+extern vectorReal kL[3];
+
 extern const int space_dim;
 extern const int spin_dim;
 extern const double eps_phys;
@@ -86,18 +89,27 @@ struct band {
     std::vector<fermi_surface> fs;
 };
 
-struct sys {
+struct sys_T {
     std::vector<band> bands;
 };
 
-fermi_surface get_fermi_suraceT(int band_index, chemical_potential mu);
+struct sys_L {
+    std::vector<std::vector<band>> bands;
+};
+
+fermi_surface get_fermi_surace_T(int band_index, chemical_potential mu);
+velocity get_velocity_T(int band_index, chemical_potential mu, kpoint k);
+fermi_surface get_fermi_surace_L(int valley, int band_index, chemical_potential mu);
+velocity get_velocity_L(int band_index, chemical_potential mu, kpoint k);
 int fermi_surface_write(fermi_surface fs, std::string filename);
-velocity get_velocity(int band_index, chemical_potential mu, kpoint k);
 
 void get_band_T(band& b, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
+sys_T get_T();
+void sys_T_write(sys_T s);
 
-sys get_T();
-void sys_write(sys s);
+void get_band_L(band& b, int valley, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
+sys_L get_L();
+void sys_L_write(sys_L s);
 
 
 #endif // PARAMETERS_HPP
