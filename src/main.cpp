@@ -33,7 +33,7 @@ int main(){
     std::string file_name = "./dat/EigenValue_T_"+std::to_string(bandsT)+"bands.dat";
     std::ofstream file(file_name);
     for (int i=-n; i<=n; i++) {
-        double kx = cutoff*double(i)/double(2*n);
+        double kx = cutoff*double(i)/double(n);
         double k[3] = {kx,0e0,0e0};
         matrixComplex H_T = set_T(k);
 
@@ -53,7 +53,7 @@ int main(){
         std::string file_name = "./dat/EigenValue_L"+std::to_string(valley+1)+"_"+std::to_string(bandsL)+"bands.dat";
         std::ofstream file(file_name);
         for (int i=-n; i<=n; i++) {
-            double kx = cutoff*double(i)/double(2*n);
+            double kx = cutoff*double(i)/double(n);
             double k[3] = {kx,0e0,0e0};
             matrixComplex H_L = set_L(valley, k);
 
