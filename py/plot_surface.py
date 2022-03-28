@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 #from scipy.spatial import Delaunay
 
-for i in np.arange(5,10):
-    readfile = '../dat/L0_band2k'+str(i)+'.csv'
-#    readfile = '../dat/T_band0k'+str(i)+'.csv'
+for i in np.arange(10):
+    readfile = '../dat/L0_band0k'+str(i)+'.csv'
+    readfile = '../dat/T_band4k'+str(i)+'.csv'
     position = pd.read_csv(readfile, header=None).values
     x = position[:,0]
     y = position[:,1]

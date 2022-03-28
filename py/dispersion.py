@@ -47,7 +47,7 @@ ax3.set_title("comparison")
 read_full = data+'EigenValue_T_full.dat'
 full = pd.read_csv(read_full,header=None).values
 for i in np.arange(1,bands,2):
-    ax1.plot(full[:,0], full[:,i], color=colors[i-1])
+    ax1.scatter(full[:,0], full[:,i], color=colors[i-1])
 
 read_effective = data+'EigenValue_T_'+str(bandsT)+'bands.dat'
 effective = pd.read_csv(read_effective,header=None).values
@@ -55,9 +55,10 @@ for i in np.arange(1,bandsT,2):
     ax2.plot(effective[:,0], effective[:,i], color=colors[i+lowest_T-2])
 
 for i in np.arange(lowest_T,lowest_T+bandsT,2):
-    ax3.scatter(full[:,0], full[:,i])
+    ax3.scatter(full[:,0], full[:,i], label="band#"+str(i))
 for i in np.arange(1,bandsT,2):
-    ax3.plot(effective[:,0], effective[:,i], color=colors[i+lowest_T-2])
+    ax3.plot(effective[:,0], effective[:,i], color=colors[i+lowest_T-2], label="effective band#"+str(i))
+ax3.legend()
 
 plt.savefig(png+"dispersion_T-"+str(bandsT)+"bands.png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
@@ -85,7 +86,7 @@ for valley in np.arange(1,4):
     read_full = data+"EigenValue_L"+str(valley)+"_full.dat"
     full = pd.read_csv(read_full,header=None).values
     for i in np.arange(1,16,2):
-        ax1.plot(full[:,0], full[:,i], color=colors[i-1])
+        ax1.scatter(full[:,0], full[:,i], color=colors[i-1])
 
     read_effective = data+"EigenValue_L"+str(valley)+"_"+str(bandsL)+"bands.dat"
     effective = pd.read_csv(read_effective,header=None).values
@@ -93,9 +94,10 @@ for valley in np.arange(1,4):
         ax2.plot(effective[:,0], effective[:,i], color=colors[i+lowest_L-2])
 
     for i in np.arange(lowest_L,lowest_L+bandsL,2):
-        ax3.scatter(full[:,0], full[:,i])
+        ax3.scatter(full[:,0], full[:,i], label="band#"+str(i))
     for i in np.arange(1,bandsL,2):
-        ax3.plot(effective[:,0], effective[:,i], color=colors[i+lowest_L-2])
+        ax3.plot(effective[:,0], effective[:,i], color=colors[i+lowest_L-2], label="effective band#"+str(i))
+    ax3.legend()
 
     plt.savefig(png+"dispersion_L"+str(valley)+".png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
