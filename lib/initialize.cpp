@@ -10,7 +10,7 @@ const int H_dim = 16;
 const int bands = H_dim;
 //const int bandsT = 8; const int lowest_band_T = 5;
 //const int bandsT = 6; const int lowest_band_T = 7;
-const int bandsT = 10; const int lowest_band_T = 5;
+const int bandsT = 10; const int lowest_band_T = 3;
 const int bandsL = 4; const int lowest_band_L = 9;
 
 const int space_dim = 3;
