@@ -48,7 +48,8 @@ extern const int spin_dim;
 extern const double eps_phys;
 
 extern const double cutoff;
-extern const int mesh;
+extern const int k_mesh;
+extern const int mu_mesh;
 
 extern const std::string axises[];
 extern const int valleys;

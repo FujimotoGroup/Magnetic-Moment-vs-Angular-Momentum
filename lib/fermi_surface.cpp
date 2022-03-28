@@ -52,7 +52,7 @@ velocity get_velocity_T(int band_index, chemical_potential mu, kpoint k) { // {{
 }; // }}}
 
 fermi_surface get_fermi_surace_T(int band_index, chemical_potential mu) { // {{{
-    int n = mesh;
+    int n = k_mesh;
 
     fermi_surface fs;
     fs.e = mu;
@@ -149,7 +149,7 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
 }; // }}}
 
 fermi_surface get_fermi_surace_L(int valley, int band_index, chemical_potential mu) { // {{{
-    int n = mesh;
+    int n = k_mesh;
 
     fermi_surface fs;
     fs.e = mu;

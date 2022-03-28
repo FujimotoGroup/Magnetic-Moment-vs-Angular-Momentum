@@ -6,10 +6,9 @@ int thread_num = std::thread::hardware_concurrency();
 sys_T get_T() { // {{{
     sys_T s;
     chemical_potential mu_min[bandsT], mu_max[bandsT];
-    int mu_mesh = 10;
     for(int i=0; i<bandsT; i++) {
-        mu_max[i] = double(ET[i])+1e-1;
-        mu_min[i] = double(ET[i])-1e-1;
+        mu_max[i] = double(ET[i])+5e-2;
+        mu_min[i] = double(ET[i])-5e-2;
     }
 
     std::vector<std::thread> threads;
