@@ -34,7 +34,7 @@ int main(){
     std::ofstream file(file_name);
     for (int i=-n; i<=n; i++) {
         double kx = cutoff*double(i)/double(n);
-        double k[3] = {kx,0e0,0e0};
+        double k[3] = {0e0,0e0,kx};
         matrixComplex H_T = set_T(k);
 
         vectorReal E_T = diagonalize_N(H_T);
@@ -70,8 +70,8 @@ int main(){
     };
 /// }}}
 
-    sys_T T = get_T();
-    sys_T_write(T);
+//    sys_T T = get_T();
+//    sys_T_write(T);
 
 //    sys_L L = get_L();
 //    sys_L_write(L);
