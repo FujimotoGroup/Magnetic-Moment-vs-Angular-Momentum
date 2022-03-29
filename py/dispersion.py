@@ -44,7 +44,7 @@ ax1.set_title("16-full bands")
 ax2.set_title(str(bandsT)+"-effective bands")
 ax3.set_title("comparison")
 
-read_full = data+'EigenValue_T_full.dat'
+read_full = data+'EigenValue_T_x_full.dat'
 full = pd.read_csv(read_full,header=None).values
 for i in np.arange(1,bands,2):
     ax1.scatter(full[:,0], full[:,i], color=colors[i-1])
@@ -83,7 +83,7 @@ for valley in np.arange(1,4):
     ax2.set_title(str(bandsL)+"-effective bands")
     ax3.set_title("comparison")
 
-    read_full = data+"EigenValue_L"+str(valley)+"_full.dat"
+    read_full = data+"EigenValue_L"+str(valley)+"_x_full.dat"
     full = pd.read_csv(read_full,header=None).values
     for i in np.arange(1,16,2):
         ax1.scatter(full[:,0], full[:,i], color=colors[i-1])
