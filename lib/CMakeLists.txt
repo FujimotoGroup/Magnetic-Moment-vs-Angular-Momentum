@@ -1,0 +1,6 @@
+find_package(MKL REQUIRED)
+include_directories(${MKL_INCLUDE_DIRS})
+link_directories(${MKL_LIBRARIES})
+target_link_libraries(${EXECUTABLE} PRIVATE mkl_intel_lp64 mkl_intel_thread mkl_core)
+add_library(libs STATIC initialize.cpp hamiltonian.cpp fermi_surface.cpp)
+target_include_directories(libs PUBLIC ${PROJECT_SOURCE_DIR}/include)
