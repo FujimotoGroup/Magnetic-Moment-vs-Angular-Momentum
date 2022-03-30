@@ -1,5 +1,0 @@
-find_package(MKL REQUIRED)
-include_directories(${MKL_INCLUDE_DIRS})
-link_directories(${MKL_LIBRARIES})
-add_library(libs STATIC initialize.cpp hamiltonian.cpp fermi_surface.cpp)
-target_include_directories(libs PUBLIC ${PROJECT_SOURCE_DIR}/include)
