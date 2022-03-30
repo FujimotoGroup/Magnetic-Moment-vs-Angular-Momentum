@@ -70,6 +70,12 @@ int main(){
     };
 /// }}}
 
+
+    fermi_surface fs;
+    fs = get_fermi_surace_T(5, 0e0);
+    std::cout << fs.kset.size() << std::endl;
+    triangles tri = get_triangles(fs);
+
 //    sys_T T = get_T();
 //    sys_T_write(T);
 

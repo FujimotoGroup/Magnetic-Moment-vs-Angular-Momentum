@@ -1,4 +1,22 @@
 #include "parameters.hpp"
+#include <time.h>
+
+triangles get_triangles(fermi_surface fs) { // {{{
+    triangles tri;
+
+    srand((int)time(NULL));
+    int id = rand();
+    std::string input = "./fs"+std::to_string(id)+".csv";
+    std::string output = "./triangles"+std::to_string(id)+".obj";
+    fermi_surface_write(fs, input);
+    std::string exec = "python ./py/get_triangles.py "+input+" "+output;
+    system(exec.c_str());
+
+//    exec = "rm "+input+" "+output;
+//    system(exec.c_str());
+
+    return tri;
+}; // }}}
 
 // for T point {{{
 double get_E_T(int band_index, kpoint k) { // {{{

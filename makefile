@@ -34,6 +34,7 @@ DEPENDS   = $(OBJECTS:.o=.d)
 
 $(TARGET): $(OBJECTS)
 	$(COMPILER) $(INCLUDE) -o $(EXEDIR)/$@ $^ $(SRCDIR)/$@.cpp $(CFLAGS)
+	-echo "compile is finished."
 
 $(OBJDIR)/%.o: $(LIBDIR)/%.cpp
 	-mkdir -p $(OBJDIR)
