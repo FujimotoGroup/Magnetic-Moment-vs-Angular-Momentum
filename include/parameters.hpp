@@ -86,10 +86,14 @@ struct fermi_surface {
     std::vector<velocity> vset;
 };
 
+struct face {
+    int face[3];
+};
+
 struct triangles {
     std::vector<vector3> vertexes;
-    std::vector<int[3]> triangles;
     std::vector<vector3> normals;
+    std::vector<face> faces;
 };
 
 triangles get_triangles(fermi_surface fs);
@@ -98,12 +102,15 @@ velocity get_velocity_T(int band_index, chemical_potential mu, kpoint k);
 fermi_surface get_fermi_surace_L(int valley, int band_index, chemical_potential mu);
 velocity get_velocity_L(int band_index, chemical_potential mu, kpoint k);
 int fermi_surface_write(fermi_surface fs, std::string filename);
+int triangles_write(triangles tri, std::string filename);
+triangles get_triangles_T(int band_index, chemical_potential mu);
+triangles get_triangles_L(int valley, int band_index, chemical_potential mu);
 
 struct band {
     int index;
     chemical_potential mu_min, mu_max, dmu;
     int mu_mesh;
-    std::vector<fermi_surface> fs;
+    std::vector<triangles> tri;
 };
 
 struct sys_T {
