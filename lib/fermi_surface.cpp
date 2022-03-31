@@ -52,7 +52,7 @@ triangles get_triangles(fermi_surface fs) { // {{{
                 f1 = split(data[1], '/');
                 f2 = split(data[2], '/');
                 f3 = split(data[3], '/');
-                face f  = {std::stoi(f1[0]), std::stoi(f2[0]), std::stoi(f3[0])};
+                face f  = {std::stoi(f1[0])-1, std::stoi(f2[0])-1, std::stoi(f3[0])-1};
                 tri.faces.push_back(f);
             }
         }
@@ -60,8 +60,8 @@ triangles get_triangles(fermi_surface fs) { // {{{
         if (tri.vertexes.size() == 0)
             std::cerr << "Failed to get triangles; vertexes# " << tri.vertexes.size() << ", normals# " << tri.normals.size() << std::endl;
 
-//        exec = "rm "+input+" "+output;
-//        system(exec.c_str());
+        exec = "rm "+input+" "+output;
+        system(exec.c_str());
     }
 
     return tri;
@@ -698,7 +698,11 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
         velocity normal;
         vector3 k1 = tri.vertexes[v[0]];
         vector3 k2 = tri.vertexes[v[1]];
-        vector3 k3;
+        vector3 k3 = tri.vertexes[v[2]];
+        for(int axis=0; axis<space_dim; axis++) {
+            k1.vec[axis] = k1.vec[axis] - k3.vec[axis];
+            k2.vec[axis] = k2.vec[axis] - k3.vec[axis];
+        }
         k3.vec[0] = k1.vec[1]*k2.vec[2] - k1.vec[2]*k2.vec[1];
         k3.vec[1] = k1.vec[2]*k2.vec[0] - k1.vec[0]*k2.vec[2];
         k3.vec[2] = k1.vec[0]*k2.vec[1] - k1.vec[1]*k2.vec[0];
@@ -782,6 +786,25 @@ int triangles_write(triangles tri, std::string filename) { // {{{
 
         for (int i=0; i<size; i++) {
             int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+
+            vector3 k1 = tri.vertexes[v[0]];
+            vector3 k2 = tri.vertexes[v[1]];
+            vector3 k3 = tri.vertexes[v[2]];
+            for(int axis=0; axis<space_dim; axis++) {
+                k1.vec[axis] = k1.vec[axis] - k3.vec[axis];
+                k2.vec[axis] = k2.vec[axis] - k3.vec[axis];
+            }
+            k3.vec[0] = k1.vec[1]*k2.vec[2] - k1.vec[2]*k2.vec[1];
+            k3.vec[1] = k1.vec[2]*k2.vec[0] - k1.vec[0]*k2.vec[2];
+            k3.vec[2] = k1.vec[0]*k2.vec[1] - k1.vec[1]*k2.vec[0];
+            double k1xk2 = 0e0;
+            for(int axis=0; axis<space_dim; axis++) {
+                k1xk2 += k3.vec[axis]*k3.vec[axis];
+            }
+            k1xk2 = std::sqrt(k1xk2);
+
+            if (k1xk2 > 0.0001e0) {
+
             ofs << std::scientific
                 << tri.vertexes[v[0]].vec[0] << ", " << tri.vertexes[v[0]].vec[1] << ", " << tri.vertexes[v[0]].vec[2]
                 << std::endl;
@@ -791,8 +814,11 @@ int triangles_write(triangles tri, std::string filename) { // {{{
             ofs << std::scientific
                 << tri.vertexes[v[2]].vec[0] << ", " << tri.vertexes[v[2]].vec[1] << ", " << tri.vertexes[v[2]].vec[2]
                 << std::endl;
+            ofs << std::scientific
+                << tri.vertexes[v[0]].vec[0] << ", " << tri.vertexes[v[0]].vec[1] << ", " << tri.vertexes[v[0]].vec[2]
+                << std::endl;
             ofs << std::endl;
-            ofs << std::endl;
+            }
         }
 
 //        for (int i=0; i<size; i++) {
