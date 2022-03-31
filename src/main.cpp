@@ -70,17 +70,21 @@ int main(){
     };
 /// }}}
 
-    int band_index = 5;
-    double mu = 0e0;
-//    chemical_potential mu_max = double(ET[band_index])+5e-2;
-//    chemical_potential mu_min = double(ET[band_index])-5e-2;
+    int valley = 0;
+    int band_index = 2;
+    chemical_potential mu = 0e0;
+    triangles tri = get_triangles_L(valley, band_index, mu);
+    double dos = get_DOS_L(tri, valley, band_index, mu);
+    std::string dos_file = "dos"+std::to_string(band_index)+".csv";
+    std::ofstream ofs(dos_file, std::ios::app);
+    ofs << std::scientific << tri.faces.size() << ", " << dos << std::endl;
+    std::string filename = "tri_k"+std::to_string(k_mesh)+".csv";
+    triangles_write(tri, filename);
+
+//    chemical_potential mu_max = double(EL[valley][band_index])+5e-2;
+//    chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
 //    band bt;
-//    get_band_T(bt, band_index, mu_min, mu_max, mu_mesh);
-    triangles tri = get_triangles_T(band_index, mu);
-    double dos = 0e0;
-    dos = get_DOS_T(tri, band_index, mu);
-    std::cout << dos << std::endl;
-//    triangles_write(tri, "tri.csv");
+//    get_band_L(bt, valley, band_index, mu_min, mu_max, mu_mesh);
 
 //    sys_T T = get_T();
 //    sys_T_write(T);

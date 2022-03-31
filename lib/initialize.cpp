@@ -24,9 +24,9 @@ const double c = 11.7967e0; // angstrom
 const double g0 = 1.3861e0; // angstrom^-1
 
 const double cutoff = 1e-1*g0;
-const int k_mesh = 30;
-const int k_mesh_more = 40;
-const int mu_mesh = 5;
+const int k_mesh = 40;
+const int k_mesh_more = 20;
+const int mu_mesh = 40;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };

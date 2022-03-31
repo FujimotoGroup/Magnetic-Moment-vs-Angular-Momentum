@@ -26,12 +26,21 @@ void get_band_L(band& b, int valley, int band_index, chemical_potential mu_min, 
     b.dmu     = (mu_max - mu_min) / double(mu_mesh-1);
     b.mu_mesh = mu_mesh;
     b.tri.resize(mu_mesh);
+    b.dos.resize(mu_mesh);
     mtx.lock();
     std::cout << "L point; valley#" << valley << ", band#" << band_index << " search start" << std::endl;
     mtx.unlock();
+//    std::string dos = "dat/L_dos"+std::to_string(band_index)+".csv";
+//    std::ofstream ofs(dos);
     for(int i_mu=0; i_mu<mu_mesh; i_mu++) {
         chemical_potential mu = b.mu_min + b.dmu*double(i_mu);
+        std::cout << "mu = " << mu << std::endl;
         b.tri[i_mu] = get_triangles_L(valley, band_index, mu);
+        b.dos[i_mu] = get_DOS_L(b.tri[i_mu], valley, band_index, mu);
+//        ofs << std::scientific << b.tri[i_mu].ene << ", " << b.dos[i_mu] << std::endl;
+//        fermi_surface fs = get_fermi_surace_L(valley, band_index, mu);
+//        b.dos[i_mu] = get_DOS_L(fs, valley, band_index, mu);
+//        ofs << std::scientific << mu << ", " << b.dos[i_mu] << std::endl;
     }
     std::cout << "L point; valley#" << valley << ", band#" << band_index << " search end" << std::endl;
 }; // }}}

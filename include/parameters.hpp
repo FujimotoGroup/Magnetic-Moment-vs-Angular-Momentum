@@ -109,6 +109,8 @@ triangles get_triangles_T(int band_index, chemical_potential mu);
 triangles get_triangles_L(int valley, int band_index, chemical_potential mu);
 
 double get_DOS_T(triangles tri, int band_index, chemical_potential mu);
+double get_DOS_L(triangles tri, int valley, int band_index, chemical_potential mu);
+//double get_DOS_L(fermi_surface fs, int valley, int band_index, chemical_potential mu);
 
 struct band {
     int index;
