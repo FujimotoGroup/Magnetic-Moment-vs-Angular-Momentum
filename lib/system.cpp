@@ -30,7 +30,10 @@ sys_T get_T() { // {{{
 
 void sys_T_write(sys_T s) { // {{{
     for(int band_index=0; band_index<bandsT; band_index++) {
+//        std::string dos = "dat/T_dos"+std::to_string(band_index)+".csv";
+//        std::ofstream ofs(dos);
         for(int i_mu=0; i_mu<s.bands[band_index].mu_mesh; i_mu++) {
+//            ofs << std::scientific << s.bands[band_index].tri[i_mu].ene << ", " << s.bands[band_index].dos[i_mu] << std::endl;
             std::string filename = "dat/T_band"+std::to_string(band_index)+"k"+std::to_string(i_mu)+".csv";
             triangles_write(s.bands[band_index].tri[i_mu], filename);
         }

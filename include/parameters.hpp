@@ -49,6 +49,7 @@ extern const double eps_phys;
 
 extern const double cutoff;
 extern const int k_mesh;
+extern const int k_mesh_more;
 extern const int mu_mesh;
 
 extern const std::string axises[];
@@ -91,6 +92,7 @@ struct face {
 };
 
 struct triangles {
+    double ene;
     std::vector<vector3> vertexes;
     std::vector<vector3> normals;
     std::vector<face> faces;
@@ -106,11 +108,14 @@ int triangles_write(triangles tri, std::string filename);
 triangles get_triangles_T(int band_index, chemical_potential mu);
 triangles get_triangles_L(int valley, int band_index, chemical_potential mu);
 
+double get_DOS_T(triangles tri, int band_index, chemical_potential mu);
+
 struct band {
     int index;
     chemical_potential mu_min, mu_max, dmu;
     int mu_mesh;
     std::vector<triangles> tri;
+    std::vector<double> dos;
 };
 
 struct sys_T {

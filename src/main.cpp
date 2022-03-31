@@ -70,8 +70,20 @@ int main(){
     };
 /// }}}
 
-    sys_T T = get_T();
-    sys_T_write(T);
+    int band_index = 5;
+    double mu = 0e0;
+//    chemical_potential mu_max = double(ET[band_index])+5e-2;
+//    chemical_potential mu_min = double(ET[band_index])-5e-2;
+//    band bt;
+//    get_band_T(bt, band_index, mu_min, mu_max, mu_mesh);
+    triangles tri = get_triangles_T(band_index, mu);
+    double dos = 0e0;
+    dos = get_DOS_T(tri, band_index, mu);
+    std::cout << dos << std::endl;
+//    triangles_write(tri, "tri.csv");
+
+//    sys_T T = get_T();
+//    sys_T_write(T);
 
 //    sys_L L = get_L();
 //    sys_L_write(L);

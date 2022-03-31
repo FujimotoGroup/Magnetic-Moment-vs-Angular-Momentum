@@ -9,8 +9,8 @@ const double charge   = 1.60217662e-19; // [C]
 const int H_dim = 16;
 const int bands = H_dim;
 //const int bandsT = 8; const int lowest_band_T = 5;
-const int bandsT = 6; const int lowest_band_T = 7;
-//const int bandsT = 12; const int lowest_band_T = 5;
+//const int bandsT = 6; const int lowest_band_T = 7;
+const int bandsT = 12; const int lowest_band_T = 5;
 //const int bandsT = 8; const int lowest_band_T = 7;
 //const int bandsT = 10; const int lowest_band_T = 3;
 const int bandsL = 4; const int lowest_band_L = 9;
@@ -25,6 +25,7 @@ const double g0 = 1.3861e0; // angstrom^-1
 
 const double cutoff = 1e-1*g0;
 const int k_mesh = 30;
+const int k_mesh_more = 40;
 const int mu_mesh = 5;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
