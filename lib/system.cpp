@@ -1,7 +1,5 @@
 #include "parameters.hpp"
 
-int thread_num = std::thread::hardware_concurrency();
-
 // set T {{{
 sys_T get_T() { // {{{
     sys_T s;

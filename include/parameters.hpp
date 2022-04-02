@@ -26,6 +26,9 @@ extern const double hbar;
 extern const double mass;
 extern const double charge;
 
+extern const double eps;
+extern const double pi;
+
 extern const int bands;
 extern const int bandsT;
 extern const int bandsL;
@@ -48,6 +51,7 @@ extern const int spin_dim;
 extern const double eps_phys;
 
 extern const double cutoff;
+extern double dk[3];
 extern const int k_mesh;
 extern const int k_mesh_more;
 extern const int mu_mesh;
@@ -89,6 +93,9 @@ struct fermi_surface {
 
 struct face {
     int face[3];
+    double dS;
+    double center[3];
+    double normal[3];
 };
 
 struct triangles {
@@ -110,7 +117,6 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu);
 
 double get_DOS_T(triangles tri, int band_index, chemical_potential mu);
 double get_DOS_L(triangles tri, int valley, int band_index, chemical_potential mu);
-//double get_DOS_L(fermi_surface fs, int valley, int band_index, chemical_potential mu);
 
 struct band {
     int index;
@@ -136,5 +142,6 @@ void get_band_L(band& b, int valley, int band_index, chemical_potential mu_min, 
 sys_L get_L();
 void sys_L_write(sys_L s);
 
+band set_band_L(int valley, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
 
 #endif // PARAMETERS_HPP

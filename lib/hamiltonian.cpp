@@ -22,12 +22,12 @@ matrixComplex set_L(int valley, double k[3]) { // {{{
     ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass*5e-1);
     for(int i=0; i<bandsL; i++) {
         value[i][i] = EL[valley][i] + ene;
-//        for(int j=i+1; j<bandsL; j++) {
-//            for(int axis=0; axis<space_dim; axis++) {
-//                value[i][j] += hbar/angstrom*k[axis]*vL[valley][axis][i][j];
-//                value[j][i] += hbar/angstrom*k[axis]*vL[valley][axis][j][i];
-//            }
-//        }
+        for(int j=i+1; j<bandsL; j++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                value[i][j] += hbar/angstrom*k[axis]*vL[valley][axis][i][j];
+                value[j][i] += hbar/angstrom*k[axis]*vL[valley][axis][j][i];
+            }
+        }
     }
     return value;
 }; // }}}

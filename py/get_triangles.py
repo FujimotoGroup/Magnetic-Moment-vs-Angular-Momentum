@@ -12,11 +12,13 @@ if __name__ == "__main__":
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(point_cloud[:,0:3])
     pcd.normals = o3d.utility.Vector3dVector(point_cloud[:,3:6])
-#    mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=8, width=0, scale=1.1, linear_fit=False)[0]
+    mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=8, width=0, scale=1.1, linear_fit=False)[0]
 #    mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=8, width=0, scale=1.1, linear_fit=True)[0]
 #    print("poisson_mesh is water-tight: ", mesh.is_watertight())
-    mesh = pcd.compute_convex_hull()[0]
+#    mesh = pcd.compute_convex_hull()[0]
 #    print("convex_mesh is water-tight: ", mesh.is_watertight())
-    print("surface area = ", mesh.get_surface_area())
+#    print("surface area = ", mesh.get_surface_area())
+#    with open("surface_area.dat", mode='a') as f:
+#        f.write(str(mesh.get_surface_area())+"\n")
     print("is intersectioning = ", mesh.is_self_intersecting())
     o3d.io.write_triangle_mesh(filename=outputfile, mesh=mesh, write_vertex_colors=False, write_triangle_uvs=False)
