@@ -8,14 +8,18 @@ const double charge   = 1.60217662e-19; // [C]
 
 const double pi = 3.141592653589793e0; // pi
 const double eps = 1e-12;
+const Complex zi(0e0, 1e0);
 
 const int H_dim = 16;
 const int bands = H_dim;
-//const int bandsT = 8; const int lowest_band_T = 5;
-//const int bandsT = 6; const int lowest_band_T = 7;
-const int bandsT = 12; const int lowest_band_T = 5;
-//const int bandsT = 8; const int lowest_band_T = 7;
-//const int bandsT = 10; const int lowest_band_T = 3;
+
+//const int bandsT = 6; const int lowest_band_T = 7; // minimal
+//const int bandsT = 8; const int lowest_band_T = 5; // not good
+const int bandsT = 8; const int lowest_band_T = 7; // better
+//const int bandsT = 10; const int lowest_band_T = 7; // more better
+//const int bandsT = 12; const int lowest_band_T = 5; // almost full
+//const int bandsT = 16; const int lowest_band_T = 1; // full
+
 const int bandsL = 4; const int lowest_band_L = 9;
 //const int bandsL = 16; const int lowest_band_L = 1;
 
@@ -27,12 +31,11 @@ const double a =  4.5332e0; // angstrom
 const double c = 11.7967e0; // angstrom
 const double g0 = 1.3861e0; // angstrom^-1
 
-//const double cutoff = 1e-1*g0;
-const double cutoff = 5e-2*g0;
+const double cutoff = 1e-1*g0;
 double dk[3];
-const int k_mesh = 60;
-const int k_mesh_more = 40;
-const int mu_mesh = 20;
+const int k_mesh = 30;
+const int k_mesh_more = 30;
+const int mu_mesh = 60;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };

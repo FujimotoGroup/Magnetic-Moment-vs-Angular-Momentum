@@ -28,6 +28,7 @@ extern const double charge;
 
 extern const double eps;
 extern const double pi;
+extern const Complex zi;
 
 extern const int bands;
 extern const int bandsT;
@@ -142,6 +143,7 @@ void get_band_L(band& b, int valley, int band_index, chemical_potential mu_min, 
 sys_L get_L();
 void sys_L_write(sys_L s);
 
+band set_band_T(int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
 band set_band_L(int valley, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
 
 #endif // PARAMETERS_HPP
