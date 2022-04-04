@@ -33,8 +33,8 @@ const double g0 = 1.3861e0; // angstrom^-1
 
 const double cutoff = 1e-1*g0;
 double dk[3];
-const int k_mesh = 30;
-const int k_mesh_more = 30;
+const int k_mesh = 60;
+const int k_mesh_more = 40;
 const int mu_mesh = 60;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };

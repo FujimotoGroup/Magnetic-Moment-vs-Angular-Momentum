@@ -39,6 +39,13 @@ int main(){
         file << std::scientific << "bandsL = " <<  bandsL << std::endl;
         file << std::scientific << "lowest_band_T = " << lowest_band_T << std::endl;
         file << std::scientific << "lowest_band_L = " << lowest_band_L << std::endl;
+        file << std::endl;
+        for(int i=0; i<bandsT; i++)
+        file << std::scientific << "ET" << i << " = " <<  ET[i]  << std::endl;
+        file << std::endl;
+        for(int i=0; i<bandsL; i++)
+        file << std::scientific << "EL" << i << " = " <<  EL[0][i]  << std::endl;
+        file << std::endl;
         file << std::scientific << "[numeric]" << std::endl;
     }
 // }}}
@@ -151,20 +158,35 @@ int main(){
         }; // }}}
     };
 // }}}
+//// get triangles (vertex and face) {{{
+//    int band_index = 2;
+//    chemical_potential mu = 0e0;
+//    triangles tri = get_triangles_T(band_index, mu);
+//    std::string name = "./dat/triangle_T";
+//    triangles_write_T(tri, name);
+//    for(int valley=0; valley<valleys; valley++) {
+//        int band_index = 2;
+//        chemical_potential mu = 0e0;
+//        triangles tri = get_triangles_L(valley, band_index, mu);
+//        std::string name = "./dat/triangle_L"+std::to_string(valley+1);
+//        triangles_write_L(tri, name, valley);
+//    }
+//// }}}
 
-    int band_index = 2;
-    chemical_potential mu = 0e0;
-    triangles tri = get_triangles_T(band_index, mu);
-    std::string name = "./dat/triangle_T";
-    triangles_write_T(tri, name);
-    for(int valley=0; valley<valleys; valley++) {
-        int band_index = 2;
-        chemical_potential mu = 0e0;
-        triangles tri = get_triangles_L(valley, band_index, mu);
-        std::string name = "./dat/triangle_L"+std::to_string(valley+1);
-        triangles_write_L(tri, name, valley);
-    }
+//// isotropic Dirac (required modification in lib/hamiltonian.cpp) {{{
 //    int valley = 0;
+//    int band_index = 0;
+//    double delta = (EL[valley][2] - EL[valley][0])*5e-1;
+//    chemical_potential mu_min = - delta - 3e-1;
+//    chemical_potential mu_max = - delta + 1e-2;
+//    band bL;
+//    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
+//    band_index = 2;
+//    mu_min = delta - 1e-2;
+//    mu_max = delta + 2e-2;
+//    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
+//// }}}
+
 //    int band_index = 2;
 //    chemical_potential mu = 0e0;
 //    triangles tri = get_triangles_T(band_index, mu);
@@ -177,19 +199,22 @@ int main(){
 ////    triangles_write(tri, filename);
 
 //    int band_index = 2;
-//    chemical_potential mu_max = double(ET[band_index])+1e-2;
-//    chemical_potential mu_min = double(ET[band_index])-1e-1;
-//    band bL;
-//    bL = set_band_T(band_index, mu_min, mu_max, mu_mesh);
+//    chemical_potential mu_max = double(ET[band_index])+5e-3;
+//    chemical_potential mu_min = -2.5e-1;
+//    band bT;
+//    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh);
 
-//    int band_index = 2;
-////    double delta = (EL[valley][2] - EL[valley][0])*5e-1;
-////    chemical_potential mu_min = delta - 1e-2;
-////    chemical_potential mu_max = delta + 8e-1;
-//    chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
-//    chemical_potential mu_min = double(EL[valley][band_index])-1e-4;
-//    band bL;
-//    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
+    for(int valley=0; valley<1; valley++) {
+//    for(int valley=0; valley<valleys; valley++) {
+        int band_index = 2;
+        double delta = (EL[valley][2] - EL[valley][0])*5e-1;
+        chemical_potential mu_min = delta - 1e-2;
+        chemical_potential mu_max = delta + 8e-1;
+//        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
+//        chemical_potential mu_min = double(EL[valley][band_index])-1e-4;
+        band bL;
+        bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
+    }
 
 //    sys_T T = get_T();
 //    sys_T_write(T);

@@ -96,7 +96,7 @@ band set_band_L(int valley, int band_index, chemical_potential mu_min, chemical_
     b.tri.resize(mu_mesh);
     b.dos.resize(mu_mesh);
     std::cout << "L point; valley#" << valley << ", band#" << band_index << " search start" << std::endl;
-    std::string dos = "dat/L_dos"+std::to_string(band_index)+".csv";
+    std::string dos = "dat/L"+std::to_string(valley+1)+"_dos"+std::to_string(band_index)+".csv";
     std::ofstream ofs(dos);
 
     std::vector<std::thread> threads;

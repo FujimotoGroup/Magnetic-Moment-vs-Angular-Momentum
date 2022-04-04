@@ -444,12 +444,6 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
 
     int size = tri.faces.size();
 
-//    std::string f_dS = "dS.csv";
-//    std::ofstream ofS(f_dS);
-//
-//    std::string f_n = "n.csv";
-//    std::ofstream ofn(f_n);
-
     double factor = 1e0 / (2e0*pi)*(2e0*pi)*(2e0*pi);
 
     for(int i=0; i<size; i++) {
@@ -460,9 +454,6 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
         }
         norm = NRsqrt(norm);
         double dS = tri.faces[i].dS / norm * factor;
-
-//        ofS << std::scientific << i << ", " << tri.faces[i].dS << std::endl;
-//        ofn << std::scientific << i << ", " << norm << std::endl;
 
         res += fn(band_index, mu, center) * dS;
     }
