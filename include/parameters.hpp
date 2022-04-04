@@ -112,7 +112,8 @@ velocity get_velocity_T(int band_index, chemical_potential mu, kpoint k);
 fermi_surface get_fermi_surace_L(int valley, int band_index, chemical_potential mu);
 velocity get_velocity_L(int band_index, chemical_potential mu, kpoint k);
 int fermi_surface_write(fermi_surface fs, std::string filename);
-int triangles_write(triangles tri, std::string filename);
+int triangles_write_T(triangles tri, std::string filename);
+int triangles_write_L(triangles tri, std::string filename, int valley);
 triangles get_triangles_T(int band_index, chemical_potential mu);
 triangles get_triangles_L(int valley, int band_index, chemical_potential mu);
 

@@ -11,14 +11,28 @@ int main(){
         file << std::scientific << "a  = " << a << std::endl;
         file << std::scientific << "c  = " << c << std::endl;
         file << std::scientific << "g0 = " << g0 << std::endl;
-        file << std::scientific << "b1 = [" << b1[0] << ", " << b1[1] << ", " << b1[2] << "]" << std::endl;
-        file << std::scientific << "b2 = [" << b2[0] << ", " << b2[1] << ", " << b2[2] << "]" << std::endl;
-        file << std::scientific << "b3 = [" << b3[0] << ", " << b3[1] << ", " << b3[2] << "]" << std::endl;
+        file << std::scientific << "b1x = " << b1[0]  << std::endl;
+        file << std::scientific << "b1y = " << b1[1]  << std::endl;
+        file << std::scientific << "b1z = " << b1[2]  << std::endl;
+        file << std::scientific << "b2x = " << b2[0]  << std::endl;
+        file << std::scientific << "b2y = " << b2[1]  << std::endl;
+        file << std::scientific << "b2z = " << b2[2]  << std::endl;
+        file << std::scientific << "b3x = " << b3[0]  << std::endl;
+        file << std::scientific << "b3y = " << b3[1]  << std::endl;
+        file << std::scientific << "b3z = " << b3[2]  << std::endl;
         file << std::endl;
-        file << std::scientific << "kT = [" << kT[0] << ", " << kT[1] << ", " << kT[2] << "]" << std::endl;
-        file << std::scientific << "kL1 = [" << kL[0][0] << ", " << kL[0][1] << ", " << kL[0][2] << "]" << std::endl;
-        file << std::scientific << "kL2 = [" << kL[1][0] << ", " << kL[1][1] << ", " << kL[1][2] << "]" << std::endl;
-        file << std::scientific << "kL3 = [" << kL[2][0] << ", " << kL[2][1] << ", " << kL[2][2] << "]" << std::endl;
+        file << std::scientific << "kTx = " << kT[0] << std::endl;
+        file << std::scientific << "kTy = " << kT[1] << std::endl;
+        file << std::scientific << "kTz = " << kT[2] << std::endl;
+        file << std::scientific << "kL1x = " << kL[0][0] << std::endl;
+        file << std::scientific << "kL1y = " << kL[0][1] << std::endl;
+        file << std::scientific << "kL1z = " << kL[0][2] << std::endl;
+        file << std::scientific << "kL2x = " << kL[1][0] << std::endl;
+        file << std::scientific << "kL2y = " << kL[1][1] << std::endl;
+        file << std::scientific << "kL2z = " << kL[1][2] << std::endl;
+        file << std::scientific << "kL3x = " << kL[2][0] << std::endl;
+        file << std::scientific << "kL3y = " << kL[2][1] << std::endl;
+        file << std::scientific << "kL3z = " << kL[2][2] << std::endl;
         file << std::endl;
         file << std::scientific << "bands  = " <<  bands  << std::endl;
         file << std::scientific << "bandsT = " <<  bandsT << std::endl;
@@ -138,9 +152,21 @@ int main(){
     };
 // }}}
 
+    int band_index = 2;
+    chemical_potential mu = 0e0;
+    triangles tri = get_triangles_T(band_index, mu);
+    std::string name = "./dat/triangle_T";
+    triangles_write_T(tri, name);
+    for(int valley=0; valley<valleys; valley++) {
+        int band_index = 2;
+        chemical_potential mu = 0e0;
+        triangles tri = get_triangles_L(valley, band_index, mu);
+        std::string name = "./dat/triangle_L"+std::to_string(valley+1);
+        triangles_write_L(tri, name, valley);
+    }
 //    int valley = 0;
 //    int band_index = 2;
-//    chemical_potential mu = 0.1e-2;
+//    chemical_potential mu = 0e0;
 //    triangles tri = get_triangles_T(band_index, mu);
 //    double dos = get_DOS_T(tri, band_index, mu);
 //    std::cout << std::scientific << tri.faces.size() << ", " << dos << std::endl;
@@ -150,11 +176,11 @@ int main(){
 ////    std::string filename = "tri_k"+std::to_string(k_mesh)+".csv";
 ////    triangles_write(tri, filename);
 
-    int band_index = 2;
-    chemical_potential mu_max = double(ET[band_index])+1e-2;
-    chemical_potential mu_min = double(ET[band_index])-1e-1;
-    band bL;
-    bL = set_band_T(band_index, mu_min, mu_max, mu_mesh);
+//    int band_index = 2;
+//    chemical_potential mu_max = double(ET[band_index])+1e-2;
+//    chemical_potential mu_min = double(ET[band_index])-1e-1;
+//    band bL;
+//    bL = set_band_T(band_index, mu_min, mu_max, mu_mesh);
 
 //    int band_index = 2;
 ////    double delta = (EL[valley][2] - EL[valley][0])*5e-1;

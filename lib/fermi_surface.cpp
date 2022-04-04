@@ -475,6 +475,71 @@ double get_DOS_T(triangles tri, int band_index, chemical_potential mu) { // {{{
 
     return dos;
 }; // }}}
+
+int triangles_write_T(triangles tri, std::string name) { // {{{
+    int size = tri.vertexes.size();
+    std::string vertex_name = name+"_vertex.csv";
+    if (size > 0) {
+        std::ofstream ofs(vertex_name);
+        if (!ofs) {
+            std::cout << vertex_name << " cannot be opened." << std::endl;
+            return 1;
+        }
+
+        for (int i=0; i<size; i++) {
+            ofs << std::scientific
+                << kT[0]+tri.vertexes[i].vec[0] << ", "
+                << kT[1]+tri.vertexes[i].vec[1] << ", "
+                << kT[2]+tri.vertexes[i].vec[2] << ", "
+                << tri.normals[i].vec[0] << ", " << tri.normals[i].vec[1] << ", " << tri.normals[i].vec[2] << ", "
+                << std::endl;
+        }
+    }
+
+    size = tri.faces.size();
+    std::string face_name = name+"_face.csv";
+    if (size > 0) {
+        std::ofstream ofs(face_name);
+        if (!ofs) {
+            std::cout << face_name << " cannot be opened." << std::endl;
+            return 1;
+        }
+
+        for (int i=0; i<size; i++) {
+            int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+
+            double norm = 0e0;
+            for(int axis=0; axis<space_dim; axis++) {
+                norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
+            }
+            norm = NRsqrt(norm);
+
+            ofs << std::scientific
+                << kT[0]+tri.vertexes[v[0]].vec[0] << ", "
+                << kT[1]+tri.vertexes[v[0]].vec[1] << ", "
+                << kT[2]+tri.vertexes[v[0]].vec[2]
+                << std::endl;
+            ofs << std::scientific
+                << kT[0]+tri.vertexes[v[1]].vec[0] << ", "
+                << kT[1]+tri.vertexes[v[1]].vec[1] << ", "
+                << kT[2]+tri.vertexes[v[1]].vec[2]
+                << std::endl;
+            ofs << std::scientific
+                << kT[0]+tri.vertexes[v[2]].vec[0] << ", "
+                << kT[1]+tri.vertexes[v[2]].vec[1] << ", "
+                << kT[2]+tri.vertexes[v[2]].vec[2]
+                << std::endl;
+            ofs << std::scientific
+                << kT[0]+tri.vertexes[v[0]].vec[0] << ", "
+                << kT[1]+tri.vertexes[v[0]].vec[1] << ", "
+                << kT[2]+tri.vertexes[v[0]].vec[2]
+                << std::endl;
+            ofs << ",," << std::endl;
+        }
+    }
+
+    return 0;
+}; // }}}
 // }}}
 
 // for L points {{{
@@ -845,6 +910,71 @@ double get_DOS_L(triangles tri, int valley, int band_index, chemical_potential m
 
     return dos;
 }; // }}}
+
+int triangles_write_L(triangles tri, std::string name, int valley) { // {{{
+    int size = tri.vertexes.size();
+    std::string vertex_name = name+"_vertex.csv";
+    if (size > 0) {
+        std::ofstream ofs(vertex_name);
+        if (!ofs) {
+            std::cout << vertex_name << " cannot be opened." << std::endl;
+            return 1;
+        }
+
+        for (int i=0; i<size; i++) {
+            ofs << std::scientific
+                << kL[valley][0]+tri.vertexes[i].vec[0] << ", "
+                << kL[valley][1]+tri.vertexes[i].vec[1] << ", "
+                << kL[valley][2]+tri.vertexes[i].vec[2] << ", "
+                << tri.normals[i].vec[0] << ", " << tri.normals[i].vec[1] << ", " << tri.normals[i].vec[2] << ", "
+                << std::endl;
+        }
+    }
+
+    size = tri.faces.size();
+    std::string face_name = name+"_face.csv";
+    if (size > 0) {
+        std::ofstream ofs(face_name);
+        if (!ofs) {
+            std::cout << face_name << " cannot be opened." << std::endl;
+            return 1;
+        }
+
+        for (int i=0; i<size; i++) {
+            int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+
+            double norm = 0e0;
+            for(int axis=0; axis<space_dim; axis++) {
+                norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
+            }
+            norm = NRsqrt(norm);
+
+            ofs << std::scientific
+                << kL[valley][0]+tri.vertexes[v[0]].vec[0] << ", "
+                << kL[valley][1]+tri.vertexes[v[0]].vec[1] << ", "
+                << kL[valley][2]+tri.vertexes[v[0]].vec[2]
+                << std::endl;
+            ofs << std::scientific
+                << kL[valley][0]+tri.vertexes[v[1]].vec[0] << ", "
+                << kL[valley][1]+tri.vertexes[v[1]].vec[1] << ", "
+                << kL[valley][2]+tri.vertexes[v[1]].vec[2]
+                << std::endl;
+            ofs << std::scientific
+                << kL[valley][0]+tri.vertexes[v[2]].vec[0] << ", "
+                << kL[valley][1]+tri.vertexes[v[2]].vec[1] << ", "
+                << kL[valley][2]+tri.vertexes[v[2]].vec[2]
+                << std::endl;
+            ofs << std::scientific
+                << kL[valley][0]+tri.vertexes[v[0]].vec[0] << ", "
+                << kL[valley][1]+tri.vertexes[v[0]].vec[1] << ", "
+                << kL[valley][2]+tri.vertexes[v[0]].vec[2]
+                << std::endl;
+            ofs << std::endl;
+        }
+    }
+
+    return 0;
+}; // }}}
 // }}}
 
 int fermi_surface_write(fermi_surface fs, std::string filename) { // {{{
@@ -869,7 +999,6 @@ int fermi_surface_write(fermi_surface fs, std::string filename) { // {{{
 }; // }}}
 
 int triangles_write(triangles tri, std::string filename) { // {{{
-//    int size = tri.vertexes.size();
     int size = tri.faces.size();
     if (size > 0) {
         std::ofstream ofs(filename);
@@ -901,14 +1030,6 @@ int triangles_write(triangles tri, std::string filename) { // {{{
                 << std::endl;
             ofs << std::endl;
         }
-
-
-//        for (int i=0; i<size; i++) {
-//            ofs << std::scientific
-//                << tri.vertexes[i].vec[0] << ", " << tri.vertexes[i].vec[1] << ", " << tri.vertexes[i].vec[2] << ", "
-//                << tri.normals[i].vec[0] << ", " << tri.normals[i].vec[1] << ", " << tri.normals[i].vec[2] << ", "
-//                << std::endl;
-//        }
     }
 
     return 0;
