@@ -95,6 +95,61 @@ triangles get_triangles(fermi_surface fs) { // {{{
     return tri;
 }; // }}}
 
+double get_length(kpoint k1, kpoint k2) { // {{{
+    double len;
+    for(int axis=0; axis<space_dim; axis++) {
+        len = (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
+    }
+    len = NRsqrt(len);
+    return len;
+} // }}}
+
+kpoint get_center(kpoint k1, kpoint k2, kpoint k3) { // {{{
+    kpoint center;
+    for(int axis=0; axis<space_dim; axis++) {
+        center.vec[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
+    }
+    return center;
+} // }}}
+
+kpoint get_normal(kpoint n1, kpoint n2, kpoint n3) { // {{{
+    kpoint normal;
+    for(int axis=0; axis<space_dim; axis++) {
+        normal.vec[axis] = (n1.vec[axis] + n2.vec[axis] + n3.vec[axis])/3e0;
+    }
+    return normal;
+} // }}}
+
+double get_dS(kpoint k1, kpoint k2, kpoint k3) { // {{{
+    double p = 0e0, q = 0e0, r = 0e0;
+    for(int axis=0; axis<space_dim; axis++) {
+        p += (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
+        q += (k2.vec[axis] - k3.vec[axis])*(k2.vec[axis] - k3.vec[axis]);
+        r += (k3.vec[axis] - k1.vec[axis])*(k3.vec[axis] - k1.vec[axis]);
+    }
+    p = NRsqrt(p);
+    q = NRsqrt(q);
+    r = NRsqrt(r);
+    double s = (p + q + r)*5e-1;
+    return NRsqrt( s*(s-p)*(s-q)*(s-r) );
+} // }}}
+
+double get_min_length(kpoint k1, kpoint k2, kpoint k3) { // {{{
+    double p = 0e0, q = 0e0, r = 0e0;
+    for(int axis=0; axis<space_dim; axis++) {
+        p += (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
+        q += (k2.vec[axis] - k3.vec[axis])*(k2.vec[axis] - k3.vec[axis]);
+        r += (k3.vec[axis] - k1.vec[axis])*(k3.vec[axis] - k1.vec[axis]);
+    }
+    double min = std::min(std::min(p, q), r);
+    return NRsqrt(min);
+
+//    p = NRsqrt(p);
+//    q = NRsqrt(q);
+//    r = NRsqrt(r);
+//    return std::min(std::min(p, q), r);
+} // }}}
+
 // for T point {{{
 double get_E_T(int band_index, kpoint k) { // {{{
     matrixComplex H_T = set_T(k.vec);
@@ -497,6 +552,7 @@ int triangles_write_T(triangles tri, std::string name) { // {{{
         }
 
         for (int i=0; i<size; i++) {
+
             int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
 
             double norm = 0e0;
@@ -526,6 +582,7 @@ int triangles_write_T(triangles tri, std::string name) { // {{{
                 << kT[2]+tri.vertexes[v[0]].vec[2]
                 << std::endl;
             ofs << ",," << std::endl;
+
         }
     }
 
@@ -667,7 +724,7 @@ fermi_surface get_fermi_surface_more_L(fermi_surface fs, int valley, int band_in
 
     double z, x[2*n], y[2*n];
     double ene[2*n][2*n];
-    double dn = 1.3e0/double(n);
+    double dn = 1.5e0/double(n);
     for (int i_z = 0; i_z < 2*n; i_z++) {
         z = center.vec[2] + double(i_z-n)*dn*len[2];
         for (int i_y = 0; i_y < 2*n; i_y++) {
@@ -768,6 +825,139 @@ fermi_surface get_fermi_surace_L(int valley, int band_index, chemical_potential 
     return fs;
 }; // }}}
 
+void divide_triangle(triangles& tri, int valley, int band_index, chemical_potential mu, int i) { // {{{
+    double dS = tri.faces[i].dS;
+//    std::cout << i << ", dS = " << dS << std::endl;
+
+    int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+    vector3 k1 = tri.vertexes[v[0]];
+    vector3 k2 = tri.vertexes[v[1]];
+    vector3 k3 = tri.vertexes[v[2]];
+    vector3 n1 = tri.normals[v[0]];
+    vector3 n2 = tri.normals[v[1]];
+    vector3 n3 = tri.normals[v[2]];
+
+//    std::cout << "e1 = " << get_E_L(valley, band_index, k1) - mu << ", "
+//              << "e2 = " << get_E_L(valley, band_index, k2) - mu << ", "
+//              << "e3 = " << get_E_L(valley, band_index, k3) - mu << ", "
+//              << std::endl;
+
+    kpoint center = get_center(k1, k2, k3);
+    double ene = get_E_L(valley, band_index, center) - mu;
+//    vector3 c1, c2, normal;
+//    for(int axis=0; axis<space_dim; axis++) {
+//        c1.vec[axis] = k1.vec[axis] - k3.vec[axis];
+//        c2.vec[axis] = k2.vec[axis] - k3.vec[axis];
+//    }
+//    normal.vec[0] = c1.vec[1]*c2.vec[2] - c1.vec[2]*c2.vec[1];
+//    normal.vec[1] = c1.vec[2]*c2.vec[0] - c1.vec[0]*c2.vec[2];
+//    normal.vec[2] = c1.vec[0]*c2.vec[1] - c1.vec[1]*c2.vec[0];
+
+    velocity vel = get_velocity_L(valley, band_index, mu, center);
+
+    double norm = 0e0;
+    for(int axis=0; axis<space_dim; axis++) {
+        norm += vel.vec[axis]*vel.vec[axis];
+//        norm += normal.vec[axis]*normal.vec[axis];
+    }
+    norm = NRsqrt(norm);
+
+    kpoint k;
+    double pm = ene / std::abs(ene);
+    double min = get_min_length(k1, k2, k3);
+    double ek;
+    for(int i=1; i<50; i++) {
+        for(int axis=0; axis<space_dim; axis++) {
+            k.vec[axis] = center.vec[axis] - pm * vel.vec[axis]/norm*min*5e-1*double(i);
+//            k.vec[axis] = center.vec[axis] - pm * normal.vec[axis]/norm*min*5e-1*double(i);
+        }
+        ek = get_E_L(valley, band_index, k) - mu;
+        if (ek*ene < 0e0) break;
+    }
+
+    if ( ek*ene < 0e0 ) {
+//        std::cout << std::scientific << "ek = " << ek << ", ene = " << ene << std::endl;
+        kpoint q = bisec_L2points(valley, band_index, mu, ek, ene, k, center);
+//        ek = get_E_L(valley, band_index, q) - mu;
+//        std::cout << std::scientific << "#" << i << ", 再構成OK: ek = " << ek << std::endl;
+        tri.vertexes.push_back(q);
+        int v_new = tri.vertexes.size()-1;
+        velocity n = get_velocity_L(valley, band_index, mu, q);
+
+        int v[4] = {v_new, tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+//        std::cout << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << std::endl;
+        kpoint k[4] = {q, k1, k2, k3};
+        int j1, j2, j3;
+        double r = get_length(q, k1);
+        double s = get_length(q, k2);
+        double t = get_length(q, k3);
+//        std::cout << "hoge = " << r << ", " << s << ", " << t << std::endl;
+        if (r > s) {
+            if (r > t) { // r > t, s
+                j1 = 1;
+                j2 = 2;
+                j3 = 3;
+            } else { // t > r > s
+                j1 = 3;
+                j2 = 1;
+                j3 = 2;
+            }
+        } else {
+            if (s > t) { // s > r, t
+                j1 = 2;
+                j2 = 3;
+                j3 = 1;
+            } else { // t > s > r
+                j1 = 3;
+                j2 = 1;
+                j3 = 2;
+            }
+        }
+        tri.faces[i].face[j1-1] = v[0];
+        tri.faces[i].dS = get_dS(k[0], k[j2], k[j3]);
+        face f1, f2;
+        f1.face[0] = v[0];
+        f1.face[1] = v[j1];
+        f1.face[2] = v[j2];
+        f1.dS = get_dS(k[0], k[j1], k[j2]);
+        f2.face[0] = v[0];
+        f2.face[1] = v[j3];
+        f2.face[2] = v[j1];
+        f2.dS = get_dS(k[0], k[j3], k[j1]);
+
+//        kpoint center1  = get_center(q, k1, k2);
+//        kpoint center2  = get_center(q, k1, k3);
+//        kpoint center3  = get_center(q, k2, k3);
+//        vector3 normal1 = get_normal(n, n1, n2);
+//        vector3 normal2 = get_normal(n, n1, n3);
+//        vector3 normal3 = get_normal(n, n2, n3);
+
+        kpoint center1  = q;
+        kpoint center2  = k1;
+        kpoint center3  = k2;
+        vector3 normal1 = n;
+        vector3 normal2 = n1;
+        vector3 normal3 = n2;
+        for(int axis=0; axis<space_dim; axis++) {
+            f1.center[axis] = center1.vec[axis];
+            f1.normal[axis] = normal1.vec[axis];
+            f2.center[axis] = center2.vec[axis];
+            f2.normal[axis] = normal2.vec[axis];
+            tri.faces[i].center[axis] = center3.vec[axis];
+            tri.faces[i].normal[axis] = normal3.vec[axis];
+        }
+
+        tri.faces.push_back(f1);
+        tri.faces.push_back(f2);
+
+//        std::cout << i << ", dS1 = " << tri.faces[i].dS <<
+//                          ", dS2 = " << f1.dS <<
+//                          ", dS3 = " << f2.dS << std::endl;
+//
+
+    }
+} // }}}
+
 triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { // {{{
     fermi_surface fs = get_fermi_surace_L(valley, band_index, mu);
     int size_fs = fs.kset.size();
@@ -780,54 +970,13 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
 
     tri = get_triangles(fs);
 
+
     int size;
     size = tri.vertexes.size();
     if (tri.normals.size() == 0) tri.normals.resize(size);
 
     for (int i=0; i<size; i++) {
-        double ene = get_E_L(valley, band_index, tri.vertexes[i]) - mu;
-        if (std::abs(ene) > eps_phys) {
-//            std::cout << std::scientific << "#" << i << ", 誤差が大きい: e = " << ene << std::endl;
-
-            velocity v = get_velocity_L(valley, band_index, mu, tri.vertexes[i]);
-            double norm = 0e0;
-            for(int axis=0; axis<space_dim; axis++) {
-                norm += v.vec[axis]*v.vec[axis];
-            }
-            norm = NRsqrt(norm);
-
-            double mean;
-            int f[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
-            vector3 k1 = tri.vertexes[f[0]];
-            vector3 k2 = tri.vertexes[f[1]];
-            vector3 k3 = tri.vertexes[f[2]];
-            double p = 0e0, q = 0e0, r = 0e0;
-            for(int axis=0; axis<space_dim; axis++) {
-                p += (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
-                q += (k2.vec[axis] - k3.vec[axis])*(k2.vec[axis] - k3.vec[axis]);
-                r += (k3.vec[axis] - k1.vec[axis])*(k3.vec[axis] - k1.vec[axis]);
-            }
-            mean = std::min(NRsqrt(p), NRsqrt(q));
-            mean = std::min(mean, NRsqrt(r)) * 5e-2;
-
-            kpoint k;
-            double pm = ene / std::abs(ene);
-            for(int axis=0; axis<space_dim; axis++) {
-                k.vec[axis] = tri.vertexes[i].vec[axis] - pm * v.vec[axis]/norm*mean*2e0;
-            }
-            double ek = get_E_L(valley, band_index, k) - mu;
-            if ( ek*ene < 0e0 ) {
-//                std::cout << std::scientific << "ek = " << ek << ", ene = " << ene << std::endl;
-                kpoint q = bisec_L2points(valley, band_index, mu, ek, ene, k, tri.vertexes[i]);
-                ek = get_E_L(valley, band_index, q) - mu;
-//                std::cout << std::scientific << "#" << i << ", 再構成OK: ek = " << ek << std::endl;
-                tri.vertexes[i] = q;
-
-            }
-        }
-
         tri.normals[i] = get_velocity_L(valley, band_index, mu, tri.vertexes[i]);
-
     }
 
     size = tri.faces.size();
@@ -836,40 +985,133 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         vector3 k1 = tri.vertexes[v[0]];
         vector3 k2 = tri.vertexes[v[1]];
         vector3 k3 = tri.vertexes[v[2]];
-        vector3 n1 = tri.normals[v[0]];
-        vector3 n2 = tri.normals[v[1]];
-        vector3 n3 = tri.normals[v[2]];
-
-        double p = 0e0, q = 0e0, r = 0e0;
-        for(int axis=0; axis<space_dim; axis++) {
-            tri.faces[i].center[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
-//            tri.faces[i].normal[axis] = (n1.vec[axis] + n2.vec[axis] + n3.vec[axis])/3e0;
-            tri.faces[i].normal[axis] = n1.vec[axis];
-            p += (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
-            q += (k2.vec[axis] - k3.vec[axis])*(k2.vec[axis] - k3.vec[axis]);
-            r += (k3.vec[axis] - k1.vec[axis])*(k3.vec[axis] - k1.vec[axis]);
-        }
-        p = NRsqrt(p);
-        q = NRsqrt(q);
-        r = NRsqrt(r);
-        double s = (p + q + r)*5e-1;
-        tri.faces[i].dS = NRsqrt( s*(s-p)*(s-q)*(s-r) );
-
-//        double n = 0e0;
-//        for(int axis=0; axis<space_dim; axis++) {
-//            k1.vec[axis] = k1.vec[axis] - k3.vec[axis];
-//            k2.vec[axis] = k2.vec[axis] - k3.vec[axis];
-//        }
-//        k3.vec[0] = k1.vec[1]*k2.vec[2] - k1.vec[2]*k2.vec[1];
-//        k3.vec[1] = k1.vec[2]*k2.vec[0] - k1.vec[0]*k2.vec[2];
-//        k3.vec[2] = k1.vec[0]*k2.vec[1] - k1.vec[1]*k2.vec[0];
-//        for(int axis=0; axis<space_dim; axis++) {
-//            n += k3.vec[axis]*k3.vec[axis];
-//        }
-//        n = NRsqrt(n)*5e-1;
-
+        tri.faces[i].dS = get_dS(k1, k2, k3);
     }
 
+    return tri;
+
+//    for (int i=0; i<size; i++) {
+//        double ene = get_E_L(valley, band_index, tri.vertexes[i]) - mu;
+//        if (std::abs(ene) > eps_phys) {
+////            std::cout << std::scientific << "#" << i << ", 誤差が大きい: e = " << ene << std::endl;
+//
+//            velocity v = get_velocity_L(valley, band_index, mu, tri.vertexes[i]);
+//            double norm = 0e0;
+//            for(int axis=0; axis<space_dim; axis++) {
+//                norm += v.vec[axis]*v.vec[axis];
+//            }
+//            norm = NRsqrt(norm);
+//
+//            double min;
+//            int f[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+//            vector3 k1 = tri.vertexes[f[0]];
+//            vector3 k2 = tri.vertexes[f[1]];
+//            vector3 k3 = tri.vertexes[f[2]];
+//            min = get_min_length(k1, k2, k3) * 5e-2;
+//
+//            kpoint k;
+//            double ek;
+//            double pm = ene / std::abs(ene);
+//            for(int i=1; i<50; i++) {
+//                for(int axis=0; axis<space_dim; axis++) {
+//                    k.vec[axis] = tri.vertexes[i].vec[axis] - pm * v.vec[axis]/norm*min*double(i);
+//                }
+//                ek = get_E_L(valley, band_index, k) - mu;
+//                if (ek*ene < 0e0) break;
+//            }
+//            if ( ek*ene < 0e0 ) {
+////                std::cout << std::scientific << "ek = " << ek << ", ene = " << ene << std::endl;
+//                kpoint q = bisec_L2points(valley, band_index, mu, ek, ene, k, tri.vertexes[i]);
+//                ek = get_E_L(valley, band_index, q) - mu;
+////                std::cout << std::scientific << "#" << i << ", 再構成OK: ek = " << ek << std::endl;
+//                tri.vertexes[i] = q;
+//
+//            }
+//        }
+//
+//        tri.normals[i] = get_velocity_L(valley, band_index, mu, tri.vertexes[i]);
+//    }
+//
+//    size = tri.faces.size();
+//    for (int i=0; i<size; i++) {
+//        int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+//        vector3 k1 = tri.vertexes[v[0]];
+//        vector3 k2 = tri.vertexes[v[1]];
+//        vector3 k3 = tri.vertexes[v[2]];
+//        vector3 n1 = tri.normals[v[0]];
+//        vector3 n2 = tri.normals[v[1]];
+//        vector3 n3 = tri.normals[v[2]];
+//
+////        kpoint center = get_center(k1, k2, k3);
+//        kpoint center = k1;
+////        vector3 normal = get_normal(n1, n2, n3);
+//        vector3 normal = n1;
+//        for(int axis=0; axis<space_dim; axis++) {
+//            tri.faces[i].center[axis] = center.vec[axis];
+//            tri.faces[i].normal[axis] = normal.vec[axis];
+//        }
+//        tri.faces[i].dS = get_dS(k1, k2, k3);
+//
+////        double n = 0e0;
+////        for(int axis=0; axis<space_dim; axis++) {
+////            k1.vec[axis] = k1.vec[axis] - k3.vec[axis];
+////            k2.vec[axis] = k2.vec[axis] - k3.vec[axis];
+////        }
+////        k3.vec[0] = k1.vec[1]*k2.vec[2] - k1.vec[2]*k2.vec[1];
+////        k3.vec[1] = k1.vec[2]*k2.vec[0] - k1.vec[0]*k2.vec[2];
+////        k3.vec[2] = k1.vec[0]*k2.vec[1] - k1.vec[1]*k2.vec[0];
+////        for(int axis=0; axis<space_dim; axis++) {
+////            n += k3.vec[axis]*k3.vec[axis];
+////        }
+////        n = NRsqrt(n)*5e-1;
+//
+//    }
+//
+////    int count = 0;
+////    for (int i=0;i<2;i++) {
+//////    do  {
+////        count = 0;
+////        int size = tri.faces.size();
+////        for (int i=0; i<size; i++) {
+////            if (tri.faces[i].dS > 1e-5) {
+//////                std::cout << i << ", dS = " << tri.faces[i].dS << std::endl;
+////                count++;
+////                divide_triangle(tri, valley, band_index, mu, i);
+//////                std::cout << i << ", " << tri.faces[i].dS << ", " <<tri.vertexes.size() << std::endl;
+////            }
+//////            if (count == 10) exit(0);
+////        }
+////        std::cout << "count = " << count << std::endl;
+//////    } while (count > 0);
+////    };
+//////    std::string check_name = "check.csv";
+//////    std::ofstream ofs(check_name);
+//////    size = tri.faces.size();
+//////    for (int i=0; i<size; i++) {
+//////        if (tri.faces[i].dS > 1e-4) {
+//////        ofs << std::scientific
+//////            << tri.vertexes[tri.faces[i].face[0]].vec[0] << ", "
+//////            << tri.vertexes[tri.faces[i].face[0]].vec[1] << ", "
+//////            << tri.vertexes[tri.faces[i].face[0]].vec[2]
+//////            << std::endl;
+//////        ofs << std::scientific
+//////            << tri.vertexes[tri.faces[i].face[1]].vec[0] << ", "
+//////            << tri.vertexes[tri.faces[i].face[1]].vec[1] << ", "
+//////            << tri.vertexes[tri.faces[i].face[1]].vec[2]
+//////            << std::endl;
+//////        ofs << std::scientific
+//////            << tri.vertexes[tri.faces[i].face[2]].vec[0] << ", "
+//////            << tri.vertexes[tri.faces[i].face[2]].vec[1] << ", "
+//////            << tri.vertexes[tri.faces[i].face[2]].vec[2]
+//////            << std::endl;
+//////        ofs << std::scientific
+//////            << tri.vertexes[tri.faces[i].face[0]].vec[0] << ", "
+//////            << tri.vertexes[tri.faces[i].face[0]].vec[1] << ", "
+//////            << tri.vertexes[tri.faces[i].face[0]].vec[2]
+//////            << std::endl;
+//////        ofs << ",," << std::endl;
+//////        }
+//////    }
 
     return tri;
 }; // }}}
@@ -934,11 +1176,11 @@ int triangles_write_L(triangles tri, std::string name, int valley) { // {{{
         for (int i=0; i<size; i++) {
             int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
 
-            double norm = 0e0;
-            for(int axis=0; axis<space_dim; axis++) {
-                norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
-            }
-            norm = NRsqrt(norm);
+//            double norm = 0e0;
+//            for(int axis=0; axis<space_dim; axis++) {
+//                norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
+//            }
+//            norm = NRsqrt(norm);
 
             ofs << std::scientific
                 << kL[valley][0]+tri.vertexes[v[0]].vec[0] << ", "
@@ -960,13 +1202,21 @@ int triangles_write_L(triangles tri, std::string name, int valley) { // {{{
                 << kL[valley][1]+tri.vertexes[v[0]].vec[1] << ", "
                 << kL[valley][2]+tri.vertexes[v[0]].vec[2]
                 << std::endl;
-            ofs << std::endl;
+            ofs << ",," << std::endl;
+
         }
+
+    }
+    std::string check_name = name+"_check.csv";
+    std::ofstream oft(check_name);
+    for (int i=0; i<size; i++) {
+        oft << std::scientific << i << ", " << tri.faces[i].dS << std::endl;
     }
 
     return 0;
 }; // }}}
 // }}}
+
 
 int fermi_surface_write(fermi_surface fs, std::string filename) { // {{{
     int size = fs.kset.size();

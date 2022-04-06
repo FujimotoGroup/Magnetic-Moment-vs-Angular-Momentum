@@ -187,11 +187,15 @@ int main(){
 //    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
 //// }}}
 
-//    int band_index = 2;
-//    chemical_potential mu = 0e0;
-//    triangles tri = get_triangles_T(band_index, mu);
-//    double dos = get_DOS_T(tri, band_index, mu);
-//    std::cout << std::scientific << tri.faces.size() << ", " << dos << std::endl;
+    int valley = 0;
+    int band_index = 2;
+////    chemical_potential mu = 0e0;
+//    chemical_potential mu = 0.13e0;
+//    triangles tri = get_triangles_L(valley, band_index, mu);
+//    double dos = get_DOS_L(tri, valley, band_index, mu);
+//    std::string name = "./triangle_L1";
+//    triangles_write_L(tri, name, valley);
+//    std::cout << std::setprecision(15) << tri.faces.size() << ", " << dos << std::endl;
 ////    std::string dos_file = "dos"+std::to_string(band_index)+".csv";
 ////    std::ofstream ofs(dos_file, std::ios::app);
 ////    ofs << std::scientific << tri.faces.size() << ", " << dos << std::endl;
@@ -204,17 +208,12 @@ int main(){
 //    band bT;
 //    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh);
 
-    for(int valley=0; valley<1; valley++) {
 //    for(int valley=0; valley<valleys; valley++) {
-        int band_index = 2;
-        double delta = (EL[valley][2] - EL[valley][0])*5e-1;
-        chemical_potential mu_min = delta - 1e-2;
-        chemical_potential mu_max = delta + 8e-1;
-//        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
-//        chemical_potential mu_min = double(EL[valley][band_index])-1e-4;
+        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
+        chemical_potential mu_min = double(EL[valley][band_index])-1e-4;
         band bL;
         bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
-    }
+//    }
 
 //    sys_T T = get_T();
 //    sys_T_write(T);
