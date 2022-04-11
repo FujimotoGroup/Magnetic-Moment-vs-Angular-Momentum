@@ -34,8 +34,8 @@ const double g0 = 1.3861e0; // angstrom^-1
 const double cutoff = 2e-1*g0;
 double dk[3];
 const int k_mesh = 100;
-const int k_mesh_more = 50;
-const int mu_mesh = 60;
+const int k_mesh_more = 70;
+const int mu_mesh = 30;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
@@ -51,6 +51,12 @@ std::vector<matrixComplex> vT;
 std::vector<std::vector<matrixComplex>> vL;
 vectorReal ET(bandsT);
 std::vector<vectorReal> EL(valleys, vectorReal(bandsL));
+
+std::vector<matrixComplex> mu_s_T;
+std::vector<std::vector<matrixComplex>> mu_s_L;
+
+std::vector<matrixComplex> v_s_T;
+std::vector<std::vector<matrixComplex>> v_s_L;
 
 std::mutex mtx;
 
@@ -117,11 +123,37 @@ void initialize() {
 //    for (int i=0; i<ET.size(); i++) {
 //        cout << ET[i] << endl;
 //    }
+
+    mu_s_T.resize(space_dim);
+    for (int axis=0; axis<space_dim; axis++) {
+        matrixComplex v(bands, vectorComplex(bands, 0e0));
+        string file_name = "./lib/izaki_Bi_SPH_data/mu_s_"+axises[axis]+"_T.dat";
+//        cout << file_name << endl;
+        ifstream file(file_name);
+        string line;
+        while ( getline(file,line) ) {
+            istringstream stream(line);
+            int i1, i2;
+            Complex c;
+            stream >> i1 >> i2 >> c;
+//            std::cout << i1 << ", " << i2 << ", " << c << std::endl;
+            v[i1-1][i2-1] = c;
+        }
+        mu_s_T[axis].resize(bandsT);
+        for(int i=l; i<n; i++) {
+            mu_s_T[axis][i-l].resize(bandsT);
+            for(int j=l; j<n; j++) {
+                mu_s_T[axis][i-l][j-l] = v[i][j];
+            }
+        }
+
+    }
     // }}}
     // L points {{{
     l = lowest_band_L - 1;
     n = lowest_band_L + bandsL - 1;
     vL.resize(valleys);
+    mu_s_L.resize(valleys);
     for (int valley=0; valley<valleys; valley++) {
         vL[valley].resize(space_dim);
         for (int axis=0; axis<space_dim; axis++) {
@@ -159,7 +191,73 @@ void initialize() {
             i++;
         }
         EL[valley].assign(&e[lowest_band_L-1], &e[lowest_band_L+bandsL-1]);
+
+        mu_s_L[valley].resize(space_dim);
+        for (int axis=0; axis<space_dim; axis++) {
+            matrixComplex v(bands, vectorComplex(bands, 0e0));
+            string file_name = "./lib/izaki_Bi_SPH_data/mu_s_"+axises[axis]+"_L-"+to_string(valley+1)+".dat";
+//            cout << file_name << endl;
+            ifstream file(file_name);
+            string line;
+            while ( getline(file,line) ) {
+                istringstream stream(line);
+                int i1, i2;
+                Complex c;
+                stream >> i1 >> i2 >> c;
+//                std::cout << i1 << ", " << i2 << ", " << c << std::endl;
+                v[i1-1][i2-1] = c;
+            }
+            mu_s_L[valley][axis].resize(bandsL);
+            for(int i=l; i<n; i++) {
+                mu_s_L[valley][axis][i-l].resize(bandsL);
+                for(int j=l; j<n; j++) {
+                    mu_s_L[valley][axis][i-l][j-l] = v[i][j];
+                }
+            }
+
         }
+    }
     // }}}
+    // }}}
+    // v_s_T {{{
+    v_s_T.resize(space_dim);
+    for(int axis=0; axis<space_dim; axis++) {
+        v_s_T[axis].resize(bandsT);
+        for(int i=0; i<bandsT; i++) {
+            v_s_T[axis][i].resize(bandsT);
+        }
+
+        for(int i=0; i<bandsT; i++) {
+            for(int j=0; j<bandsT; j++) {
+                Complex c = 0e0;
+                for(int k=0; k<bandsT; k++) {
+                    c += (vT[axis][i][k]*mu_s_T[axis][k][j] + mu_s_T[axis][i][k]*vT[axis][k][j])*5e-1;
+                }
+                v_s_T[axis][i][j] = c;
+            }
+        }
+    }
+    // }}}
+    // v_s_L {{{
+    v_s_L.resize(valleys);
+    for(int valley=0; valley<valleys; valley++) {
+        v_s_L[valley].resize(space_dim);
+        for(int axis=0; axis<space_dim; axis++) {
+            v_s_L[valley][axis].resize(bandsL);
+            for(int i=0; i<bandsL; i++) {
+                v_s_L[valley][axis][i].resize(bandsL);
+            }
+
+            for(int i=0; i<bandsL; i++) {
+                for(int j=0; j<bandsL; j++) {
+                    Complex c = 0e0;
+                    for(int k=0; k<bandsL; k++) {
+                        c += (vL[valley][axis][i][k]*mu_s_L[valley][axis][k][j] + mu_s_L[valley][axis][i][k]*vL[valley][axis][k][j])*5e-1;
+                    }
+                    v_s_L[valley][axis][i][j] = c;
+                }
+            }
+        }
+    }
     // }}}
 }

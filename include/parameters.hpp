@@ -65,6 +65,12 @@ extern std::vector<std::vector<matrixComplex>> vL;
 extern vectorReal ET;
 extern std::vector<vectorReal> EL;
 
+extern std::vector<matrixComplex> mu_s_T;
+extern std::vector<std::vector<matrixComplex>> mu_s_L;
+
+extern std::vector<matrixComplex> v_s_T;
+extern std::vector<std::vector<matrixComplex>> v_s_L;
+
 extern matrixComplex Hamiltonian;
 void initialize();
 matrixComplex set_T(double k[3]);
@@ -77,6 +83,8 @@ extern "C" {
         double* W, Complex* WORK, const int& LWORK,
         double* RWORK,
         int& INFO, int JOBZlen, int UPLOlen );
+    void zgetrf_ ( const int& N, const int& M, Complex* A, const int& LDA, int* IPIV, int& INFO);
+    void zgetri_ ( const int& N, Complex* A, const int& LDA, int* IPIV, Complex* WORK, const int& LWORK, int& INFO);
 };
 
 struct vector3 {
@@ -146,5 +154,8 @@ void sys_L_write(sys_L s);
 
 band set_band_T(int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
 band set_band_L(int valley, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
+
+using Green_function = matrixComplex;
+Green_function get_green_function_T(double ene, kpoint k);
 
 #endif // PARAMETERS_HPP

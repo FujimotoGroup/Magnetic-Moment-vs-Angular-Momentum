@@ -208,18 +208,22 @@ int main(){
 //    band bT;
 //    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh);
 
-//    for(int valley=0; valley<valleys; valley++) {
-        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
-        chemical_potential mu_min = double(EL[valley][band_index])-1e-4;
-        band bL;
-        bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
-//    }
+////    for(int valley=0; valley<valleys; valley++) {
+//        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
+//        chemical_potential mu_min = double(EL[valley][band_index])-1e-4;
+//        band bL;
+//        bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
+////    }
 
 //    sys_T T = get_T();
 //    sys_T_write(T);
 
 //    sys_L L = get_L();
 //    sys_L_write(L);
+
+    kpoint k = {1e-1, 0e0, 0e0};
+    double ene = 0e0;
+    Green_function G = get_green_function_T(ene, k);
 
     return 0;
 }

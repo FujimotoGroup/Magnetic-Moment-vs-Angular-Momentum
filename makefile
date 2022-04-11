@@ -19,7 +19,9 @@ LIBS      = initialize.cpp \
 			hamiltonian.cpp \
 			fermi_surface.cpp \
 			band.cpp \
-			system.cpp
+			system.cpp \
+			green_function.cpp \
+			spin_hall_conductivity.cpp
 INCLUDE   = -I$(LIBDIR) -I$(HEADDIR)
 TARGET  = $(notdir $(SOURCES:%.cpp=%))
 SOURCES   = $(wildcard $(SRCDIR)/*.cpp)

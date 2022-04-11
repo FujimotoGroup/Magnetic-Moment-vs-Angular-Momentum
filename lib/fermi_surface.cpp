@@ -406,49 +406,7 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
     if (tri.normals.size() == 0) tri.normals.resize(size);
 
     for (int i=0; i<size; i++) {
-        double ene = get_E_T(band_index, tri.vertexes[i]) - mu;
-        if (std::abs(ene) > eps_phys) {
-//            std::cout << std::scientific << "#" << i << ", 誤差が大きい: e = " << ene << std::endl;
-
-            velocity v = get_velocity_T(band_index, mu, tri.vertexes[i]);
-            double norm = 0e0;
-            for(int axis=0; axis<space_dim; axis++) {
-                norm += v.vec[axis]*v.vec[axis];
-            }
-            norm = NRsqrt(norm);
-
-            double mean;
-            int f[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
-            vector3 k1 = tri.vertexes[f[0]];
-            vector3 k2 = tri.vertexes[f[1]];
-            vector3 k3 = tri.vertexes[f[2]];
-            double p = 0e0, q = 0e0, r = 0e0;
-            for(int axis=0; axis<space_dim; axis++) {
-                p += (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
-                q += (k2.vec[axis] - k3.vec[axis])*(k2.vec[axis] - k3.vec[axis]);
-                r += (k3.vec[axis] - k1.vec[axis])*(k3.vec[axis] - k1.vec[axis]);
-            }
-            mean = std::min(NRsqrt(p), NRsqrt(q));
-            mean = std::min(mean, NRsqrt(r)) * 5e-2;
-
-            kpoint k;
-            double pm = ene / std::abs(ene);
-            for(int axis=0; axis<space_dim; axis++) {
-                k.vec[axis] = tri.vertexes[i].vec[axis] - pm * v.vec[axis]/norm*mean*2e0;
-            }
-            double ek = get_E_T(band_index, k) - mu;
-            if ( ek*ene < 0e0 ) {
-//                std::cout << std::scientific << "ek = " << ek << ", ene = " << ene << std::endl;
-                kpoint q = bisec_T2points(band_index, mu, ek, ene, k, tri.vertexes[i]);
-                ek = get_E_T(band_index, q) - mu;
-//                std::cout << std::scientific << "#" << i << ", 再構成OK: ek = " << ek << std::endl;
-                tri.vertexes[i] = q;
-
-            }
-        }
-
         tri.normals[i] = get_velocity_T(band_index, mu, tri.vertexes[i]);
-
     }
 
     size = tri.faces.size();
@@ -457,41 +415,98 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
         vector3 k1 = tri.vertexes[v[0]];
         vector3 k2 = tri.vertexes[v[1]];
         vector3 k3 = tri.vertexes[v[2]];
-        vector3 n1 = tri.normals[v[0]];
-        vector3 n2 = tri.normals[v[1]];
-        vector3 n3 = tri.normals[v[2]];
-
-        double p = 0e0, q = 0e0, r = 0e0;
-        for(int axis=0; axis<space_dim; axis++) {
-            tri.faces[i].center[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
-//            tri.faces[i].normal[axis] = (n1.vec[axis] + n2.vec[axis] + n3.vec[axis])/3e0;
-            tri.faces[i].normal[axis] = n1.vec[axis];
-            p += (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
-            q += (k2.vec[axis] - k3.vec[axis])*(k2.vec[axis] - k3.vec[axis]);
-            r += (k3.vec[axis] - k1.vec[axis])*(k3.vec[axis] - k1.vec[axis]);
-        }
-        p = NRsqrt(p);
-        q = NRsqrt(q);
-        r = NRsqrt(r);
-        double s = (p + q + r)*5e-1;
-        tri.faces[i].dS = NRsqrt( s*(s-p)*(s-q)*(s-r) );
-
-//        double n = 0e0;
-//        for(int axis=0; axis<space_dim; axis++) {
-//            k1.vec[axis] = k1.vec[axis] - k3.vec[axis];
-//            k2.vec[axis] = k2.vec[axis] - k3.vec[axis];
-//        }
-//        k3.vec[0] = k1.vec[1]*k2.vec[2] - k1.vec[2]*k2.vec[1];
-//        k3.vec[1] = k1.vec[2]*k2.vec[0] - k1.vec[0]*k2.vec[2];
-//        k3.vec[2] = k1.vec[0]*k2.vec[1] - k1.vec[1]*k2.vec[0];
-//        for(int axis=0; axis<space_dim; axis++) {
-//            n += k3.vec[axis]*k3.vec[axis];
-//        }
-//        n = NRsqrt(n)*5e-1;
+        tri.faces[i].dS = get_dS(k1, k2, k3);
     }
 
-
     return tri;
+
+//    for (int i=0; i<size; i++) {
+//        double ene = get_E_T(band_index, tri.vertexes[i]) - mu;
+//        if (std::abs(ene) > eps_phys) {
+////            std::cout << std::scientific << "#" << i << ", 誤差が大きい: e = " << ene << std::endl;
+//
+//            velocity v = get_velocity_T(band_index, mu, tri.vertexes[i]);
+//            double norm = 0e0;
+//            for(int axis=0; axis<space_dim; axis++) {
+//                norm += v.vec[axis]*v.vec[axis];
+//            }
+//            norm = NRsqrt(norm);
+//
+//            double mean;
+//            int f[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+//            vector3 k1 = tri.vertexes[f[0]];
+//            vector3 k2 = tri.vertexes[f[1]];
+//            vector3 k3 = tri.vertexes[f[2]];
+//            double p = 0e0, q = 0e0, r = 0e0;
+//            for(int axis=0; axis<space_dim; axis++) {
+//                p += (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
+//                q += (k2.vec[axis] - k3.vec[axis])*(k2.vec[axis] - k3.vec[axis]);
+//                r += (k3.vec[axis] - k1.vec[axis])*(k3.vec[axis] - k1.vec[axis]);
+//            }
+//            mean = std::min(NRsqrt(p), NRsqrt(q));
+//            mean = std::min(mean, NRsqrt(r)) * 5e-2;
+//
+//            kpoint k;
+//            double pm = ene / std::abs(ene);
+//            for(int axis=0; axis<space_dim; axis++) {
+//                k.vec[axis] = tri.vertexes[i].vec[axis] - pm * v.vec[axis]/norm*mean*2e0;
+//            }
+//            double ek = get_E_T(band_index, k) - mu;
+//            if ( ek*ene < 0e0 ) {
+////                std::cout << std::scientific << "ek = " << ek << ", ene = " << ene << std::endl;
+//                kpoint q = bisec_T2points(band_index, mu, ek, ene, k, tri.vertexes[i]);
+//                ek = get_E_T(band_index, q) - mu;
+////                std::cout << std::scientific << "#" << i << ", 再構成OK: ek = " << ek << std::endl;
+//                tri.vertexes[i] = q;
+//
+//            }
+//        }
+//
+//        tri.normals[i] = get_velocity_T(band_index, mu, tri.vertexes[i]);
+//
+//    }
+//
+//    size = tri.faces.size();
+//    for (int i=0; i<size; i++) {
+//        int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+//        vector3 k1 = tri.vertexes[v[0]];
+//        vector3 k2 = tri.vertexes[v[1]];
+//        vector3 k3 = tri.vertexes[v[2]];
+//        vector3 n1 = tri.normals[v[0]];
+//        vector3 n2 = tri.normals[v[1]];
+//        vector3 n3 = tri.normals[v[2]];
+//
+//        double p = 0e0, q = 0e0, r = 0e0;
+//        for(int axis=0; axis<space_dim; axis++) {
+//            tri.faces[i].center[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
+////            tri.faces[i].normal[axis] = (n1.vec[axis] + n2.vec[axis] + n3.vec[axis])/3e0;
+//            tri.faces[i].normal[axis] = n1.vec[axis];
+//            p += (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
+//            q += (k2.vec[axis] - k3.vec[axis])*(k2.vec[axis] - k3.vec[axis]);
+//            r += (k3.vec[axis] - k1.vec[axis])*(k3.vec[axis] - k1.vec[axis]);
+//        }
+//        p = NRsqrt(p);
+//        q = NRsqrt(q);
+//        r = NRsqrt(r);
+//        double s = (p + q + r)*5e-1;
+//        tri.faces[i].dS = NRsqrt( s*(s-p)*(s-q)*(s-r) );
+//
+////        double n = 0e0;
+////        for(int axis=0; axis<space_dim; axis++) {
+////            k1.vec[axis] = k1.vec[axis] - k3.vec[axis];
+////            k2.vec[axis] = k2.vec[axis] - k3.vec[axis];
+////        }
+////        k3.vec[0] = k1.vec[1]*k2.vec[2] - k1.vec[2]*k2.vec[1];
+////        k3.vec[1] = k1.vec[2]*k2.vec[0] - k1.vec[0]*k2.vec[2];
+////        k3.vec[2] = k1.vec[0]*k2.vec[1] - k1.vec[1]*k2.vec[0];
+////        for(int axis=0; axis<space_dim; axis++) {
+////            n += k3.vec[axis]*k3.vec[axis];
+////        }
+////        n = NRsqrt(n)*5e-1;
+//    }
+//
+//
+//    return tri;
 }; // }}}
 
 template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles tri, int band_index, chemical_potential mu) { // {{{
@@ -687,7 +702,7 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
 }; // }}}
 
 fermi_surface get_fermi_surface_more_L(fermi_surface fs, int valley, int band_index, chemical_potential mu) { // {{{
-    int n = k_mesh_more;
+    const int n = k_mesh_more;
 
     fermi_surface new_fs;
     new_fs.e = mu;
@@ -696,6 +711,7 @@ fermi_surface get_fermi_surface_more_L(fermi_surface fs, int valley, int band_in
     double y_max = 0e0, y_min = 0e0;
     double z_max = 0e0, z_min = 0e0;
     int size = fs.kset.size();
+//    std::cout << "reconstructing fermi surface: " << size << std::endl;
     for(int i=0; i<size; i++) {
         x_max = std::max(x_max, fs.kset[i].vec[0]);
         x_min = std::min(x_min, fs.kset[i].vec[0]);
@@ -727,10 +743,13 @@ fermi_surface get_fermi_surface_more_L(fermi_surface fs, int valley, int band_in
     double dn = 1.5e0/double(n);
     for (int i_z = 0; i_z < 2*n; i_z++) {
         z = center.vec[2] + double(i_z-n)*dn*len[2];
+//        std::cout << "z = " << z << std::endl;
         for (int i_y = 0; i_y < 2*n; i_y++) {
             y[i_y] = center.vec[1] + double(i_y-n)*dn*len[1];
+//            std::cout << "y = " << y[i_y] << std::endl;
             for (int i_x = 0; i_x < 2*n; i_x++) {
                 x[i_x] = center.vec[0] + double(i_x-n)*dn*len[0];
+//                std::cout << "x = " << x[i_x] << std::endl;
                 kpoint p = {x[i_x], y[i_y], z};
                 ene[i_y][i_x] = get_E_L(valley, band_index, p) - mu;
             }
