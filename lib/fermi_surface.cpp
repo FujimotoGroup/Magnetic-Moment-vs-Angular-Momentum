@@ -374,7 +374,7 @@ fermi_surface get_fermi_surace_T(int band_index, chemical_potential mu) { // {{{
         return fs;
     }
 
-    if ((size_fs > 5) && (size_fs < 400)) {
+    if ((size_fs > 5) && (size_fs < 1000)) {
         do {
             std::cout << "re-constructing Fermi surface because of poor mesh number." << std::endl;
             fs = get_fermi_surface_more_T(fs, band_index, mu);
@@ -415,6 +415,13 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
         vector3 k1 = tri.vertexes[v[0]];
         vector3 k2 = tri.vertexes[v[1]];
         vector3 k3 = tri.vertexes[v[2]];
+        vector3 n1 = tri.normals[v[0]];
+        vector3 n2 = tri.normals[v[1]];
+        vector3 n3 = tri.normals[v[2]];
+        for(int axis=0; axis<space_dim; axis++) {
+            tri.faces[i].center[axis] = k1.vec[axis];
+            tri.faces[i].normal[axis] = n1.vec[axis];
+        }
         tri.faces[i].dS = get_dS(k1, k2, k3);
     }
 
@@ -507,26 +514,6 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
 //
 //
 //    return tri;
-}; // }}}
-
-template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles tri, int band_index, chemical_potential mu) { // {{{
-    res = 0e0;
-
-    int size = tri.faces.size();
-
-    double factor = 1e0 / (2e0*pi)*(2e0*pi)*(2e0*pi);
-
-    for(int i=0; i<size; i++) {
-        kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
-        double norm = 0e0;
-        for(int axis=0; axis<space_dim; axis++) {
-            norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
-        }
-        norm = NRsqrt(norm);
-        double dS = tri.faces[i].dS / norm * factor;
-
-        res += fn(band_index, mu, center) * dS;
-    }
 }; // }}}
 
 double get_DOS_T(triangles tri, int band_index, chemical_potential mu) { // {{{
@@ -833,7 +820,7 @@ fermi_surface get_fermi_surace_L(int valley, int band_index, chemical_potential 
         return fs;
     }
 
-    if ((size_fs > 5) && (size_fs < 400)) {
+    if ((size_fs > 5) && (size_fs < 1000)) {
         std::cout << "re-constructing Fermi surface because of poor mesh number." << std::endl;
         fs = get_fermi_surface_more_L(fs, valley, band_index, mu);
         size_fs = fs.kset.size();
@@ -1004,6 +991,13 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         vector3 k1 = tri.vertexes[v[0]];
         vector3 k2 = tri.vertexes[v[1]];
         vector3 k3 = tri.vertexes[v[2]];
+        vector3 n1 = tri.normals[v[0]];
+        vector3 n2 = tri.normals[v[1]];
+        vector3 n3 = tri.normals[v[2]];
+        for(int axis=0; axis<space_dim; axis++) {
+            tri.faces[i].center[axis] = k1.vec[axis];
+            tri.faces[i].normal[axis] = n1.vec[axis];
+        }
         tri.faces[i].dS = get_dS(k1, k2, k3);
     }
 
@@ -1135,26 +1129,6 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
     return tri;
 }; // }}}
 
-template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
-    res = 0e0;
-
-    int size = tri.faces.size();
-
-    double factor = 1e0 / (2e0*pi)*(2e0*pi)*(2e0*pi);
-
-    for(int i=0; i<size; i++) {
-        kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
-        double norm = 0e0;
-        for(int axis=0; axis<space_dim; axis++) {
-            norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
-        }
-        norm = NRsqrt(norm);
-        double dS = tri.faces[i].dS / norm * factor;
-
-        res += fn(valley, band_index, mu, center) * dS;
-    }
-}; // }}}
-
 double get_DOS_L(triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
     double dos = 0e0;
     auto fn = [](int valley, int band_index, chemical_potential mu, kpoint k) { return 1e0; };
@@ -1235,7 +1209,6 @@ int triangles_write_L(triangles tri, std::string name, int valley) { // {{{
     return 0;
 }; // }}}
 // }}}
-
 
 int fermi_surface_write(fermi_surface fs, std::string filename) { // {{{
     int size = fs.kset.size();

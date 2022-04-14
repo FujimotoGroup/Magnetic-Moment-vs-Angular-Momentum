@@ -32,7 +32,7 @@ matrixComplex get_inverse(matrixComplex A) { // {{{
     return A_inv;
 }; // }}}
 
-Green_function get_green_function_T(double ene, kpoint k) { // {{{
+Green_function get_green_function_T(Complex ene, kpoint k) { // {{{
     Green_function G(bandsT, vectorComplex(bandsT, 0e0));
 
     G = set_T(k.vec);
@@ -66,7 +66,7 @@ Green_function get_green_function_T(double ene, kpoint k) { // {{{
     return G;
 }; // }}}
 
-Green_function get_green_function_L(double ene, int valley, kpoint k) { // {{{
+Green_function get_green_function_L(Complex ene, int valley, kpoint k) { // {{{
     Green_function G(bandsL, vectorComplex(bandsL, 0e0));
 
     G = set_L(valley, k.vec);

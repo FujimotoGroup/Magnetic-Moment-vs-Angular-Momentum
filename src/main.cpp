@@ -185,6 +185,7 @@ int main(){
 //    mu_min = delta - 1e-2;
 //    mu_max = delta + 2e-2;
 //    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
+//    SHC sigma_L = get_SHC_L(bL);
 //// }}}
 
     int valley = 0;
@@ -202,17 +203,20 @@ int main(){
 ////    std::string filename = "tri_k"+std::to_string(k_mesh)+".csv";
 ////    triangles_write(tri, filename);
 
-//    int band_index = 2;
-//    chemical_potential mu_max = double(ET[band_index])+5e-3;
-//    chemical_potential mu_min = -2.5e-1;
-//    band bT;
-//    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh);
+//    band_index = 5;
+    chemical_potential mu_max = double(ET[band_index])+5e-3;
+    chemical_potential mu_min = double(ET[band_index])-2.5e-1;
+    band bT;
+    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh);
+    Conductivity sigma_T = get_conductivity_T(bT);
+//    SHC sigma_T = get_SHC_T(bT);
 
 ////    for(int valley=0; valley<valleys; valley++) {
 //        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
 //        chemical_potential mu_min = double(EL[valley][band_index])-1e-4;
 //        band bL;
 //        bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
+//        Conductivity sigma_L = get_conductivity_L(bL, valley);
 ////    }
 
 //    sys_T T = get_T();
@@ -220,10 +224,7 @@ int main(){
 
 //    sys_L L = get_L();
 //    sys_L_write(L);
-
-    kpoint k = {1e-1, 0e0, 0e0};
-    double ene = 0e0;
-    Green_function G = get_green_function_T(ene, k);
+//
 
     return 0;
 }

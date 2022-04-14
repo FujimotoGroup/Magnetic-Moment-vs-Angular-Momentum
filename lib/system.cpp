@@ -33,7 +33,7 @@ void sys_T_write(sys_T s) { // {{{
         for(int i_mu=0; i_mu<s.bands[band_index].mu_mesh; i_mu++) {
 //            ofs << std::scientific << s.bands[band_index].tri[i_mu].ene << ", " << s.bands[band_index].dos[i_mu] << std::endl;
             std::string filename = "dat/T_band"+std::to_string(band_index)+"k"+std::to_string(i_mu)+".csv";
-            triangles_write(s.bands[band_index].tri[i_mu], filename);
+            triangles_write_T(s.bands[band_index].tri[i_mu], filename);
         }
     }
 }; // }}}
@@ -74,7 +74,7 @@ void sys_L_write(sys_L s) { // {{{
         for(int band_index=0; band_index<bandsL; band_index++) {
             for(int i_mu=0; i_mu<s.bands[valley][band_index].mu_mesh; i_mu++) {
                 std::string filename = "dat/L"+std::to_string(valley)+"_band"+std::to_string(band_index)+"k"+std::to_string(i_mu)+".csv";
-                triangles_write(s.bands[valley][band_index].tri[i_mu], filename);
+                triangles_write_L(s.bands[valley][band_index].tri[i_mu], filename, valley);
             }
         }
     }

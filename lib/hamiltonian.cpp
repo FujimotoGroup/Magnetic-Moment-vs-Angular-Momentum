@@ -9,8 +9,8 @@ matrixComplex set_T(double k[3]) { // {{{
         value[i][i] = ET[i] + ene;
         for(int j=i+1; j<bandsT; j++) {
             for(int axis=0; axis<space_dim; axis++) {
-                value[i][j] += hbar/angstrom*k[axis]*vT[axis][i][j];
-                value[j][i] += hbar/angstrom*k[axis]*vT[axis][j][i];
+                value[i][j] += hbar/angstrom*v0*k[axis]*vT[axis][i][j];
+                value[j][i] += hbar/angstrom*v0*k[axis]*vT[axis][j][i];
             }
         }
     }
@@ -26,14 +26,14 @@ matrixComplex set_L(int valley, double k[3]) { // {{{
         value[i][i] = EL[valley][i] + ene;
         for(int j=i+1; j<bandsL; j++) {
             for(int axis=0; axis<space_dim; axis++) {
-                value[i][j] += hbar/angstrom*k[axis]*vL[valley][axis][i][j];
-                value[j][i] += hbar/angstrom*k[axis]*vL[valley][axis][j][i];
+                value[i][j] += hbar/angstrom*v0*k[axis]*vL[valley][axis][i][j];
+                value[j][i] += hbar/angstrom*v0*k[axis]*vL[valley][axis][j][i];
             }
         }
     }
 //    double m = (std::abs(EL[valley][2] - EL[valley][0]))*5e-1;
 //    double vF = 1e6;
-//    double hk= hbar/angstrom*vF;
+//    double hk= hbar/angstrom*v0;
 //    value[0][0] = m;
 //    value[0][1] = 0e0;
 //    value[0][2] = zi*hk*k[2];
