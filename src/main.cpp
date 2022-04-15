@@ -191,7 +191,13 @@ int main(){
     int valley = 0;
     int band_index = 2;
 ////    chemical_potential mu = 0e0;
-//    chemical_potential mu = 0.13e0;
+//    chemical_potential mu = -1.861069e-01;
+//    triangles tri = get_triangles_T(band_index, mu);
+//    double dos = get_DOS_T(tri, band_index, mu);
+//    std::string name = "./triangle_T";
+//    triangles_write_T(tri, name);
+//    std::cout << std::setprecision(15) << tri.faces.size() << ", " << dos << std::endl;
+//
 //    triangles tri = get_triangles_L(valley, band_index, mu);
 //    double dos = get_DOS_L(tri, valley, band_index, mu);
 //    std::string name = "./triangle_L1";
@@ -208,7 +214,9 @@ int main(){
     chemical_potential mu_min = double(ET[band_index])-2.5e-1;
     band bT;
     bT = set_band_T(band_index, mu_min, mu_max, mu_mesh);
-    Conductivity sigma_T = get_conductivity_T(bT);
+//    Conductivity sigma_T = get_conductivity_T(bT);
+    SHC SHC1_T = get_SHC_T1(bT);
+    SHC SHC2_T = get_SHC_T2(bT);
 //    SHC sigma_T = get_SHC_T(bT);
 
 ////    for(int valley=0; valley<valleys; valley++) {

@@ -1,10 +1,13 @@
 #include "parameters.hpp"
 #include <algorithm>
 
+int thread_num = std::thread::hardware_concurrency();
+
 const double angstrom = 1e-10; // [m]
 const double hbar     = 6.582119569e-16; // [eV s]
 const double mass     = 9.10938356e-31; // [kg]
 const double charge   = 1.60217662e-19; // [C]
+const double muB      = 9.2740100783e-24; // [J/T]
 
 const double v0       = 1e6; // [m/s]
 
@@ -36,7 +39,7 @@ const double g0 = 1.3861e0; // angstrom^-1
 
 const double cutoff = 2e-1*g0;
 double dk[3];
-const int k_mesh = 100;
+const int k_mesh = 80;
 const int k_mesh_more = 70;
 const int mu_mesh = 60;
 //const int k_mesh = 50; const int k_mesh_more = 50; const int mu_mesh = 30;
@@ -147,7 +150,7 @@ void initialize() {
         for(int i=l; i<n; i++) {
             mu_s_T[spin][i-l].resize(bandsT);
             for(int j=l; j<n; j++) {
-                mu_s_T[spin][i-l][j-l] = v[i][j];
+                mu_s_T[spin][i-l][j-l] = v[i][j] / muB;
             }
         }
 
@@ -215,7 +218,7 @@ void initialize() {
             for(int i=l; i<n; i++) {
                 mu_s_L[valley][axis][i-l].resize(bandsL);
                 for(int j=l; j<n; j++) {
-                    mu_s_L[valley][axis][i-l][j-l] = v[i][j];
+                    mu_s_L[valley][axis][i-l][j-l] = v[i][j] / muB;
                 }
             }
 
@@ -294,6 +297,16 @@ void init(matrixComplex& value) { // {{{
     }
 }; // }}}
 
+void init(tensor2Complex& value) { // {{{
+    for(auto val: value) {
+        for(auto v: val) {
+            for(auto s: v) {
+                s = 0e0;
+            }
+        }
+    }
+}; // }}}
+
 double add(double value, double a) { // {{{
     return value+a;
 }; // }}}
@@ -320,6 +333,18 @@ matrixComplex add(matrixComplex value, matrixComplex a) { // {{{
     return res;
 }; // }}}
 
+tensor2Complex add(tensor2Complex value, tensor2Complex a) { // {{{
+    tensor2Complex res(value.size(), matrixComplex(value.at(0).size(), vectorComplex(value.at(0).at(0).size(), 0e0)));
+    for(int i=0; i<value.size(); i++) {
+        for(int j=0; j<value.at(0).size(); j++) {
+            for(int k=0; k<value.at(0).at(0).size(); k++) {
+                res[i][j][k] = value[i][j][k] + a[i][j][k];
+            }
+        }
+    }
+    return res;
+}; // }}}
+
 double times(double value, double a) { // {{{
     return value*a;
 }; // }}}
@@ -337,10 +362,22 @@ vectorComplex times(vectorComplex value, double a) { // {{{
 }; // }}}
 
 matrixComplex times(matrixComplex value, double a) { // {{{
-    matrixComplex res(value.size(), vectorComplex(value.size(), 0e0));
+    matrixComplex res(value.size(), vectorComplex(value.at(0).size(), 0e0));
     for(int i=0; i<value.size(); i++) {
-        for(int j=0; j<value.size(); j++) {
+        for(int j=0; j<value.at(0).size(); j++) {
             res[i][j] = value[i][j] * a;
+        }
+    }
+    return res;
+}; // }}}
+
+tensor2Complex times(tensor2Complex value, double a) { // {{{
+    tensor2Complex res(value.size(), matrixComplex(value.at(0).size(), vectorComplex(value.at(0).at(0).size(), 0e0)));
+    for(int i=0; i<value.size(); i++) {
+        for(int j=0; j<value.at(0).size(); j++) {
+            for(int k=0; k<value.at(0).at(0).size(); k++) {
+                res[i][j][k] = value[i][j][k] * a;
+            }
         }
     }
     return res;

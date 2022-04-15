@@ -423,6 +423,32 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
             tri.faces[i].normal[axis] = n1.vec[axis];
         }
         tri.faces[i].dS = get_dS(k1, k2, k3);
+//        if (!std::isfinite(tri.faces[i].dS)) {
+//            std::cout << "#" << i << ": " << tri.faces[i].dS << std::endl;
+//            std::string name = "nan.csv";
+//            std::ofstream ofs(name);
+//            ofs << std::setprecision(15) << std::scientific
+//                << tri.vertexes[v[0]].vec[0] << ", "
+//                << tri.vertexes[v[0]].vec[1] << ", "
+//                << tri.vertexes[v[0]].vec[2]
+//                << std::endl;
+//            ofs << std::setprecision(15) << std::scientific
+//                << tri.vertexes[v[1]].vec[0] << ", "
+//                << tri.vertexes[v[1]].vec[1] << ", "
+//                << tri.vertexes[v[1]].vec[2]
+//                << std::endl;
+//            ofs << std::setprecision(15) << std::scientific
+//                << tri.vertexes[v[2]].vec[0] << ", "
+//                << tri.vertexes[v[2]].vec[1] << ", "
+//                << tri.vertexes[v[2]].vec[2]
+//                << std::endl;
+//            ofs << std::setprecision(15) << std::scientific
+//                << tri.vertexes[v[0]].vec[0] << ", "
+//                << tri.vertexes[v[0]].vec[1] << ", "
+//                << tri.vertexes[v[0]].vec[2]
+//                << std::endl;
+//            ofs << ",," << std::endl;
+//        }
     }
 
     return tri;

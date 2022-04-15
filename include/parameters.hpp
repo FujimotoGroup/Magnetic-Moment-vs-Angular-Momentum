@@ -14,6 +14,7 @@
 #include <mutex>
 
 extern std::mutex mtx;
+extern int thread_num;
 
 using Complex = std::complex<double>;
 using vectorReal    = std::vector<double>;
@@ -28,6 +29,7 @@ extern const double angstrom;
 extern const double hbar;
 extern const double mass;
 extern const double charge;
+extern const double muB;
 
 extern const double v0;
 
@@ -135,16 +137,19 @@ void init(double& value);
 void init(Complex& value);
 void init(vectorComplex& value);
 void init(matrixComplex& value);
+void init(tensor2Complex& value);
 
-double        add(double value, double a);
-Complex       add(Complex value, Complex a);
-vectorComplex add(vectorComplex value, vectorComplex a);
-matrixComplex add(matrixComplex value, matrixComplex a);
+double         add(double value, double a);
+Complex        add(Complex value, Complex a);
+vectorComplex  add(vectorComplex value, vectorComplex a);
+matrixComplex  add(matrixComplex value, matrixComplex a);
+tensor2Complex add(tensor2Complex value, tensor2Complex a);
 
-double        times(double value, double a);
-Complex       times(Complex value, double a);
-vectorComplex times(vectorComplex value, double a);
-matrixComplex times(matrixComplex value, double a);
+double         times(double value, double a);
+Complex        times(Complex value, double a);
+vectorComplex  times(vectorComplex value, double a);
+matrixComplex  times(matrixComplex value, double a);
+tensor2Complex times(tensor2Complex value, double a);
 
 matrixComplex product(matrixComplex A, matrixComplex B);
 Complex tr(matrixComplex A);
@@ -223,8 +228,9 @@ using Green_function = matrixComplex;
 Green_function get_green_function_T(Complex ene, kpoint k);
 Green_function get_green_function_L(Complex ene, int valley, kpoint k);
 
-using SHC = std::vector<matrixReal>;
-SHC get_SHC_T(band b);
+using SHC = tensor2Complex;
+SHC get_SHC_T1(band b);
+SHC get_SHC_T2(band b);
 SHC get_SHC_L(band b, int valley);
 
 using Conductivity = matrixComplex;

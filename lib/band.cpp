@@ -1,7 +1,5 @@
 #include "parameters.hpp"
 
-int thread_num = std::thread::hardware_concurrency();
-
 void get_band_T(band& b, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh) { // {{{
     b.index   = band_index;
     b.mu_min  = mu_min;
