@@ -454,11 +454,11 @@ Complex tr(matrixComplex A) { // {{{
         auto start = std::find(diag.begin(), zero, diag[min]);
         std::sort(start, zero, std::greater<int>{});
     }
-    for(int i=min+1; i<n-min+1; i++) {
+    for(int i=min; i<n-min+1; i++) {
         res += diag[i];
     }
     for(int i=0; i<min; i++) {
-        res += diag[i] + diag[n-i];
+        res += (diag[i] + diag[n-i]);
     }
 
     return res;
