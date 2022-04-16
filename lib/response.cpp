@@ -82,16 +82,15 @@ SHC get_SHC_T1(band b) { // {{{
 
         auto fn = [](int band_index, chemical_potential mu, kpoint k) {
             SHC res(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+            Green_function GR = get_green_function_T(mu + eps_num*zi, k);
+            Green_function GA = get_green_function_T(mu - eps_num*zi, k);
             for(int external=0; external<space_dim; external++) {
+//                matrixComplex vGR    = product(vT[external], GR);
+                matrixComplex vGA    = product(vT[external], GA);
                 for(int axis=0; axis<space_dim; axis++) {
                     for(int spin=0; spin<spin_dim; spin++) {
-                        Green_function GR = get_green_function_T(mu + eps_num*zi, k);
-                        Green_function GA = get_green_function_T(mu - eps_num*zi, k);
-
                         matrixComplex vsGR   = product(v_s_T[axis][spin], GR);
 //                        matrixComplex vsGA   = product(v_s_T[axis][spin], GA);
-//                        matrixComplex vGR    = product(vT[external], GR);
-                        matrixComplex vGA    = product(vT[external], GA);
 
 //                        res[external][axis][spin] = tr(product(vsGR, vGA)) - 5e-1*(tr(product(vsGR, vGR)) + tr(product(vsGA, vGA)));
                         res[external][axis][spin] = tr(product(vsGR, vGA));
@@ -146,23 +145,23 @@ SHC get_SHC_T2(band b) { // {{{
 
         auto fn = [](int band_index, chemical_potential mu, kpoint k) {
             SHC res(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+            Green_function GR = get_green_function_T(mu + eps_num*zi, k);
+            Green_function GA = get_green_function_T(mu - eps_num*zi, k);
+
+            matrixComplex GRGR = product(GR, GR);
+            matrixComplex GAGA = product(GA, GA);
+
             for(int external=0; external<space_dim; external++) {
+                matrixComplex vGR    = product(vT[external], GR);
+                matrixComplex vGRGR  = product(vT[external], GRGR);
+                matrixComplex vGA    = product(vT[external], GA);
+                matrixComplex vGAGA  = product(vT[external], GAGA);
                 for(int axis=0; axis<space_dim; axis++) {
                     for(int spin=0; spin<spin_dim; spin++) {
-                        Green_function GR = get_green_function_T(mu + eps_num*zi, k);
-                        Green_function GA = get_green_function_T(mu - eps_num*zi, k);
-
-                        matrixComplex GRGR = product(GR, GR);
-                        matrixComplex GAGA = product(GA, GA);
-
                         matrixComplex vsGR   = product(v_s_T[axis][spin], GR);
                         matrixComplex vsGRGR = product(v_s_T[axis][spin], GRGR);
                         matrixComplex vsGA   = product(v_s_T[axis][spin], GA);
                         matrixComplex vsGAGA = product(v_s_T[axis][spin], GAGA);
-                        matrixComplex vGR    = product(vT[external], GR);
-                        matrixComplex vGRGR  = product(vT[external], GRGR);
-                        matrixComplex vGA    = product(vT[external], GA);
-                        matrixComplex vGAGA  = product(vT[external], GAGA);
 
                         Complex c = tr(product(vsGRGR, vGR)) - tr(product(vsGR, vGRGR)) - tr(product(vsGAGA, vGA)) + tr(product(vsGA, vGAGA));
                         res[external][axis][spin] = - c;

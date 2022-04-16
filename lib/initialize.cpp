@@ -39,9 +39,9 @@ const double g0 = 1.3861e0; // angstrom^-1
 
 const double cutoff = 2e-1*g0;
 double dk[3];
-const int k_mesh = 80;
+const int k_mesh = 100;
 const int k_mesh_more = 70;
-const int mu_mesh = 60;
+const int mu_mesh = 30;
 //const int k_mesh = 50; const int k_mesh_more = 50; const int mu_mesh = 30;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
@@ -386,10 +386,12 @@ tensor2Complex times(tensor2Complex value, double a) { // {{{
 matrixComplex product(matrixComplex A, matrixComplex B) { // {{{
     const int N = A.size();
     matrixComplex C(N, vectorComplex(N, 0e0));
+    Complex da;
     for(int i=0; i<N; i++) {
-        for(int j=0; j<N; j++) {
-            for(int k=0; k<N; k++) {
-                C[i][j] += A[i][k]*B[k][j];
+        for(int k=0; k<N; k++) {
+            da = A[i][k];
+            for(int j=0; j<N; j++) {
+                C[i][j] = C[i][j] + da*B[k][j];
             }
         }
     }
