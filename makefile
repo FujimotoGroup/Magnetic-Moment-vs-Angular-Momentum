@@ -1,7 +1,9 @@
 #COMPILER  = icpc
 COMPILER  = g++
 #CFLAGS    = -std=c++11 -qmkl -g -MMD -MP -Wall -Wextra -Winit-self -Wno-missing-field-initializers
-CFLAGS    = -O1 -std=c++17 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -ldl -lpthread -lm
+CFLAGS    = -std=c++17 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -ldl -lpthread -lm
+CFLAGS   += -O1
+#CFLAGS   += -g
 #CFLAGS   += -Wall
 
 ifeq "$(shell getconf LONG_BIT)" "64"

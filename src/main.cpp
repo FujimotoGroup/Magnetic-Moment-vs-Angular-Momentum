@@ -217,7 +217,6 @@ int main(){
 //    Conductivity sigma_T = get_conductivity_T(bT);
     SHC SHC1_T = get_SHC_T1(bT);
     SHC SHC2_T = get_SHC_T2(bT);
-//    SHC sigma_T = get_SHC_T(bT);
 
 ////    for(int valley=0; valley<valleys; valley++) {
 //        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;

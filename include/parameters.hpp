@@ -12,6 +12,7 @@
 #include <numeric>
 #include <thread>
 #include <mutex>
+#include <algorithm>
 
 extern std::mutex mtx;
 extern int thread_num;
@@ -133,17 +134,21 @@ int triangles_write_L(triangles tri, std::string filename, int valley);
 triangles get_triangles_T(int band_index, chemical_potential mu);
 triangles get_triangles_L(int valley, int band_index, chemical_potential mu);
 
-void init(double& value);
-void init(Complex& value);
-void init(vectorComplex& value);
-void init(matrixComplex& value);
-void init(tensor2Complex& value);
+void init(double& value, double& res);
+void init(Complex& value, Complex& res);
+void init(vectorComplex& value, vectorComplex& res);
+void init(matrixComplex& value, matrixComplex& res);
+void init(tensor2Complex& value, tensor2Complex& res);
 
 double         add(double value, double a);
 Complex        add(Complex value, Complex a);
 vectorComplex  add(vectorComplex value, vectorComplex a);
 matrixComplex  add(matrixComplex value, matrixComplex a);
 tensor2Complex add(tensor2Complex value, tensor2Complex a);
+
+vectorComplex  minus(vectorComplex value, vectorComplex a);
+matrixComplex  minus(matrixComplex value, matrixComplex a);
+tensor2Complex minus(tensor2Complex value, tensor2Complex a);
 
 double         times(double value, double a);
 Complex        times(Complex value, double a);
@@ -155,27 +160,42 @@ matrixComplex product(matrixComplex A, matrixComplex B);
 Complex tr(matrixComplex A);
 
 template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles tri, int band_index, chemical_potential mu) { // {{{
-    init(res);
+    init(res, res);
 
-    int size = tri.faces.size();
+    std::vector<std::thread> threads;
+    threads.resize(thread_num);
+    std::vector<N> part;
+    part.resize(thread_num);
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        init(part[i_thread], res);
+        auto func = [](int i_thread, triangles tri, Fn& fn, N& part, int band_index, chemical_potential mu) {
+            int size = tri.faces.size();
+            for(int i=i_thread; i<size; i=i+thread_num) {
+                kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
+                double norm = 0e0;
+                for(int axis=0; axis<space_dim; axis++) {
+                    norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
+                }
+                norm = std::sqrt(norm);
+                double dS = tri.faces[i].dS / norm / (2e0*pi)*(2e0*pi)*(2e0*pi);
+                N c = times(fn(band_index, mu, center), dS);
+                part = add(part, c);
+            }
+        };
+        threads[i_thread] = std::thread(func, i_thread, tri, std::ref(fn), std::ref(part[i_thread]), band_index, mu);
+    }
 
-    double factor = 1e0 / (2e0*pi)*(2e0*pi)*(2e0*pi);
+    for(auto& thread : threads){
+        thread.join();
+    }
 
-    for(int i=0; i<size; i++) {
-        kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
-        double norm = 0e0;
-        for(int axis=0; axis<space_dim; axis++) {
-            norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
-        }
-        norm = std::sqrt(norm);
-        double dS = tri.faces[i].dS / norm * factor;
-        N c = times(fn(band_index, mu, center), dS);
-        res = add(res, c);
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        res = add(res, part[i_thread]);
     }
 }; // }}}
 
 template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
-    init(res);
+    init(res, res);
 
     int size = tri.faces.size();
 

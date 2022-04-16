@@ -418,9 +418,15 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
         vector3 n1 = tri.normals[v[0]];
         vector3 n2 = tri.normals[v[1]];
         vector3 n3 = tri.normals[v[2]];
+        vector3 center;
+        vector3 normal;
         for(int axis=0; axis<space_dim; axis++) {
-            tri.faces[i].center[axis] = k1.vec[axis];
-            tri.faces[i].normal[axis] = n1.vec[axis];
+            center.vec[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
+        }
+        normal = get_velocity_T(band_index, mu, center);
+        for(int axis=0; axis<space_dim; axis++) {
+            tri.faces[i].center[axis] = center.vec[axis];
+            tri.faces[i].normal[axis] = normal.vec[axis];
         }
         tri.faces[i].dS = get_dS(k1, k2, k3);
 //        if (!std::isfinite(tri.faces[i].dS)) {

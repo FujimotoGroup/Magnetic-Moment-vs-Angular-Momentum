@@ -42,7 +42,6 @@ band set_band_T(int band_index, chemical_potential mu_min, chemical_potential mu
                 std::cout << "mu = " << mu << std::endl;
                 mtx.unlock();
                 b.tri[i_mu] = get_triangles_T(band_index, mu);
-                b.dos[i_mu] = get_DOS_T(b.tri[i_mu], band_index, mu);
             }
         };
         threads[i_thread] = std::thread(func, i_thread, std::ref(b), band_index);
@@ -53,6 +52,7 @@ band set_band_T(int band_index, chemical_potential mu_min, chemical_potential mu
 
     for(int i_mu=0; i_mu<b.mu_mesh; i_mu++) {
         chemical_potential mu = b.mu_min + b.dmu*double(i_mu);
+        b.dos[i_mu] = get_DOS_T(b.tri[i_mu], band_index, mu);
         ofs << std::scientific << b.tri[i_mu].ene << ", " << b.dos[i_mu] << std::endl;
     }
 

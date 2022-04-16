@@ -8,6 +8,7 @@ const double hbar     = 6.582119569e-16; // [eV s]
 const double mass     = 9.10938356e-31; // [kg]
 const double charge   = 1.60217662e-19; // [C]
 const double muB      = 9.2740100783e-24; // [J/T]
+const double muBeV    = 5.7883818060e-5; // [eV/T]
 
 const double v0       = 1e6; // [m/s]
 
@@ -41,8 +42,8 @@ const double cutoff = 2e-1*g0;
 double dk[3];
 const int k_mesh = 100;
 const int k_mesh_more = 70;
-const int mu_mesh = 30;
-//const int k_mesh = 50; const int k_mesh_more = 50; const int mu_mesh = 30;
+const int mu_mesh = 60;
+//const int k_mesh = 30; const int k_mesh_more = 50; const int mu_mesh = 32;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
@@ -150,7 +151,7 @@ void initialize() {
         for(int i=l; i<n; i++) {
             mu_s_T[spin][i-l].resize(bandsT);
             for(int j=l; j<n; j++) {
-                mu_s_T[spin][i-l][j-l] = v[i][j] / muB;
+                mu_s_T[spin][i-l][j-l] = v[i][j] / muB * muBeV;
             }
         }
 
@@ -218,7 +219,7 @@ void initialize() {
             for(int i=l; i<n; i++) {
                 mu_s_L[valley][axis][i-l].resize(bandsL);
                 for(int j=l; j<n; j++) {
-                    mu_s_L[valley][axis][i-l][j-l] = v[i][j] / muB;
+                    mu_s_L[valley][axis][i-l][j-l] = v[i][j] / muB * muBeV;
                 }
             }
 
@@ -275,33 +276,39 @@ void initialize() {
     // }}}
 };
 
-void init(double& value) { // {{{
+void init(double& value, double& res) { // {{{
     value = 0e0;
 }; // }}}
 
-void init(Complex& value) { // {{{
+void init(Complex& value, Complex& res) { // {{{
     value = 0e0;
 }; // }}}
 
-void init(vectorComplex& value) { // {{{
-    for(auto val: value) {
-        val = 0e0;
+void init(vectorComplex& value, vectorComplex& res) { // {{{
+    value.resize(res.size());
+    for(int i=0; i<res.size(); i++) {
+        value[i] = 0e0;
     }
 }; // }}}
 
-void init(matrixComplex& value) { // {{{
-    for(auto val: value) {
-        for(auto v: val) {
-            v = 0e0;
+void init(matrixComplex& value, matrixComplex& res) { // {{{
+    value.resize(res.size());
+    for(int i=0; i<res.size(); i++) {
+        value[i].resize(res.at(0).size());
+        for(int j=0; j<res.at(0).size(); j++) {
+            value[i][j] = 0e0;
         }
     }
 }; // }}}
 
-void init(tensor2Complex& value) { // {{{
-    for(auto val: value) {
-        for(auto v: val) {
-            for(auto s: v) {
-                s = 0e0;
+void init(tensor2Complex& value, tensor2Complex& res) { // {{{
+    value.resize(res.size());
+    for(int i=0; i<res.size(); i++) {
+        value[i].resize(res.at(0).size());
+        for(int j=0; j<res.at(0).size(); j++) {
+            value[i][j].resize(res.at(0).at(0).size());
+            for(int k=0; k<res.at(0).at(0).size(); k++) {
+                value[i][j][k] = 0e0;
             }
         }
     }
@@ -324,7 +331,7 @@ vectorComplex add(vectorComplex value, vectorComplex a) { // {{{
 }; // }}}
 
 matrixComplex add(matrixComplex value, matrixComplex a) { // {{{
-    matrixComplex res(value.size(), vectorComplex(value.size(), 0e0));
+    matrixComplex res(value.size(), vectorComplex(value.at(0).size(), 0e0));
     for(int i=0; i<value.size(); i++) {
         for(int j=0; j<value.size(); j++) {
             res[i][j] = value[i][j] + a[i][j];
@@ -339,6 +346,36 @@ tensor2Complex add(tensor2Complex value, tensor2Complex a) { // {{{
         for(int j=0; j<value.at(0).size(); j++) {
             for(int k=0; k<value.at(0).at(0).size(); k++) {
                 res[i][j][k] = value[i][j][k] + a[i][j][k];
+            }
+        }
+    }
+    return res;
+}; // }}}
+
+vectorComplex minus(vectorComplex value, vectorComplex a) { // {{{
+    vectorComplex res(value.size(), 0e0);
+    for(int i=0; i<value.size(); i++) {
+        res[i] = value[i]-a[i];
+    }
+    return res;
+}; // }}}
+
+matrixComplex minus(matrixComplex value, matrixComplex a) { // {{{
+    matrixComplex res(value.size(), vectorComplex(value.at(0).size(), 0e0));
+    for(int i=0; i<value.size(); i++) {
+        for(int j=0; j<value.size(); j++) {
+            res[i][j] = value[i][j] - a[i][j];
+        }
+    }
+    return res;
+}; // }}}
+
+tensor2Complex minus(tensor2Complex value, tensor2Complex a) { // {{{
+    tensor2Complex res(value.size(), matrixComplex(value.at(0).size(), vectorComplex(value.at(0).at(0).size(), 0e0)));
+    for(int i=0; i<value.size(); i++) {
+        for(int j=0; j<value.at(0).size(); j++) {
+            for(int k=0; k<value.at(0).at(0).size(); k++) {
+                res[i][j][k] = value[i][j][k] - a[i][j][k];
             }
         }
     }
@@ -400,9 +437,28 @@ matrixComplex product(matrixComplex A, matrixComplex B) { // {{{
 
 Complex tr(matrixComplex A) { // {{{
     Complex res = 0e0;
+    const int n = A.size();
 
-    for(int i=0; i<A.size(); i++) {
-        res += A[i][i];
+    vectorReal diag;
+    diag.resize(n+1);
+    for(int i=0; i<n; i++) {
+        diag[i] = A[i][i].real();
+    }
+    diag[n] = 0e0;
+    std::sort(diag.begin(), diag.end());
+    auto zero = std::find(diag.begin(), diag.end(), 0e0);
+    const int index = std::distance(diag.begin(), zero);
+    const int min = std::min(index, n-index);
+
+    if (min != index) {
+        auto start = std::find(diag.begin(), zero, diag[min]);
+        std::sort(start, zero, std::greater<int>{});
+    }
+    for(int i=min+1; i<n-min+1; i++) {
+        res += diag[i];
+    }
+    for(int i=0; i<min; i++) {
+        res += diag[i] + diag[n-i];
     }
 
     return res;

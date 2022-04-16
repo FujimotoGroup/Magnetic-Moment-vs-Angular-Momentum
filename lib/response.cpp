@@ -1,6 +1,9 @@
 #include "parameters.hpp"
 #include <filesystem>
 
+int i_epsilon_min = 1;
+int i_epsilon_max = 3;
+
 void set_output_directory(std::string dir) { // {{{
     namespace fs = std::filesystem;
     std::string directory_name("dat/"+dir);
@@ -37,8 +40,8 @@ Conductivity get_conductivity_T(band b) { // {{{
             matrixComplex res(space_dim, vectorComplex(space_dim, 0e0));
 
             for(int external=0; external<space_dim; external++) {
+                matrixComplex C1 = product(vT[external], GR);
                 for(int axis=0; axis<space_dim; axis++) {
-                    matrixComplex C1 = product(vT[external], GR);
                     matrixComplex C2 = product(vT[axis], GA);
 
                     res[external][axis] = tr(product(C1, C2)) * epsilon;
@@ -73,7 +76,7 @@ SHC get_SHC_T1(band b) { // {{{
     std::string dir = "T"+std::to_string(bandsT)+"bands";
     set_output_directory(dir);
 
-    for(int i=3; i<4; i++) {
+    for(int i=i_epsilon_min; i<i_epsilon_max; i++) {
         double epsilon = 1e0;
         for(int j=0; j<i; j++) {
             epsilon *= 1e-1;
@@ -136,7 +139,7 @@ SHC get_SHC_T2(band b) { // {{{
     std::string dir = "T"+std::to_string(bandsT)+"bands";
     set_output_directory(dir);
 
-    for(int i=3; i<4; i++) {
+    for(int i=i_epsilon_min; i<i_epsilon_max; i++) {
         double epsilon = 1e0;
         for(int j=0; j<i; j++) {
             epsilon *= 1e-1;
@@ -148,23 +151,21 @@ SHC get_SHC_T2(band b) { // {{{
             Green_function GR = get_green_function_T(mu + eps_num*zi, k);
             Green_function GA = get_green_function_T(mu - eps_num*zi, k);
 
-            matrixComplex GRGR = product(GR, GR);
-            matrixComplex GAGA = product(GA, GA);
-
             for(int external=0; external<space_dim; external++) {
-                matrixComplex vGR    = product(vT[external], GR);
-                matrixComplex vGRGR  = product(vT[external], GRGR);
-                matrixComplex vGA    = product(vT[external], GA);
-                matrixComplex vGAGA  = product(vT[external], GAGA);
+                matrixComplex vGR = product(vT[external], GR);
+                matrixComplex vGA = product(vT[external], GA);
+                matrixComplex GRv = product(GR, vT[external]);
+                matrixComplex GAv = product(GA, vT[external]);
+                matrixComplex QR  = minus(GRv, vGR);
+                matrixComplex QA  = minus(GAv, vGA);
+                matrixComplex vR  = product(GR, product(QR, GR));
+                matrixComplex vA  = product(GA, product(QA, GA));
                 for(int axis=0; axis<space_dim; axis++) {
                     for(int spin=0; spin<spin_dim; spin++) {
-                        matrixComplex vsGR   = product(v_s_T[axis][spin], GR);
-                        matrixComplex vsGRGR = product(v_s_T[axis][spin], GRGR);
-                        matrixComplex vsGA   = product(v_s_T[axis][spin], GA);
-                        matrixComplex vsGAGA = product(v_s_T[axis][spin], GAGA);
+                        matrixComplex R = product(v_s_T[axis][spin], vR);
+                        matrixComplex A = product(v_s_T[axis][spin], vA);
 
-                        Complex c = tr(product(vsGRGR, vGR)) - tr(product(vsGR, vGRGR)) - tr(product(vsGAGA, vGA)) + tr(product(vsGA, vGAGA));
-                        res[external][axis][spin] = - c;
+                        res[external][axis][spin] = tr(R) - tr(A);
                     }
                 }
             }
@@ -233,8 +234,8 @@ Conductivity get_conductivity_L(band b, int valley) { // {{{
             matrixComplex res(space_dim, vectorComplex(space_dim, 0e0));
 
             for(int external=0; external<space_dim; external++) {
+                matrixComplex C1 = product(vL[valley][external], GR);
                 for(int axis=0; axis<space_dim; axis++) {
-                    matrixComplex C1 = product(vL[valley][external], GR);
                     matrixComplex C2 = product(vL[valley][axis], GA);
 
                     res[external][axis] = tr(product(C1, C2)) * epsilon;
@@ -258,45 +259,6 @@ Conductivity get_conductivity_L(band b, int valley) { // {{{
             }
             ofs << std::endl;
         }
-    }
-
-    return response;
-}; // }}}
-
-SHC get_SHC_L(band b, int valley) { // {{{
-    SHC response;
-    response.resize(space_dim); // external index;
-    for(int external=0; external<space_dim; external++) {
-        response[external].resize(space_dim);
-        for(int axis=0; axis<space_dim; axis++) {
-            response[external][axis].resize(spin_dim);
-            for(int spin=0; spin<spin_dim; spin++) {
-                response[external][axis][spin] = 0e0;
-            }
-        }
-    }
-
-    auto fn = [](int valley, int band_index, chemical_potential mu, kpoint k) {
-        int external = 1; // x
-        int axis = 1;     // y
-        int spin = 2;     // z
-        Green_function GR = get_green_function_L(mu + eps_num*zi, valley, k);
-        Green_function GA = get_green_function_L(mu - eps_num*zi, valley, k);
-
-        Complex res = 0e0;
-
-        matrixComplex C1 = product(vL[valley][external], GR);
-        matrixComplex C2 = product(vL[valley][axis], GA);
-
-        res = tr(product(C1, C2));
-
-        return res;
-    };
-
-    for(int i_mu=0; i_mu<b.mu_mesh; i_mu++) {
-        Complex dos = 0e0;
-        chemical_potential mu = b.mu_min + b.dmu*double(i_mu);
-        integrate_triangles_L(fn, dos, b.tri[i_mu], valley, b.index, mu);
     }
 
     return response;
