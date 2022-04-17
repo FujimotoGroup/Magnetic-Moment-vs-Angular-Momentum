@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.13)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_COMPILER "g++")
+set(MKL_DIR "/opt/intel/mkl/")
+project(bismuth CXX)
+find_package(CGAL)
+find_package(MKL CONFIG REQUIRED)
+find_package(CGAL REQUIRED COMPONENTS Qt5 Core)
+add_subdirectory(src)
+add_subdirectory(lib)
+
