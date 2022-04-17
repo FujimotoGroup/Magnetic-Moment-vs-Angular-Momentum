@@ -13,6 +13,25 @@
 #include <thread>
 #include <mutex>
 #include <algorithm>
+#include <CGAL/Surface_mesh_default_triangulation_3.h>
+#include <CGAL/Complex_2_in_triangulation_3.h>
+#include <CGAL/make_surface_mesh.h>
+#include <CGAL/Implicit_surface_3.h>
+#include <CGAL/IO/facets_in_complex_2_to_triangle_mesh.h>
+#include <CGAL/Surface_mesh.h>
+#include <fstream>
+typedef CGAL::Surface_mesh_default_triangulation_3 Tr;
+// c2t3
+typedef CGAL::Complex_2_in_triangulation_3<Tr> C2t3;
+typedef Tr::Geom_traits GT;
+typedef GT::Sphere_3 Sphere_3;
+typedef GT::Point_3 Point_3;
+typedef GT::FT FT;
+typedef FT (*Function)(Point_3);
+typedef CGAL::Implicit_surface_3<GT, Function> Surface_3;
+typedef CGAL::Surface_mesh<Point_3> Surface_mesh;
+
+Surface_mesh get_triangles_cgal_T(CGAL::Surface_mesh_default_criteria_3<Tr> criteria);
 
 extern std::mutex mtx;
 extern int thread_num;
@@ -43,6 +62,10 @@ extern const int bandsT;
 extern const int bandsL;
 extern const int lowest_band_T;
 extern const int lowest_band_L;
+
+extern chemical_potential mu;
+extern int band_index;
+extern int valley_index;
 
 extern const double a;
 extern const double c;
@@ -213,6 +236,9 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
         res = add(res, c);
     }
 }; // }}}
+
+double get_E_T(int band_index, kpoint k);
+double get_E_L(int valley, int band_index, kpoint k);
 
 double get_DOS_T(triangles tri, int band_index, chemical_potential mu);
 double get_DOS_L(triangles tri, int valley, int band_index, chemical_potential mu);

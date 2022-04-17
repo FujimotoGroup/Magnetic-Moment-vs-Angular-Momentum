@@ -49,6 +49,11 @@ const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b3 = { 0e0   , 2e0*std::sqrt(3e0)*g0/3e0   , (a/c)*g0 };
 
+int band_index;
+int valley_index;
+chemical_potential mu;
+
+
 vectorReal kT;
 vectorReal kL[3];
 
