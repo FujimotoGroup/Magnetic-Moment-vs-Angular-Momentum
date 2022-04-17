@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_BUILD_TYPE "release")
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_CXX_COMPILER "g++")
 set(MKL_DIR "/opt/intel/mkl/")
 project(bismuth CXX)
