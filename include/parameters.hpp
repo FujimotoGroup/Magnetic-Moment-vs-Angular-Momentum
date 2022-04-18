@@ -31,8 +31,6 @@ typedef FT (*Function)(Point_3);
 typedef CGAL::Implicit_surface_3<GT, Function> Surface_3;
 typedef CGAL::Surface_mesh<Point_3> Surface_mesh;
 
-Surface_mesh get_triangles_cgal_T(CGAL::Surface_mesh_default_criteria_3<Tr> criteria);
-
 extern std::mutex mtx;
 extern int thread_num;
 
@@ -62,10 +60,6 @@ extern const int bandsT;
 extern const int bandsL;
 extern const int lowest_band_T;
 extern const int lowest_band_L;
-
-extern chemical_potential mu;
-extern int band_index;
-extern int valley_index;
 
 extern const double a;
 extern const double c;
@@ -192,6 +186,7 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
     for (int i_thread=0; i_thread<thread_num; i_thread++) {
         init(part[i_thread], res);
         auto func = [](int i_thread, triangles tri, Fn& fn, N& part, int band_index, chemical_potential mu) {
+            double coef = 1e0 / (2e0*pi)*(2e0*pi)*(2e0*pi);
             int size = tri.faces.size();
             for(int i=i_thread; i<size; i=i+thread_num) {
                 kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
@@ -200,7 +195,7 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
                     norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
                 }
                 norm = std::sqrt(norm);
-                double dS = tri.faces[i].dS / norm / (2e0*pi)*(2e0*pi)*(2e0*pi);
+                double dS = tri.faces[i].dS / norm * coef;
                 N c = times(fn(band_index, mu, center), dS);
                 part = add(part, c);
             }
@@ -220,20 +215,36 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
 template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
     init(res, res);
 
-    int size = tri.faces.size();
+    std::vector<std::thread> threads;
+    threads.resize(thread_num);
+    std::vector<N> part;
+    part.resize(thread_num);
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        init(part[i_thread], res);
+        auto func = [](int i_thread, triangles tri, Fn& fn, N& part, int valley, int band_index, chemical_potential mu) {
+            double coef = 1e0 / (2e0*pi)*(2e0*pi)*(2e0*pi);
+            int size = tri.faces.size();
+            for(int i=i_thread; i<size; i=i+thread_num) {
+                kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
+                double norm = 0e0;
+                for(int axis=0; axis<space_dim; axis++) {
+                    norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
+                }
+                norm = std::sqrt(norm);
+                double dS = tri.faces[i].dS / norm * coef;
+                N c = times(fn(valley, band_index, mu, center), dS);
+                part = add(part, c);
+            }
+        };
+        threads[i_thread] = std::thread(func, i_thread, tri, std::ref(fn), std::ref(part[i_thread]), valley, band_index, mu);
+    }
 
-    double factor = 1e0 / (2e0*pi)*(2e0*pi)*(2e0*pi);
+    for(auto& thread : threads){
+        thread.join();
+    }
 
-    for(int i=0; i<size; i++) {
-        kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
-        double norm = 0e0;
-        for(int axis=0; axis<space_dim; axis++) {
-            norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
-        }
-        norm = std::sqrt(norm);
-        double dS = tri.faces[i].dS / norm * factor;
-        N c = times(fn(valley, band_index, mu, center), dS);
-        res = add(res, c);
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        res = add(res, part[i_thread]);
     }
 }; // }}}
 

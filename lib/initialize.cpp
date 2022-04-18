@@ -21,13 +21,13 @@ const int bands = H_dim;
 
 //const int bandsT = 6; const int lowest_band_T = 7; // minimal
 //const int bandsT = 8; const int lowest_band_T = 5; // not good
-const int bandsT = 8; const int lowest_band_T = 7; // better
+//const int bandsT = 8; const int lowest_band_T = 7; // better
 //const int bandsT = 10; const int lowest_band_T = 7; // more better
-//const int bandsT = 12; const int lowest_band_T = 5; // almost full
+const int bandsT = 12; const int lowest_band_T = 5; // almost full
 //const int bandsT = 16; const int lowest_band_T = 1; // full
 
 const int bandsL = 4; const int lowest_band_L = 9;
-//const int bandsL = 16; const int lowest_band_L = 1;
+//const int bandsL = 12; const int lowest_band_L = 1;
 
 const int space_dim = 3;
 const int spin_dim = 3;
@@ -48,11 +48,6 @@ const int mu_mesh = 60;
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b3 = { 0e0   , 2e0*std::sqrt(3e0)*g0/3e0   , (a/c)*g0 };
-
-int band_index;
-int valley_index;
-chemical_potential mu;
-
 
 vectorReal kT;
 vectorReal kL[3];
@@ -442,30 +437,34 @@ matrixComplex product(matrixComplex A, matrixComplex B) { // {{{
 
 Complex tr(matrixComplex A) { // {{{
     Complex res = 0e0;
-    const int n = A.size();
-
-    vectorReal diag;
-    diag.resize(n+1);
-    for(int i=0; i<n; i++) {
-        diag[i] = A[i][i].real();
+    for(int i=0; i<A.size(); i++) {
+        res += A[i][i];
     }
-    diag[n] = 0e0;
-    std::sort(diag.begin(), diag.end());
-    auto zero = std::find(diag.begin(), diag.end(), 0e0);
-    const int index = std::distance(diag.begin(), zero);
-    const int min = std::min(index, n-index);
-
-    if (min != index) {
-        auto start = std::find(diag.begin(), zero, diag[min]);
-        std::sort(start, zero, std::greater<int>{});
-    }
-    for(int i=min; i<n-min+1; i++) {
-        res += diag[i];
-    }
-    for(int i=0; i<min; i++) {
-        res += (diag[i] + diag[n-i]);
-    }
-
     return res;
+//    const int n = A.size();
+//
+//    vectorReal diag;
+//    diag.resize(n+1);
+//    for(int i=0; i<n; i++) {
+//        diag[i] = A[i][i].real();
+//    }
+//    diag[n] = 0e0;
+//    std::sort(diag.begin(), diag.end());
+//    auto zero = std::find(diag.begin(), diag.end(), 0e0);
+//    const int index = std::distance(diag.begin(), zero);
+//    const int min = std::min(index, n-index);
+//
+//    if (min != index) {
+//        auto start = std::find(diag.begin(), zero, diag[min]);
+//        std::sort(start, zero, std::greater<int>{});
+//    }
+//    for(int i=min; i<n-min+1; i++) {
+//        res += diag[i];
+//    }
+//    for(int i=0; i<min; i++) {
+//        res += (diag[i] + diag[n-i]);
+//    }
+//
+//    return res;
 }; // }}}
 

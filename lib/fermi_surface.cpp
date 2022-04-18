@@ -36,60 +36,23 @@ double NRsqrt(double a) { // {{{
 //    return x;
 } // }}}
 
-triangles get_triangles(fermi_surface fs) { // {{{
+triangles set_triangles(chemical_potential mu, Surface_mesh mesh) { // {{{
     triangles tri;
-    tri.ene = fs.e;
+    tri.ene = mu;
 
-    int size = fs.kset.size();
-    if (size > 0) {
-        std::random_device seed_gen;
-        std::default_random_engine engine(seed_gen());
-        std::uniform_int_distribution<> dst(0, 100000);
-        int id = dst(engine);
+    for(Surface_mesh::Vertex_index vd : mesh.vertices()) {
+        vector3 v = {mesh.point(vd).x(), mesh.point(vd).y(), mesh.point(vd).z()};
+        tri.vertexes.push_back(v);
+    }
 
-//        std::cout << id << std::endl;
-
-        std::string input = "./fs"+std::to_string(id)+".csv";
-        std::string output = "./triangles"+std::to_string(id)+".obj";
-        fermi_surface_write(fs, input);
-        std::string exec = "python ./py/get_triangles.py "+input+" "+output;
-        system(exec.c_str());
-
-        std::ifstream ifs(output);
-        if (ifs.fail()) {
-            std::cerr << "Failed to open " << output << std::endl;
+    for(Surface_mesh::Face_index fd : mesh.faces()) {
+        face f;
+        int i = 0;
+        for(Surface_mesh::Vertex_index vd : vertices_around_face(mesh.halfedge(fd), mesh)) {
+            f.face[i] = vd;
+            i++;
         }
-        std::string buf;
-        while (std::getline(ifs, buf)) {
-            std::vector<std::string> data;
-            data = split(buf, ' ');
-            if (data[0] == "#") {
-                continue;
-            } else if (data[0] == "v") {
-                vector3 v = {std::stod(data[1]), std::stod(data[2]), std::stod(data[3])};
-                tri.vertexes.push_back(v);
-            } else if (data[0] == "vn") {
-                vector3 vn = {std::stod(data[1]), std::stod(data[2]), std::stod(data[3])};
-                tri.normals.push_back(vn);
-            } else if (data[0] == "f") {
-                std::vector<std::string> f1, f2, f3;
-                f1 = split(data[1], '/');
-                f2 = split(data[2], '/');
-                f3 = split(data[3], '/');
-
-                face f;
-                f.face[0] = std::stoi(f1[0])-1;
-                f.face[1] = std::stoi(f2[0])-1;
-                f.face[2] = std::stoi(f3[0])-1;
-                tri.faces.push_back(f);
-            }
-        }
-
-        if (tri.vertexes.size() == 0)
-            std::cerr << "Failed to get triangles; vertexes# " << tri.vertexes.size() << ", normals# " << tri.normals.size() << std::endl;
-
-        exec = "rm "+input+" "+output;
-        system(exec.c_str());
+        tri.faces.push_back(f);
     }
 
     return tri;
@@ -246,165 +209,62 @@ velocity get_velocity_T(int band_index, chemical_potential mu, kpoint k) { // {{
     return v;
 }; // }}}
 
-fermi_surface get_fermi_surface_more_T(fermi_surface fs, int band_index, chemical_potential mu) { // {{{
-    int n = k_mesh_more;
-
-    fermi_surface new_fs;
-    new_fs.e = mu;
-
-    double x_max = 0e0, x_min = 0e0;
-    double y_max = 0e0, y_min = 0e0;
-    double z_max = 0e0, z_min = 0e0;
-    int size = fs.kset.size();
-    for(int i=0; i<size; i++) {
-        x_max = std::max(x_max, fs.kset[i].vec[0]);
-        x_min = std::min(x_min, fs.kset[i].vec[0]);
-        y_max = std::max(y_max, fs.kset[i].vec[1]);
-        y_min = std::min(y_min, fs.kset[i].vec[1]);
-        z_max = std::max(z_max, fs.kset[i].vec[2]);
-        z_min = std::min(z_min, fs.kset[i].vec[2]);
-    }
-
-    vectorReal len = vectorReal(3, 0e0);
-    len[0] = x_max - x_min;
-    len[1] = y_max - y_min;
-    len[2] = z_max - z_min;
-
-    for(int axis=0; axis<space_dim; axis++) {
-        if (len[axis] == 0e0) len[axis] = 2e0*dk[axis];
-    }
-
-    kpoint center;
-    center.vec[0] = (x_max + x_min)* 5e-1;
-    center.vec[1] = (y_max + y_min)* 5e-1;
-    center.vec[2] = (z_max + z_min)* 5e-1;
-
-//    std::cout << "center = " << center.vec[0] << ", " << center.vec[1] << ", " << center.vec[2] << std::endl;
-//    std::cout << "length = " << len[0] << ", " << len[1] << ", " << len[2] << std::endl;
-
-    double z, x[2*n], y[2*n];
-    double ene[2*n][2*n];
-    double dn = 1.3e0/double(n);
-    for (int i_z = 0; i_z < 2*n; i_z++) {
-        z = center.vec[2] + double(i_z-n)*dn*len[2];
-        for (int i_y = 0; i_y < 2*n; i_y++) {
-            y[i_y] = center.vec[1] + double(i_y-n)*dn*len[1];
-            for (int i_x = 0; i_x < 2*n; i_x++) {
-                x[i_x] = center.vec[0] + double(i_x-n)*dn*len[0];
-                kpoint p = {x[i_x], y[i_y], z};
-                ene[i_y][i_x] = get_E_T(band_index, p) - mu;
-            }
+Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double c, CGAL::Surface_mesh_default_criteria_3<Tr> criteria) { // {{{
+    Tr tr;            // 3D-Delaunay triangulation
+    C2t3 c2t3 (tr);   // 2D-complex in 3D-Delaunay triangulation
+    // defining the surface
+    auto dispersionT = [&](Point_3 p) {
+        kpoint k;
+        k.vec[0] = double(p.x());
+        k.vec[1] = double(p.y());
+        k.vec[2] = double(p.z());
+        const FT e = FT(get_E_T(band_index, k)) - mu;
+//        std::cout << p.x() << ", " << p.y() << ", " << p.z() << ", " << e << std::endl;
+        return e;
+    };
+    Surface_3 surface(dispersionT, Sphere_3(CGAL::ORIGIN, c), 1e-8);
+    CGAL::make_surface_mesh(c2t3, surface, criteria, CGAL::Non_manifold_tag());
+    Surface_mesh sm;
+    CGAL::facets_in_complex_2_to_triangle_mesh(c2t3, sm);
+    for(Surface_mesh::Face_index fd : sm.faces()) {
+        for(Surface_mesh::Vertex_index vd : vertices_around_face(sm.halfedge(fd), sm)) {
+        kpoint k = {sm.point(vd).x(), sm.point(vd).y(), sm.point(vd).z()};
+        double e = get_E_T(band_index, k) - mu;
+        if (std::abs(e) > 1e-7)
+            std::cout << vd << ", " << e  << std::endl;
         }
-
-        for (int i_y = 0; i_y < 2*n-1; i_y++) {
-            for (int i_x = 0; i_x < 2*n-1; i_x++) {
-                if (ene[i_y][i_x+1] * ene[i_y][i_x] < 0e0) {
-                    int axis = 0;
-                    kpoint p = {x[i_x], y[i_y], z};
-                    kpoint k = bisec_T(band_index, mu, ene[i_y][i_x], p, axis, x[i_x+1]);
-                    new_fs.kset.push_back(k);
-                    new_fs.vset.push_back(get_velocity_T(band_index, mu, k));
-                }
-
-                if (ene[i_y+1][i_x] * ene[i_y][i_x] < 0e0) {
-                    int axis = 1;
-                    kpoint p = {x[i_x], y[i_y], z};
-                    kpoint k = bisec_T(band_index, mu, ene[i_y][i_x], p, axis, y[i_y+1]);
-                    new_fs.kset.push_back(k);
-                    new_fs.vset.push_back(get_velocity_T(band_index, mu, k));
-                }
-            }
-        }
-
     }
 
-//    std::cout << "new_fs#" << new_fs.kset.size() << std::endl;
-    return new_fs;
-}; // }}}
+//    std::ofstream out("sphere.off");
+//    out << sm << std::endl;
+//    std::cout << "Final number of points: " << tr.number_of_vertices() << "\n";
 
-fermi_surface get_fermi_surace_T(int band_index, chemical_potential mu) { // {{{
-    int n = k_mesh;
-
-    fermi_surface fs;
-    fs.e = mu;
-
-    double z, x[2*n], y[2*n];
-    double ene[2*n][2*n];
-    double dn = 1e0/double(n);
-    for(int axis=0; axis<space_dim; axis++) {
-        dk[axis] = cutoff*dn;
-    }
-
-    for (int i_z = 0; i_z < 2*n; i_z++) {
-        z = double(i_z-n)*dk[2];
-        for (int i_y = 0; i_y < 2*n; i_y++) {
-            y[i_y] = double(i_y-n)*dk[1];
-            for (int i_x = 0; i_x < 2*n; i_x++) {
-                x[i_x] = double(i_x-n)*dk[0];
-                kpoint p = {x[i_x], y[i_y], z};
-                ene[i_y][i_x] = get_E_T(band_index, p) - mu;
-            }
-        }
-
-        for (int i_y = 0; i_y < 2*n-1; i_y++) {
-            for (int i_x = 0; i_x < 2*n-1; i_x++) {
-                if (ene[i_y][i_x+1] * ene[i_y][i_x] < 0e0) {
-                    int axis = 0;
-                    kpoint p = {x[i_x], y[i_y], z};
-                    kpoint k = bisec_T(band_index, mu, ene[i_y][i_x], p, axis, x[i_x+1]);
-                    fs.kset.push_back(k);
-                    fs.vset.push_back(get_velocity_T(band_index, mu, k));
-                }
-
-                if (ene[i_y+1][i_x] * ene[i_y][i_x] < 0e0) {
-                    int axis = 1;
-                    kpoint p = {x[i_x], y[i_y], z};
-                    kpoint k = bisec_T(band_index, mu, ene[i_y][i_x], p, axis, y[i_y+1]);
-                    fs.kset.push_back(k);
-                    fs.vset.push_back(get_velocity_T(band_index, mu, k));
-                }
-            }
-        }
-
-    }
-
-    int size_fs = fs.kset.size();
-    if (size_fs < 5) {
-        fs.kset.resize(0);
-        return fs;
-    }
-
-    if ((size_fs > 5) && (size_fs < 1000)) {
-        do {
-            std::cout << "re-constructing Fermi surface because of poor mesh number." << std::endl;
-            fs = get_fermi_surface_more_T(fs, band_index, mu);
-            size_fs = fs.kset.size();
-            std::cout << "fs#" << size_fs << std::endl;
-        } while (fs.kset.size() < 400);
-        size_fs = fs.kset.size();
-    }
-
-    std::cout << "final fs#" << size_fs << std::endl;
-
-    return fs;
-}; // }}}
+    return sm;
+} // }}}
 
 triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
-    fermi_surface fs = get_fermi_surace_T(band_index, mu);
-    int size_fs = fs.kset.size();
-
-    triangles tri;
-    if (size_fs == 0) {
-        tri.ene = fs.e;
-        return tri;
-    }
-
-    tri = get_triangles(fs);
+    CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
+                                                       5e-3,  // radius bound
+                                                       5e-3); // distance bound
+    Surface_mesh mesh = get_triangles_cgal_T(band_index, mu, cutoff, criteria);
 
     int size;
-    size = tri.vertexes.size();
-    if (tri.normals.size() == 0) tri.normals.resize(size);
 
+    size = mesh.number_of_faces();
+    if (size < 1000) {
+        std::cout << "get surface mesh again @ mu = " << mu << ": fs#" << size << std::endl;
+        CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
+                                                           1e-3,  // radius bound
+                                                           1e-3); // distance bound
+        mesh = get_triangles_cgal_T(band_index, mu, cutoff, criteria);
+    }
+    size = mesh.number_of_faces();
+    std::cout << "mu = " << mu << "; final fs face# " << size << std::endl;
+
+    triangles tri = set_triangles(mu, mesh);
+
+    size = tri.vertexes.size();
+    tri.normals.resize(size);
     for (int i=0; i<size; i++) {
         tri.normals[i] = get_velocity_T(band_index, mu, tri.vertexes[i]);
     }
@@ -415,13 +275,11 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
         vector3 k1 = tri.vertexes[v[0]];
         vector3 k2 = tri.vertexes[v[1]];
         vector3 k3 = tri.vertexes[v[2]];
-        vector3 n1 = tri.normals[v[0]];
-        vector3 n2 = tri.normals[v[1]];
-        vector3 n3 = tri.normals[v[2]];
         vector3 center;
         vector3 normal;
         for(int axis=0; axis<space_dim; axis++) {
-            center.vec[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
+//            center.vec[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
+            center.vec[axis] = k1.vec[axis];
         }
         normal = get_velocity_T(band_index, mu, center);
         for(int axis=0; axis<space_dim; axis++) {
@@ -429,123 +287,9 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
             tri.faces[i].normal[axis] = normal.vec[axis];
         }
         tri.faces[i].dS = get_dS(k1, k2, k3);
-//        if (!std::isfinite(tri.faces[i].dS)) {
-//            std::cout << "#" << i << ": " << tri.faces[i].dS << std::endl;
-//            std::string name = "nan.csv";
-//            std::ofstream ofs(name);
-//            ofs << std::setprecision(15) << std::scientific
-//                << tri.vertexes[v[0]].vec[0] << ", "
-//                << tri.vertexes[v[0]].vec[1] << ", "
-//                << tri.vertexes[v[0]].vec[2]
-//                << std::endl;
-//            ofs << std::setprecision(15) << std::scientific
-//                << tri.vertexes[v[1]].vec[0] << ", "
-//                << tri.vertexes[v[1]].vec[1] << ", "
-//                << tri.vertexes[v[1]].vec[2]
-//                << std::endl;
-//            ofs << std::setprecision(15) << std::scientific
-//                << tri.vertexes[v[2]].vec[0] << ", "
-//                << tri.vertexes[v[2]].vec[1] << ", "
-//                << tri.vertexes[v[2]].vec[2]
-//                << std::endl;
-//            ofs << std::setprecision(15) << std::scientific
-//                << tri.vertexes[v[0]].vec[0] << ", "
-//                << tri.vertexes[v[0]].vec[1] << ", "
-//                << tri.vertexes[v[0]].vec[2]
-//                << std::endl;
-//            ofs << ",," << std::endl;
-//        }
     }
 
     return tri;
-
-//    for (int i=0; i<size; i++) {
-//        double ene = get_E_T(band_index, tri.vertexes[i]) - mu;
-//        if (std::abs(ene) > eps_phys) {
-////            std::cout << std::scientific << "#" << i << ", 誤差が大きい: e = " << ene << std::endl;
-//
-//            velocity v = get_velocity_T(band_index, mu, tri.vertexes[i]);
-//            double norm = 0e0;
-//            for(int axis=0; axis<space_dim; axis++) {
-//                norm += v.vec[axis]*v.vec[axis];
-//            }
-//            norm = NRsqrt(norm);
-//
-//            double mean;
-//            int f[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
-//            vector3 k1 = tri.vertexes[f[0]];
-//            vector3 k2 = tri.vertexes[f[1]];
-//            vector3 k3 = tri.vertexes[f[2]];
-//            double p = 0e0, q = 0e0, r = 0e0;
-//            for(int axis=0; axis<space_dim; axis++) {
-//                p += (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
-//                q += (k2.vec[axis] - k3.vec[axis])*(k2.vec[axis] - k3.vec[axis]);
-//                r += (k3.vec[axis] - k1.vec[axis])*(k3.vec[axis] - k1.vec[axis]);
-//            }
-//            mean = std::min(NRsqrt(p), NRsqrt(q));
-//            mean = std::min(mean, NRsqrt(r)) * 5e-2;
-//
-//            kpoint k;
-//            double pm = ene / std::abs(ene);
-//            for(int axis=0; axis<space_dim; axis++) {
-//                k.vec[axis] = tri.vertexes[i].vec[axis] - pm * v.vec[axis]/norm*mean*2e0;
-//            }
-//            double ek = get_E_T(band_index, k) - mu;
-//            if ( ek*ene < 0e0 ) {
-////                std::cout << std::scientific << "ek = " << ek << ", ene = " << ene << std::endl;
-//                kpoint q = bisec_T2points(band_index, mu, ek, ene, k, tri.vertexes[i]);
-//                ek = get_E_T(band_index, q) - mu;
-////                std::cout << std::scientific << "#" << i << ", 再構成OK: ek = " << ek << std::endl;
-//                tri.vertexes[i] = q;
-//
-//            }
-//        }
-//
-//        tri.normals[i] = get_velocity_T(band_index, mu, tri.vertexes[i]);
-//
-//    }
-//
-//    size = tri.faces.size();
-//    for (int i=0; i<size; i++) {
-//        int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
-//        vector3 k1 = tri.vertexes[v[0]];
-//        vector3 k2 = tri.vertexes[v[1]];
-//        vector3 k3 = tri.vertexes[v[2]];
-//        vector3 n1 = tri.normals[v[0]];
-//        vector3 n2 = tri.normals[v[1]];
-//        vector3 n3 = tri.normals[v[2]];
-//
-//        double p = 0e0, q = 0e0, r = 0e0;
-//        for(int axis=0; axis<space_dim; axis++) {
-//            tri.faces[i].center[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
-////            tri.faces[i].normal[axis] = (n1.vec[axis] + n2.vec[axis] + n3.vec[axis])/3e0;
-//            tri.faces[i].normal[axis] = n1.vec[axis];
-//            p += (k1.vec[axis] - k2.vec[axis])*(k1.vec[axis] - k2.vec[axis]);
-//            q += (k2.vec[axis] - k3.vec[axis])*(k2.vec[axis] - k3.vec[axis]);
-//            r += (k3.vec[axis] - k1.vec[axis])*(k3.vec[axis] - k1.vec[axis]);
-//        }
-//        p = NRsqrt(p);
-//        q = NRsqrt(q);
-//        r = NRsqrt(r);
-//        double s = (p + q + r)*5e-1;
-//        tri.faces[i].dS = NRsqrt( s*(s-p)*(s-q)*(s-r) );
-//
-////        double n = 0e0;
-////        for(int axis=0; axis<space_dim; axis++) {
-////            k1.vec[axis] = k1.vec[axis] - k3.vec[axis];
-////            k2.vec[axis] = k2.vec[axis] - k3.vec[axis];
-////        }
-////        k3.vec[0] = k1.vec[1]*k2.vec[2] - k1.vec[2]*k2.vec[1];
-////        k3.vec[1] = k1.vec[2]*k2.vec[0] - k1.vec[0]*k2.vec[2];
-////        k3.vec[2] = k1.vec[0]*k2.vec[1] - k1.vec[1]*k2.vec[0];
-////        for(int axis=0; axis<space_dim; axis++) {
-////            n += k3.vec[axis]*k3.vec[axis];
-////        }
-////        n = NRsqrt(n)*5e-1;
-//    }
-//
-//
-//    return tri;
 }; // }}}
 
 double get_DOS_T(triangles tri, int band_index, chemical_potential mu) { // {{{
@@ -720,148 +464,34 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
     return v;
 }; // }}}
 
-fermi_surface get_fermi_surface_more_L(fermi_surface fs, int valley, int band_index, chemical_potential mu) { // {{{
-    const int n = k_mesh_more;
+Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential mu, CGAL::Surface_mesh_default_criteria_3<Tr> criteria) { // {{{
+    double c = cutoff;
+    Tr tr;            // 3D-Delaunay triangulation
+    C2t3 c2t3 (tr);   // 2D-complex in 3D-Delaunay triangulation
+    // defining the surface
+    auto dispersionL = [&](Point_3 p) {
+        const FT x2=p.x()*p.x(), y2=p.y()*p.y(), z2=p.z()*p.z();
+        kpoint k;
+        k.vec[0] = double(p.x());
+        k.vec[1] = double(p.y());
+        k.vec[2] = double(p.z());
+        const FT e = FT(get_E_L(valley, band_index, k)) - mu;
+//        std::cout << p.x() << ", " << p.y() << ", " << p.z() << ", " << e << std::endl;
+        return e;
+    };
+    Surface_3 surface(dispersionL,             // pointer to function
+                      Sphere_3(CGAL::ORIGIN, c), 1e-8);  // bounding sphere
+    // meshing surface
+    CGAL::make_surface_mesh(c2t3, surface, criteria, CGAL::Non_manifold_tag());
+    Surface_mesh sm;
+    CGAL::facets_in_complex_2_to_triangle_mesh(c2t3, sm);
 
-    fermi_surface new_fs;
-    new_fs.e = mu;
+    std::ofstream out("sphere.off");
+    out << sm << std::endl;
+    std::cout << "Final number of points: " << tr.number_of_vertices() << "\n";
 
-    double x_max = 0e0, x_min = 0e0;
-    double y_max = 0e0, y_min = 0e0;
-    double z_max = 0e0, z_min = 0e0;
-    int size = fs.kset.size();
-//    std::cout << "reconstructing fermi surface: " << size << std::endl;
-    for(int i=0; i<size; i++) {
-        x_max = std::max(x_max, fs.kset[i].vec[0]);
-        x_min = std::min(x_min, fs.kset[i].vec[0]);
-        y_max = std::max(y_max, fs.kset[i].vec[1]);
-        y_min = std::min(y_min, fs.kset[i].vec[1]);
-        z_max = std::max(z_max, fs.kset[i].vec[2]);
-        z_min = std::min(z_min, fs.kset[i].vec[2]);
-    }
-
-    vectorReal len = vectorReal(3, 0e0);
-    len[0] = x_max - x_min;
-    len[1] = y_max - y_min;
-    len[2] = z_max - z_min;
-
-    for(int axis=0; axis<space_dim; axis++) {
-        if (len[axis] == 0e0) len[axis] = 2e0*dk[axis];
-    }
-
-    kpoint center;
-    center.vec[0] = (x_max + x_min)* 5e-1;
-    center.vec[1] = (y_max + y_min)* 5e-1;
-    center.vec[2] = (z_max + z_min)* 5e-1;
-
-//    std::cout << "center = " << center.vec[0] << ", " << center.vec[1] << ", " << center.vec[2] << std::endl;
-//    std::cout << "length = " << len[0] << ", " << len[1] << ", " << len[2] << std::endl;
-
-    double z, x[2*n], y[2*n];
-    double ene[2*n][2*n];
-    double dn = 1.5e0/double(n);
-    for (int i_z = 0; i_z < 2*n; i_z++) {
-        z = center.vec[2] + double(i_z-n)*dn*len[2];
-//        std::cout << "z = " << z << std::endl;
-        for (int i_y = 0; i_y < 2*n; i_y++) {
-            y[i_y] = center.vec[1] + double(i_y-n)*dn*len[1];
-//            std::cout << "y = " << y[i_y] << std::endl;
-            for (int i_x = 0; i_x < 2*n; i_x++) {
-                x[i_x] = center.vec[0] + double(i_x-n)*dn*len[0];
-//                std::cout << "x = " << x[i_x] << std::endl;
-                kpoint p = {x[i_x], y[i_y], z};
-                ene[i_y][i_x] = get_E_L(valley, band_index, p) - mu;
-            }
-        }
-
-        for (int i_y = 0; i_y < 2*n-1; i_y++) {
-            for (int i_x = 0; i_x < 2*n-1; i_x++) {
-                if (ene[i_y][i_x+1] * ene[i_y][i_x] < 0e0) {
-                    int axis = 0;
-                    kpoint p = {x[i_x], y[i_y], z};
-                    kpoint k = bisec_L(valley, band_index, mu, ene[i_y][i_x], p, axis, x[i_x+1]);
-                    new_fs.kset.push_back(k);
-                    new_fs.vset.push_back(get_velocity_L(valley, band_index, mu, k));
-                }
-
-                if (ene[i_y+1][i_x] * ene[i_y][i_x] < 0e0) {
-                    int axis = 1;
-                    kpoint p = {x[i_x], y[i_y], z};
-                    kpoint k = bisec_L(valley, band_index, mu, ene[i_y][i_x], p, axis, y[i_y+1]);
-                    new_fs.kset.push_back(k);
-                    new_fs.vset.push_back(get_velocity_L(valley, band_index, mu, k));
-                }
-            }
-        }
-
-    }
-
-//    std::cout << "new_fs#" << new_fs.kset.size() << std::endl;
-    return new_fs;
-}; // }}}
-
-fermi_surface get_fermi_surace_L(int valley, int band_index, chemical_potential mu) { // {{{
-    int n = k_mesh;
-
-    fermi_surface fs;
-    fs.e = mu;
-
-    double z, x[2*n], y[2*n];
-    double ene[2*n][2*n];
-    double dn = 1e0/double(n);
-    for(int axis=0; axis<space_dim; axis++) {
-        dk[axis] = cutoff*dn;
-    }
-
-    for (int i_z = 0; i_z < 2*n; i_z++) {
-        z = double(i_z-n)*dk[2];
-        for (int i_y = 0; i_y < 2*n; i_y++) {
-            y[i_y] = double(i_y-n)*dk[1];
-            for (int i_x = 0; i_x < 2*n; i_x++) {
-                x[i_x] = double(i_x-n)*dk[0];
-                kpoint p = {x[i_x], y[i_y], z};
-                ene[i_y][i_x] = get_E_L(valley, band_index, p) - mu;
-            }
-        }
-
-        for (int i_y = 0; i_y < 2*n-1; i_y++) {
-            for (int i_x = 0; i_x < 2*n-1; i_x++) {
-                if (ene[i_y][i_x+1] * ene[i_y][i_x] < 0e0) {
-                    int axis = 0;
-                    kpoint p = {x[i_x], y[i_y], z};
-                    kpoint k = bisec_L(valley, band_index, mu, ene[i_y][i_x], p, axis, x[i_x+1]);
-                    fs.kset.push_back(k);
-                    fs.vset.push_back(get_velocity_L(valley, band_index, mu, k));
-                }
-
-                if (ene[i_y+1][i_x] * ene[i_y][i_x] < 0e0) {
-                    int axis = 1;
-                    kpoint p = {x[i_x], y[i_y], z};
-                    kpoint k = bisec_L(valley, band_index, mu, ene[i_y][i_x], p, axis, y[i_y+1]);
-                    fs.kset.push_back(k);
-                    fs.vset.push_back(get_velocity_L(valley, band_index, mu, k));
-                }
-            }
-        }
-
-    }
-
-    int size_fs = fs.kset.size();
-    if (size_fs < 5) {
-        fs.kset.resize(0);
-        return fs;
-    }
-
-    if ((size_fs > 5) && (size_fs < 1000)) {
-        std::cout << "re-constructing Fermi surface because of poor mesh number." << std::endl;
-        fs = get_fermi_surface_more_L(fs, valley, band_index, mu);
-        size_fs = fs.kset.size();
-    }
-
-    std::cout << "final fs#" << size_fs << std::endl;
-
-    return fs;
-}; // }}}
+    return sm;
+} // }}}
 
 void divide_triangle(triangles& tri, int valley, int band_index, chemical_potential mu, int i) { // {{{
     double dS = tri.faces[i].dS;
@@ -997,22 +627,27 @@ void divide_triangle(triangles& tri, int valley, int band_index, chemical_potent
 } // }}}
 
 triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { // {{{
-    fermi_surface fs = get_fermi_surace_L(valley, band_index, mu);
-    int size_fs = fs.kset.size();
-
-    triangles tri;
-    if (size_fs == 0) {
-        tri.ene = fs.e;
-        return tri;
-    }
-
-    tri = get_triangles(fs);
-
+    CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
+                                                       5e-3,  // radius bound
+                                                       5e-3); // distance bound
+    Surface_mesh mesh = get_triangles_cgal_L(valley, band_index, mu, criteria);
 
     int size;
-    size = tri.vertexes.size();
-    if (tri.normals.size() == 0) tri.normals.resize(size);
+    size = mesh.number_of_faces();
+    if (size < 1000) {
+        std::cout << "get surface mesh again @ mu = " << mu << ": fs#" << size << std::endl;
+        CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
+                                                           1e-3,  // radius bound
+                                                           1e-3); // distance bound
+        mesh = get_triangles_cgal_L(valley, band_index, mu, criteria);
+    }
+    size = mesh.number_of_faces();
+    std::cout << "mu = " << mu << "; final fs face# " << size << std::endl;
 
+    triangles tri = set_triangles(mu, mesh);
+
+    size = tri.vertexes.size();
+    tri.normals.resize(size);
     for (int i=0; i<size; i++) {
         tri.normals[i] = get_velocity_L(valley, band_index, mu, tri.vertexes[i]);
     }
@@ -1023,140 +658,18 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         vector3 k1 = tri.vertexes[v[0]];
         vector3 k2 = tri.vertexes[v[1]];
         vector3 k3 = tri.vertexes[v[2]];
-        vector3 n1 = tri.normals[v[0]];
-        vector3 n2 = tri.normals[v[1]];
-        vector3 n3 = tri.normals[v[2]];
+        vector3 center;
+        vector3 normal;
         for(int axis=0; axis<space_dim; axis++) {
-            tri.faces[i].center[axis] = k1.vec[axis];
-            tri.faces[i].normal[axis] = n1.vec[axis];
+            center.vec[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
+        }
+        normal = get_velocity_T(band_index, mu, center);
+        for(int axis=0; axis<space_dim; axis++) {
+            tri.faces[i].center[axis] = center.vec[axis];
+            tri.faces[i].normal[axis] = normal.vec[axis];
         }
         tri.faces[i].dS = get_dS(k1, k2, k3);
     }
-
-    return tri;
-
-//    for (int i=0; i<size; i++) {
-//        double ene = get_E_L(valley, band_index, tri.vertexes[i]) - mu;
-//        if (std::abs(ene) > eps_phys) {
-////            std::cout << std::scientific << "#" << i << ", 誤差が大きい: e = " << ene << std::endl;
-//
-//            velocity v = get_velocity_L(valley, band_index, mu, tri.vertexes[i]);
-//            double norm = 0e0;
-//            for(int axis=0; axis<space_dim; axis++) {
-//                norm += v.vec[axis]*v.vec[axis];
-//            }
-//            norm = NRsqrt(norm);
-//
-//            double min;
-//            int f[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
-//            vector3 k1 = tri.vertexes[f[0]];
-//            vector3 k2 = tri.vertexes[f[1]];
-//            vector3 k3 = tri.vertexes[f[2]];
-//            min = get_min_length(k1, k2, k3) * 5e-2;
-//
-//            kpoint k;
-//            double ek;
-//            double pm = ene / std::abs(ene);
-//            for(int i=1; i<50; i++) {
-//                for(int axis=0; axis<space_dim; axis++) {
-//                    k.vec[axis] = tri.vertexes[i].vec[axis] - pm * v.vec[axis]/norm*min*double(i);
-//                }
-//                ek = get_E_L(valley, band_index, k) - mu;
-//                if (ek*ene < 0e0) break;
-//            }
-//            if ( ek*ene < 0e0 ) {
-////                std::cout << std::scientific << "ek = " << ek << ", ene = " << ene << std::endl;
-//                kpoint q = bisec_L2points(valley, band_index, mu, ek, ene, k, tri.vertexes[i]);
-//                ek = get_E_L(valley, band_index, q) - mu;
-////                std::cout << std::scientific << "#" << i << ", 再構成OK: ek = " << ek << std::endl;
-//                tri.vertexes[i] = q;
-//
-//            }
-//        }
-//
-//        tri.normals[i] = get_velocity_L(valley, band_index, mu, tri.vertexes[i]);
-//    }
-//
-//    size = tri.faces.size();
-//    for (int i=0; i<size; i++) {
-//        int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
-//        vector3 k1 = tri.vertexes[v[0]];
-//        vector3 k2 = tri.vertexes[v[1]];
-//        vector3 k3 = tri.vertexes[v[2]];
-//        vector3 n1 = tri.normals[v[0]];
-//        vector3 n2 = tri.normals[v[1]];
-//        vector3 n3 = tri.normals[v[2]];
-//
-////        kpoint center = get_center(k1, k2, k3);
-//        kpoint center = k1;
-////        vector3 normal = get_normal(n1, n2, n3);
-//        vector3 normal = n1;
-//        for(int axis=0; axis<space_dim; axis++) {
-//            tri.faces[i].center[axis] = center.vec[axis];
-//            tri.faces[i].normal[axis] = normal.vec[axis];
-//        }
-//        tri.faces[i].dS = get_dS(k1, k2, k3);
-//
-////        double n = 0e0;
-////        for(int axis=0; axis<space_dim; axis++) {
-////            k1.vec[axis] = k1.vec[axis] - k3.vec[axis];
-////            k2.vec[axis] = k2.vec[axis] - k3.vec[axis];
-////        }
-////        k3.vec[0] = k1.vec[1]*k2.vec[2] - k1.vec[2]*k2.vec[1];
-////        k3.vec[1] = k1.vec[2]*k2.vec[0] - k1.vec[0]*k2.vec[2];
-////        k3.vec[2] = k1.vec[0]*k2.vec[1] - k1.vec[1]*k2.vec[0];
-////        for(int axis=0; axis<space_dim; axis++) {
-////            n += k3.vec[axis]*k3.vec[axis];
-////        }
-////        n = NRsqrt(n)*5e-1;
-//
-//    }
-//
-////    int count = 0;
-////    for (int i=0;i<2;i++) {
-//////    do  {
-////        count = 0;
-////        int size = tri.faces.size();
-////        for (int i=0; i<size; i++) {
-////            if (tri.faces[i].dS > 1e-5) {
-//////                std::cout << i << ", dS = " << tri.faces[i].dS << std::endl;
-////                count++;
-////                divide_triangle(tri, valley, band_index, mu, i);
-//////                std::cout << i << ", " << tri.faces[i].dS << ", " <<tri.vertexes.size() << std::endl;
-////            }
-//////            if (count == 10) exit(0);
-////        }
-////        std::cout << "count = " << count << std::endl;
-//////    } while (count > 0);
-////    };
-//////    std::string check_name = "check.csv";
-//////    std::ofstream ofs(check_name);
-//////    size = tri.faces.size();
-//////    for (int i=0; i<size; i++) {
-//////        if (tri.faces[i].dS > 1e-4) {
-//////        ofs << std::scientific
-//////            << tri.vertexes[tri.faces[i].face[0]].vec[0] << ", "
-//////            << tri.vertexes[tri.faces[i].face[0]].vec[1] << ", "
-//////            << tri.vertexes[tri.faces[i].face[0]].vec[2]
-//////            << std::endl;
-//////        ofs << std::scientific
-//////            << tri.vertexes[tri.faces[i].face[1]].vec[0] << ", "
-//////            << tri.vertexes[tri.faces[i].face[1]].vec[1] << ", "
-//////            << tri.vertexes[tri.faces[i].face[1]].vec[2]
-//////            << std::endl;
-//////        ofs << std::scientific
-//////            << tri.vertexes[tri.faces[i].face[2]].vec[0] << ", "
-//////            << tri.vertexes[tri.faces[i].face[2]].vec[1] << ", "
-//////            << tri.vertexes[tri.faces[i].face[2]].vec[2]
-//////            << std::endl;
-//////        ofs << std::scientific
-//////            << tri.vertexes[tri.faces[i].face[0]].vec[0] << ", "
-//////            << tri.vertexes[tri.faces[i].face[0]].vec[1] << ", "
-//////            << tri.vertexes[tri.faces[i].face[0]].vec[2]
-//////            << std::endl;
-//////        ofs << ",," << std::endl;
-//////        }
-//////    }
 
     return tri;
 }; // }}}

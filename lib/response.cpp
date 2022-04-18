@@ -44,7 +44,7 @@ Conductivity get_conductivity_T(band b) { // {{{
                 for(int axis=0; axis<space_dim; axis++) {
                     matrixComplex C2 = product(vT[axis], GA);
 
-                    res[external][axis] = tr(product(C1, C2)) * epsilon;
+                    res[external][axis] = tr(product(C1, C2));
                 }
             }
 
@@ -53,6 +53,12 @@ Conductivity get_conductivity_T(band b) { // {{{
 
         std::string filename = "dat/"+dir+"/conductivity_eps"+std::to_string(epsilon)+".csv";
         std::ofstream ofs(filename);
+        ofs << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                ofs << ", " << axises[external]+axises[axis];
+            }
+        }
         for(int i_mu=0; i_mu<b.mu_mesh; i_mu++) {
             matrixComplex sigma(space_dim, vectorComplex(space_dim, 0e0));
             chemical_potential mu = b.mu_min + b.dmu*double(i_mu);
@@ -105,7 +111,7 @@ SHC get_SHC_T1(band b) { // {{{
 
         std::string filename = "dat/"+dir+"/spin_Hall_conductivity1_eps"+std::to_string(epsilon)+".csv";
         std::ofstream ofs(filename);
-        ofs << "# mu";
+        ofs << "mu";
         for(int external=0; external<space_dim; external++) {
             for(int axis=0; axis<space_dim; axis++) {
                 for(int spin=0; spin<spin_dim; spin++) {
@@ -174,7 +180,7 @@ SHC get_SHC_T2(band b) { // {{{
 
         std::string filename = "dat/"+dir+"/spin_Hall_conductivity2_eps"+std::to_string(epsilon)+".csv";
         std::ofstream ofs(filename);
-        ofs << "# mu";
+        ofs << "mu";
         for(int external=0; external<space_dim; external++) {
             for(int axis=0; axis<space_dim; axis++) {
                 for(int spin=0; spin<spin_dim; spin++) {

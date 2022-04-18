@@ -2,6 +2,12 @@
 
 matrixComplex set_T(double k[3]) { // {{{
     matrixComplex value(bandsT, vectorComplex(bandsT, 0e0));
+    if ( (std::abs(k[0]) > cutoff) | (std::abs(k[1]) > cutoff) | (std::abs(k[2]) > cutoff) ) {
+        for(int i=0; i<bandsT; i++) {
+            value[i][i] = -10e0;
+        }
+        return value;
+    }
     double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];
     ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass*5e-1);
     ene = 0e0;
