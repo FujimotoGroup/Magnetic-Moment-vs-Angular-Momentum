@@ -437,34 +437,34 @@ matrixComplex product(matrixComplex A, matrixComplex B) { // {{{
 
 Complex tr(matrixComplex A) { // {{{
     Complex res = 0e0;
-    for(int i=0; i<A.size(); i++) {
-        res += A[i][i];
-    }
-    return res;
-//    const int n = A.size();
-//
-//    vectorReal diag;
-//    diag.resize(n+1);
-//    for(int i=0; i<n; i++) {
-//        diag[i] = A[i][i].real();
+//    for(int i=0; i<A.size(); i++) {
+//        res += A[i][i];
 //    }
-//    diag[n] = 0e0;
-//    std::sort(diag.begin(), diag.end());
-//    auto zero = std::find(diag.begin(), diag.end(), 0e0);
-//    const int index = std::distance(diag.begin(), zero);
-//    const int min = std::min(index, n-index);
-//
-//    if (min != index) {
-//        auto start = std::find(diag.begin(), zero, diag[min]);
-//        std::sort(start, zero, std::greater<int>{});
-//    }
-//    for(int i=min; i<n-min+1; i++) {
-//        res += diag[i];
-//    }
-//    for(int i=0; i<min; i++) {
-//        res += (diag[i] + diag[n-i]);
-//    }
-//
 //    return res;
+    const int n = A.size();
+
+    vectorReal diag;
+    diag.resize(n+1);
+    for(int i=0; i<n; i++) {
+        diag[i] = A[i][i].real();
+    }
+    diag[n] = 0e0;
+    std::sort(diag.begin(), diag.end());
+    auto zero = std::find(diag.begin(), diag.end(), 0e0);
+    const int index = std::distance(diag.begin(), zero);
+    const int min = std::min(index, n-index);
+
+    if (min != index) {
+        auto start = std::find(diag.begin(), zero, diag[min]);
+        std::sort(start, zero, std::greater<int>{});
+    }
+    for(int i=min; i<n-min+1; i++) {
+        res += diag[i];
+    }
+    for(int i=0; i<min; i++) {
+        res += (diag[i] + diag[n-i]);
+    }
+
+    return res;
 }; // }}}
 

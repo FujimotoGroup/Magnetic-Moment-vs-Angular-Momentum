@@ -661,7 +661,8 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         vector3 center;
         vector3 normal;
         for(int axis=0; axis<space_dim; axis++) {
-            center.vec[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
+//            center.vec[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
+            center.vec[axis] = k1.vec[axis];
         }
         normal = get_velocity_T(band_index, mu, center);
         for(int axis=0; axis<space_dim; axis++) {
