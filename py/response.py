@@ -44,9 +44,9 @@ for i in np.arange(6):
     axes[i].plot(conductivity[:,0], conductivity[:,9], color=colors[1], label="zz")
     axes[i].legend()
 
-#plt.savefig(png+"conductivity_T-"+str(bandsT)+"bands.png", bbox_inches = 'tight', dpi=300)
-#plt.rc("svg", fonttype="none")
-#plt.savefig(svg+"conductivity_T-"+str(bandsT)+"bands.svg")
+plt.savefig(png+"conductivity_T-"+str(bandsT)+"bands.png", bbox_inches = 'tight', dpi=300)
+plt.rc("svg", fonttype="none")
+plt.savefig(svg+"conductivity_T-"+str(bandsT)+"bands.svg")
 #plt.show()
 plt.close()
 # }}}
@@ -69,6 +69,30 @@ for i in np.arange(3):
 plt.savefig(png+"conductivity_log_T-"+str(bandsT)+"bands.png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
 plt.savefig(svg+"conductivity_log_T-"+str(bandsT)+"bands.svg")
+#plt.show()
+plt.close()
+# }}}
+# }}}
+# T spin Hall conductivity {{{
+# 2,3 layout - bare {{{
+fig, axes = plt.subplots(2,3,figsize=(12,10))
+axes = axes.flatten()
+for i in np.arange(6):
+    label = "{:.6f}".format(1e-1**(i+1))
+    readfile = data+'T'+str(bandsT)+'bands/spin_Hall_conductivity1_eps'+label+'.csv'
+    df = pd.read_csv(readfile,header=0)
+    titles = df.columns.values
+    conductivity = df.values
+    axes[i].set_title("eps = "+label)
+    axes[i].set_xlabel("mu")
+    plot_lists = [1, 5, 6, 8, 11, 12, 13, 16, 20, 22]
+    for j in plot_lists:
+        axes[i].plot(conductivity[:,0], conductivity[:,j], label=titles[j])
+    axes[i].legend()
+
+plt.savefig(png+"spin_Hall_conductivity1_T-"+str(bandsT)+"bands.png", bbox_inches = 'tight', dpi=300)
+plt.rc("svg", fonttype="none")
+plt.savefig(svg+"spin_Hall_conductivity1_T-"+str(bandsT)+"bands.svg")
 #plt.show()
 plt.close()
 # }}}
