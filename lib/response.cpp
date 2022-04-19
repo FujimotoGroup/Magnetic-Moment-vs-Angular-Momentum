@@ -2,7 +2,7 @@
 #include <filesystem>
 
 int i_epsilon_min = 1;
-int i_epsilon_max = 3;
+int i_epsilon_max = 6;
 
 void set_output_directory(std::string dir) { // {{{
     namespace fs = std::filesystem;
@@ -26,7 +26,7 @@ Conductivity get_conductivity_T(band b) { // {{{
     std::string dir = "T"+std::to_string(bandsT)+"bands";
     set_output_directory(dir);
 
-    for(int i=1; i<7; i++) {
+    for(int i=i_epsilon_min; i<i_epsilon_max; i++) {
         double epsilon = 1e0;
         for(int j=0; j<i; j++) {
             epsilon *= 1e-1;
@@ -171,7 +171,8 @@ SHC get_SHC_T2(band b) { // {{{
                         matrixComplex R = product(v_s_T[axis][spin], vR);
                         matrixComplex A = product(v_s_T[axis][spin], vA);
 
-                        res[external][axis][spin] = tr(R) - tr(A);
+                        res[external][axis][spin] = tr(R);
+//                        res[external][axis][spin] = tr(R) - tr(A);
                     }
                 }
             }
