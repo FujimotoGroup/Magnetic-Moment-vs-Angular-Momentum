@@ -2,7 +2,7 @@
 #include <filesystem>
 
 int i_epsilon_min = 1;
-int i_epsilon_max = 6;
+int i_epsilon_max = 7;
 
 void set_output_directory(std::string dir) { // {{{
     namespace fs = std::filesystem;
