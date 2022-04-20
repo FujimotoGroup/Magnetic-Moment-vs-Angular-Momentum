@@ -42,6 +42,7 @@ using tensor2Complex = std::vector<matrixComplex>;
 using tensor3Complex = std::vector<tensor2Complex>;
 using matrixReal = std::vector<vectorReal>;
 using chemical_potential = double;
+using Energy = double;
 
 extern const double angstrom;
 extern const double hbar;
@@ -60,6 +61,11 @@ extern const int bandsT;
 extern const int bandsL;
 extern const int lowest_band_T;
 extern const int lowest_band_L;
+
+extern vectorReal band_edge_T;
+extern vectorReal band_edge_T_sign;
+extern matrixReal band_edge_L;
+extern matrixReal band_edge_L_sign;
 
 extern const double a;
 extern const double c;
@@ -140,6 +146,10 @@ struct triangles {
     std::vector<vector3> normals;
     std::vector<face> faces;
 };
+
+using Green_function = matrixComplex;
+using SHC = tensor2Complex;
+using Conductivity = matrixComplex;
 
 triangles get_triangles(fermi_surface fs);
 fermi_surface get_fermi_surace_T(int band_index, chemical_potential mu);
@@ -257,46 +267,56 @@ double get_DOS_L(triangles tri, int valley, int band_index, chemical_potential m
 
 struct band {
     int index;
-    chemical_potential mu_min, mu_max, dmu;
     std::vector<chemical_potential> ene;
-    int mu_mesh;
+    int mesh;
     std::vector<triangles> tri;
     std::vector<double> dos;
 };
 
-struct sys_T {
-    std::vector<band> bands;
-};
+band set_band_T(int band_index, Energy ene_min, Energy ene_max, int ene_mesh);
+band set_band_2n_T(int band_index, Energy ene_center, Energy delta, int n);
+band set_band_L(int valley, int band_index, Energy ene_min, Energy ene_max, int ene_mesh);
+band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, int n);
 
-struct sys_L {
-    std::vector<std::vector<band>> bands;
-};
+void write_res(Conductivity sigma, chemical_potential mu,  std::string filename);
+void write_res(SHC sigma, chemical_potential mu,  std::string filename);
 
-void get_band_T(band& b, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
-sys_T get_T();
-void sys_T_write(sys_T s);
+template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
+//    std::string filename = "sigma.csv";
+    N sigma;
+    int i_mu = 0;
+        init(sigma, res);
+        integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
+        Energy dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
+        sigma = times(sigma, dmu);
+        res = add(res, sigma);
+    for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
+        init(sigma, res);
+        integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
+        dmu = b.ene[i_mu] - b.ene[i_mu-1];
+        sigma = times(sigma, dmu);
+        res = add(res, sigma);
+    }
+    i_mu = b.mesh-1;
+        init(sigma, res);
+        integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
+        dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
+        sigma = times(sigma, dmu);
+        res = add(res, sigma);
+}; // }}}
 
-void get_band_L(band& b, int valley, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
-sys_L get_L();
-void sys_L_write(sys_L s);
-
-band set_band_T(int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
-band set_band_L(int valley, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
-band set_band_2n_L(int valley, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
-
-using Green_function = matrixComplex;
 Green_function get_green_function_T(Complex ene, kpoint k);
 Green_function get_green_function_L(Complex ene, int valley, kpoint k);
 
-using SHC = tensor2Complex;
 SHC get_SHC_T1(band b);
 SHC get_SHC_T2(band b);
-SHC get_SHC_L1(band b, chemical_potential mu, int valley);
+SHC get_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley);
 
-using Conductivity = matrixComplex;
 Conductivity get_conductivity_T(band b);
-//Conductivity get_conductivity_L(band b, int valley);
-Conductivity get_conductivity_L(band b, chemical_potential mu, int valley);
+Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, int valley);
 
 void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int valley, int band_index);
 #endif // PARAMETERS_HPP

@@ -1,4 +1,4 @@
-add_library(libs STATIC initialize.cpp hamiltonian.cpp fermi_surface.cpp band.cpp system.cpp green_function.cpp response.cpp)
+add_library(libs STATIC initialize.cpp hamiltonian.cpp fermi_surface.cpp band.cpp green_function.cpp response.cpp)
 target_include_directories(libs PUBLIC ${PROJECT_SOURCE_DIR}/include)
 #target_compile_options(main PUBLIC $<TARGET_PROPERTY:MKL::MKL_C,INTERFACE_COMPILE_OPTIONS>)
 #target_include_directories(main PUBLIC $<TARGET_PROPERTY:MKL::MKL_C,INTERFACE_INCLUDE_DIRECTORIES>)

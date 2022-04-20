@@ -502,6 +502,13 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
 } // }}}
 
 triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { // {{{
+    triangles tri;
+
+    double sign = band_edge_L_sign[valley][band_index];
+    if(sign*mu < sign*band_edge_L[valley][band_index]) {
+        return tri;
+    }
+
     CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
                                                        1e-1,  // radius bound
                                                        1e-1); // distance bound
@@ -514,14 +521,14 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
 //                                                           1e-2,  // radius bound
 //                                                           1e-2); // distance bound
-                                                           2e-3,   // for isotropic radius bound
-                                                           2e-3);  //  for isotropicdistance bound
+                                                           1e-3,   // for isotropic radius bound
+                                                           1e-3);  //  for isotropicdistance bound
         mesh = get_triangles_cgal_L(valley, band_index, mu, criteria);
     }
     size = mesh.number_of_faces();
     std::cout << "mu = " << mu << "; final fs face# " << size << std::endl;
 
-    triangles tri = set_triangles(mu, mesh);
+    tri = set_triangles(mu, mesh);
 
     size = tri.vertexes.size();
     tri.normals.resize(size);

@@ -26,8 +26,18 @@ const int bands = H_dim;
 const int bandsT = 12; const int lowest_band_T = 5; // almost full
 //const int bandsT = 16; const int lowest_band_T = 1; // full
 
+vectorReal band_edge_T;
+vectorReal band_edge_T_sign0 = { 1e0, 1e0, 1e0, 1e0,-1e0,-1e0,-1e0,-1e0,-1e0,-1e0, 1e0, 1e0, -1e0,-1e0, 1e0, 1e0};
+vectorReal band_edge_T_sign;
+
 const int bandsL = 4; const int lowest_band_L = 9;
 //const int bandsL = 12; const int lowest_band_L = 1;
+
+matrixReal band_edge_L;
+matrixReal band_edge_L_sign0 = { {-1e0,-1e0, 1e0, 1e0,-1e0,-1e0,-1e0,-1e0,-1e0,-1e0, 1e0, 1e0, -1e0,-1e0, 1e0, 1e0},
+                                 {-1e0,-1e0, 1e0, 1e0,-1e0,-1e0,-1e0,-1e0,-1e0,-1e0, 1e0, 1e0, -1e0,-1e0, 1e0, 1e0},
+                                 {-1e0,-1e0, 1e0, 1e0,-1e0,-1e0,-1e0,-1e0,-1e0,-1e0, 1e0, 1e0, -1e0,-1e0, 1e0, 1e0} };
+matrixReal band_edge_L_sign;
 
 const int space_dim = 3;
 const int spin_dim = 3;
@@ -42,7 +52,7 @@ const double cutoff = 2e-1*g0;
 double dk[3];
 const int k_mesh = 100;
 const int k_mesh_more = 70;
-const int mu_mesh = 30;
+const int mu_mesh = 120;
 //const int k_mesh = 30; const int k_mesh_more = 50; const int mu_mesh = 32;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
@@ -271,6 +281,30 @@ void initialize() {
                     }
                 }
             }
+        }
+    }
+    // }}}
+    // set band_edge T {{{
+    band_edge_T.resize(bandsT);
+    band_edge_T_sign.resize(bandsT);
+    l = lowest_band_T - 1;
+    n = lowest_band_T + bandsT - 1;
+    for(int i=l; i<n; i++) {
+        band_edge_T[i-l] = ET[i-l];
+        band_edge_T_sign[i-l] = band_edge_T_sign0[i];
+    }
+    // }}}
+    // set band_edge L {{{
+    band_edge_L.resize(valleys);
+    band_edge_L_sign.resize(valleys);
+    l = lowest_band_L - 1;
+    n = lowest_band_L + bandsL - 1;
+    for(int valley=0; valley<valleys; valley++) {
+        band_edge_L[valley].resize(bandsL);
+        band_edge_L_sign[valley].resize(bandsL);
+        for(int i=l; i<n; i++) {
+            band_edge_L[valley][i-l] = EL[valley][i-l];
+            band_edge_L_sign[valley][i-l] = band_edge_L_sign0[valley][i];
         }
     }
     // }}}

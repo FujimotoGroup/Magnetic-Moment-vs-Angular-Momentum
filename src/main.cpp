@@ -178,8 +178,10 @@ int main(){
     int valley = 0;
     int band_index = 0;
     double delta = (EL[valley][2] - EL[valley][0])*5e-1;
-    chemical_potential mu_min = - delta - 3e-1;
-    chemical_potential mu_max = - delta - 1e-6;
+    band_edge_L[valley][0] = -delta; band_edge_L[valley][1] = -delta;
+    band_edge_L[valley][2] =  delta; band_edge_L[valley][3] =  delta;
+    chemical_potential mu_min = - delta - 5e-2;
+    chemical_potential mu_max = - delta + 1e-5;
     band bL;
     set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
 //    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
