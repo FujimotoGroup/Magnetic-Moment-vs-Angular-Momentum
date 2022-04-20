@@ -1,8 +1,8 @@
 #include "parameters.hpp"
 #include <filesystem>
 
-int i_epsilon_min = 4;
-int i_epsilon_max = 5;
+int i_epsilon_min = 3;
+int i_epsilon_max = 6;
 
 void set_output_directory(std::string dir) { // {{{
     namespace fs = std::filesystem;
@@ -300,28 +300,50 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
         std::ofstream ofdos(filename);
 // }}}
 // init conductivity file {{{
-        filename = "dat/"+dir+"/conductivity_eps"+std::to_string(epsilon)+".csv";
-        std::ofstream ofsigma(filename);
-        ofsigma << "mu";
+        filename = "dat/"+dir+"/conductivity_real_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream ofsigma1(filename);
+        ofsigma1 << "mu";
         for(int external=0; external<space_dim; external++) {
             for(int axis=0; axis<space_dim; axis++) {
-                ofsigma << ", " << axises[external]+axises[axis];
+                ofsigma1 << ", " << axises[external]+axises[axis];
             }
         }
-        ofsigma << std::endl;
+        ofsigma1 << std::endl;
+
+        filename = "dat/"+dir+"/conductivity_imag_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream ofsigma2(filename);
+        ofsigma2 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                ofsigma2 << ", " << axises[external]+axises[axis];
+            }
+        }
+        ofsigma2 << std::endl;
 // }}}
 // init spin Hall conductivity 1 file {{{
-        filename = "dat/"+dir+"/spin_Hall_conductivity1_eps"+std::to_string(epsilon)+".csv";
-        std::ofstream ofshc1(filename);
-        ofshc1 << "mu";
+        filename = "dat/"+dir+"/spin_Hall_conductivity1_real_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream ofshc11(filename);
+        ofshc11 << "mu";
         for(int external=0; external<space_dim; external++) {
             for(int axis=0; axis<space_dim; axis++) {
                 for(int spin=0; spin<spin_dim; spin++) {
-                    ofshc1 << ", " << axises[external]+axises[axis]+axises[spin];
+                    ofshc11 << ", " << axises[external]+axises[axis]+axises[spin];
                 }
             }
         }
-        ofshc1 << std::endl;
+        ofshc11 << std::endl;
+
+        filename = "dat/"+dir+"/spin_Hall_conductivity1_imag_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream ofshc12(filename);
+        ofshc12 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    ofshc12 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        ofshc12 << std::endl;
 // }}}
 
         chemical_potential d_ene = (ene_max - ene_min) / double(ene_mesh-1);
@@ -342,27 +364,33 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             Conductivity sigma(space_dim, vectorComplex(space_dim, 0e0));
             sigma = get_conductivity_L(bL, epsilon, mu, valley);
 // conductivity output {{{
-            ofsigma << std::scientific << mu;
+            ofsigma1 << std::scientific << mu;
+            ofsigma2 << std::scientific << mu;
             for( auto s : sigma ) {
                 for( auto v : s ) {
-                    ofsigma << std::scientific << ", " << v.real();
+                    ofsigma1 << std::scientific << ", " << v.real();
+                    ofsigma2 << std::scientific << ", " << v.imag();
                 }
             }
-            ofsigma << std::endl;
+            ofsigma1 << std::endl;
+            ofsigma2 << std::endl;
 // }}}
 
             SHC SHC1(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
             SHC1 = get_SHC_L1(bL, epsilon, mu, valley);
 // SHC1 output {{{
-            ofshc1 << std::scientific << mu;
+            ofshc11 << std::scientific << mu;
+            ofshc12 << std::scientific << mu;
             for( auto e : SHC1 ) {
                 for( auto a : e ) {
                     for( auto s : a ) {
-                        ofshc1 << std::scientific << ", " << s.real();
+                        ofshc11 << std::scientific << ", " << s.real();
+                        ofshc12 << std::scientific << ", " << s.imag();
                     }
                 }
             }
-            ofshc1 << std::endl;
+            ofshc11 << std::endl;
+            ofshc12 << std::endl;
 // }}}
         }
     }
@@ -378,11 +406,9 @@ Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, i
         matrixComplex res(space_dim, vectorComplex(space_dim, 0e0));
 
         for(int external=0; external<space_dim; external++) {
-//            matrixComplex C1 = product(vL[valley][external], GR);
-            matrixComplex C1 = GR;
+            matrixComplex C1 = product(vL[valley][external], GR);
             for(int axis=0; axis<space_dim; axis++) {
-//                matrixComplex C2 = product(vL[valley][axis], GA);
-                matrixComplex C2 = GA;
+                matrixComplex C2 = product(vL[valley][axis], GA);
 
                 res[external][axis] = tr(product(C1, C2));
             }

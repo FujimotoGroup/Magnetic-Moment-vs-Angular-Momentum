@@ -464,7 +464,7 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
     return v;
 }; // }}}
 
-Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential mu, CGAL::Surface_mesh_default_criteria_3<Tr> criteria) { // {{{
+Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential mu, double bounce) { // {{{
     double c = cutoff;
     Tr tr;            // 3D-Delaunay triangulation
     C2t3 c2t3 (tr);   // 2D-complex in 3D-Delaunay triangulation
@@ -481,6 +481,11 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
     };
     Surface_3 surface(dispersionL,             // pointer to function
                       Sphere_3(CGAL::ORIGIN, c), 1e-8);  // bounding sphere
+
+    CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
+                                                       bounce,  // radius bound
+                                                       bounce); // distance bound
+
     // meshing surface
     CGAL::make_surface_mesh(c2t3, surface, criteria, CGAL::Non_manifold_tag());
     Surface_mesh sm;
@@ -509,22 +514,14 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         return tri;
     }
 
-    CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
-                                                       1e-1,  // radius bound
-                                                       1e-1); // distance bound
-    Surface_mesh mesh = get_triangles_cgal_L(valley, band_index, mu, criteria);
-
-    int size;
-    size = mesh.number_of_faces();
-    if (size < 1000) {
-        std::cout << "get surface mesh again @ mu = " << mu << ": fs#" << size << std::endl;
-        CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
-//                                                           1e-2,  // radius bound
-//                                                           1e-2); // distance bound
-                                                           1e-3,   // for isotropic radius bound
-                                                           1e-3);  //  for isotropicdistance bound
-        mesh = get_triangles_cgal_L(valley, band_index, mu, criteria);
-    }
+    Surface_mesh mesh;
+    double c = 1e-1;
+    int size = 0;
+    do {
+        c *= 5e-1;
+        mesh = get_triangles_cgal_L(valley, band_index, mu, c);
+        size = mesh.number_of_vertices();
+    } while (size < 1000);
     size = mesh.number_of_faces();
     std::cout << "mu = " << mu << "; final fs face# " << size << std::endl;
 
@@ -545,7 +542,6 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         vector3 center;
         vector3 normal;
         for(int axis=0; axis<space_dim; axis++) {
-//            center.vec[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
             center.vec[axis] = k1.vec[axis];
         }
         normal = get_velocity_L(valley, band_index, mu, center);

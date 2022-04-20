@@ -146,7 +146,7 @@ band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, 
         auto func =[](int i_thread, band& b, int valley, int band_index) {
             for(int i_mu=i_thread; i_mu<b.mesh; i_mu=i_mu+thread_num) {
                 mtx.lock();
-                std::cout << "mu = " << b.ene[i_mu] << std::endl;
+//                std::cout << "mu = " << b.ene[i_mu] << std::endl;
                 mtx.unlock();
                 b.tri[i_mu] = get_triangles_L(valley, band_index, b.ene[i_mu]);
                 b.dos[i_mu] = get_DOS_L(b.tri[i_mu], valley, band_index, b.ene[i_mu]);
