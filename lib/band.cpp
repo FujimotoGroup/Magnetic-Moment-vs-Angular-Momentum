@@ -125,3 +125,46 @@ band set_band_L(int valley, int band_index, chemical_potential mu_min, chemical_
 
     return b;
 }; // }}}
+
+
+//band set_band_2n_L(int valley, int band_index, chemical_potential mu_center, chemical_potential delta, int mu_mesh) { // {{{
+//    band b;
+//    b.index   = band_index;
+//    b.mu_min  = mu_min;
+//    b.mu_max  = mu_max;
+//    b.dmu     = (mu_max - mu_min) / double(mu_mesh-1);
+//    b.mu_mesh = mu_mesh;
+//    b.tri.resize(mu_mesh);
+//    b.dos.resize(mu_mesh);
+//    std::cout << "L point; valley#" << valley << ", band#" << band_index << " search start" << std::endl;
+//    std::string dos = "dat/L"+std::to_string(valley+1)+"_dos"+std::to_string(band_index)+".csv";
+//    std::ofstream ofs(dos);
+//
+//    std::vector<std::thread> threads;
+//    threads.resize(thread_num);
+//    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+//        auto func =[](int i_thread, band& b, int valley, int band_index) {
+//            for(int i_mu=i_thread; i_mu<b.mu_mesh; i_mu=i_mu+thread_num) {
+//                chemical_potential mu = b.mu_min + b.dmu*double(i_mu);
+//                mtx.lock();
+//                std::cout << "mu = " << mu << std::endl;
+//                mtx.unlock();
+//                b.tri[i_mu] = get_triangles_L(valley, band_index, mu);
+//                b.dos[i_mu] = get_DOS_L(b.tri[i_mu], valley, band_index, mu);
+//            }
+//        };
+//        threads[i_thread] = std::thread(func, i_thread, std::ref(b), valley, band_index);
+//    }
+//    for(auto& thread : threads){
+//        thread.join();
+//    }
+//
+//    for(int i_mu=0; i_mu<b.mu_mesh; i_mu++) {
+//        chemical_potential mu = b.mu_min + b.dmu*double(i_mu);
+//        ofs << std::scientific << b.tri[i_mu].ene << ", " << b.dos[i_mu] << std::endl;
+//    }
+//
+//    std::cout << "L point; valley#" << valley << ", band#" << band_index << " search end" << std::endl;
+//
+//    return b;
+//}; // }}}

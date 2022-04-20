@@ -99,6 +99,7 @@ extern std::vector<std::vector<std::vector<matrixComplex>>> v_s_L;
 
 extern matrixComplex Hamiltonian;
 void initialize();
+void set_isotropic();
 matrixComplex set_T(double k[3]);
 matrixComplex set_L(int valley, double k[3]);
 vectorReal diagonalize_N(matrixComplex A);
@@ -257,6 +258,7 @@ double get_DOS_L(triangles tri, int valley, int band_index, chemical_potential m
 struct band {
     int index;
     chemical_potential mu_min, mu_max, dmu;
+    std::vector<chemical_potential> ene;
     int mu_mesh;
     std::vector<triangles> tri;
     std::vector<double> dos;
@@ -280,6 +282,7 @@ void sys_L_write(sys_L s);
 
 band set_band_T(int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
 band set_band_L(int valley, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
+band set_band_2n_L(int valley, int band_index, chemical_potential mu_min, chemical_potential mu_max, int mu_mesh);
 
 using Green_function = matrixComplex;
 Green_function get_green_function_T(Complex ene, kpoint k);
@@ -288,10 +291,12 @@ Green_function get_green_function_L(Complex ene, int valley, kpoint k);
 using SHC = tensor2Complex;
 SHC get_SHC_T1(band b);
 SHC get_SHC_T2(band b);
-SHC get_SHC_L(band b, int valley);
+SHC get_SHC_L1(band b, chemical_potential mu, int valley);
 
 using Conductivity = matrixComplex;
 Conductivity get_conductivity_T(band b);
-Conductivity get_conductivity_L(band b, int valley);
+//Conductivity get_conductivity_L(band b, int valley);
+Conductivity get_conductivity_L(band b, chemical_potential mu, int valley);
 
+void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int valley, int band_index);
 #endif // PARAMETERS_HPP

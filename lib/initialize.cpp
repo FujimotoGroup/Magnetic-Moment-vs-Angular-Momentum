@@ -42,7 +42,7 @@ const double cutoff = 2e-1*g0;
 double dk[3];
 const int k_mesh = 100;
 const int k_mesh_more = 70;
-const int mu_mesh = 60;
+const int mu_mesh = 30;
 //const int k_mesh = 30; const int k_mesh_more = 50; const int mu_mesh = 32;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
@@ -256,7 +256,7 @@ void initialize() {
         for(int axis=0; axis<space_dim; axis++) {
             v_s_L[valley][axis].resize(bandsL);
             for(int spin=0; spin<spin_dim; spin++) {
-                v_s_L[valley][axis][spin].resize(bandsT);
+                v_s_L[valley][axis][spin].resize(bandsL);
                 for(int i=0; i<bandsL; i++) {
                     v_s_L[valley][axis][spin][i].resize(bandsL);
                 }
@@ -275,6 +275,66 @@ void initialize() {
     }
     // }}}
 };
+
+void set_isotropic() { // {{{
+    const matrixComplex sigma_x = { {0e0, 1e0}, {1e0, 0e0} };
+    const matrixComplex sigma_y = { {0e0,- zi}, { zi, 0e0} };
+    const matrixComplex sigma_z = { {1e0, 0e0}, {0e0,-1e0} };
+    tensor2Complex v(3, matrixComplex(4, vectorComplex(4, 0e0)));
+
+    tensor2Complex mu_s(3, matrixComplex(4, vectorComplex(4, 0e0)));
+
+    for(int k=0; k<2; k++) {
+        for(int l=0; l<2; l++) {
+            v[0][k][2+l] =  zi*sigma_x[k][l];
+            v[0][2+k][l] = -zi*sigma_x[k][l];
+
+            v[1][k][2+l] =  zi*sigma_y[k][l];
+            v[1][2+k][l] = -zi*sigma_y[k][l];
+
+            v[2][k][2+l] =  zi*sigma_z[k][l];
+            v[2][2+k][l] = -zi*sigma_z[k][l];
+
+            mu_s[0][k][l]     =   sigma_x[k][l];
+            mu_s[0][2+k][2+l] = - sigma_x[k][l];
+
+            mu_s[1][k][l]     =   sigma_y[k][l];
+            mu_s[1][2+k][2+l] = - sigma_y[k][l];
+
+            mu_s[2][k][l]     =   sigma_z[k][l];
+            mu_s[2][2+k][2+l] = - sigma_z[k][l];
+      }
+  }
+    for (int valley=0; valley<valleys; valley++) {
+        for (int axis=0; axis<space_dim; axis++) {
+            for(int i=0; i<4; i++) {
+                for(int j=0; j<4; j++) {
+                    vL[valley][axis][i][j] = v[axis][i][j];
+                }
+            }
+        }
+        for (int spin=0; spin<spin_dim; spin++) {
+            for(int i=0; i<4; i++) {
+                for(int j=0; j<4; j++) {
+                    mu_s_L[valley][spin][i][j] = mu_s[spin][i][j];
+                }
+            }
+        }
+        for (int axis=0; axis<space_dim; axis++) {
+            for (int spin=0; spin<spin_dim; spin++) {
+                for(int i=0; i<4; i++) {
+                    for(int j=0; j<4; j++) {
+                        Complex c = 0e0;
+                        for(int k=0; k<4; k++) {
+                            c += (vL[valley][axis][i][k]*mu_s_L[valley][spin][k][j] + mu_s_L[valley][spin][i][k]*vL[valley][axis][k][j])*5e-1;
+                        }
+                        v_s_L[valley][axis][spin][i][j] = c;
+                    }
+                }
+            }
+        }
+    }
+} // }}}
 
 void init(double& value, double& res) { // {{{
     value = 0e0;

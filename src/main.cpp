@@ -173,24 +173,28 @@ int main(){
 //    }
 //// }}}
 
-//// isotropic Dirac (required modification in lib/hamiltonian.cpp) {{{
-//    int valley = 0;
-//    int band_index = 0;
-//    double delta = (EL[valley][2] - EL[valley][0])*5e-1;
-//    chemical_potential mu_min = - delta - 3e-1;
-//    chemical_potential mu_max = - delta + 1e-2;
-//    band bL;
+// isotropic Dirac (required modification in lib/hamiltonian.cpp) {{{
+    set_isotropic();
+    int valley = 0;
+    int band_index = 0;
+    double delta = (EL[valley][2] - EL[valley][0])*5e-1;
+    chemical_potential mu_min = - delta - 3e-1;
+    chemical_potential mu_max = - delta - 1e-6;
+    band bL;
+    set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
 //    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
+//    Conductivity sigma_L = get_conductivity_L(bL, valley);
 //    band_index = 2;
 //    mu_min = delta - 1e-2;
 //    mu_max = delta + 2e-2;
 //    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
 //    SHC sigma_L = get_SHC_L(bL);
+//    Conductivity sigma_T = get_conductivity_T(bT);
 //// }}}
 
-    int band_index = 2;
+//    int band_index = 2;
 //    chemical_potential mu = 0e0;
-    int valley = 0;
+//    int valley = 0;
 //    chemical_potential mu = 0e0;
 //    chemical_potential mu = -1.4e-1;
 //    triangles tri = get_triangles_T(band_index, mu);
@@ -209,18 +213,21 @@ int main(){
 ////    ofs << std::scientific << tri.faces.size() << ", " << dos << std::endl;
 ////    std::string filename = "tri_k"+std::to_string(k_mesh)+".csv";
 ////    triangles_write(tri, filename);
+//
+//    int band_index = 5;
+//    chemical_potential mu_max = double(ET[band_index])-5e-5;
+////    chemical_potential mu_min = double(ET[band_index])-2.5e-1;
+////    chemical_potential mu_max = -0.5e-1;
+//    chemical_potential mu_min = -1.4e-1;
+//    band bT;
+//    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh);
+//    Conductivity sigma_T = get_conductivity_T(bT);
+//    SHC SHC1_T = get_SHC_T1(bT);
+//    SHC SHC2_T = get_SHC_T2(bT);
 
-    band_index = 5;
-    chemical_potential mu_max = double(ET[band_index])-5e-5;
-//    chemical_potential mu_min = double(ET[band_index])-2.5e-1;
-//    chemical_potential mu_max = -0.5e-1;
-    chemical_potential mu_min = -1.43e-1;
-    band bT;
-    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh);
-    Conductivity sigma_T = get_conductivity_T(bT);
-    SHC SHC1_T = get_SHC_T1(bT);
-    SHC SHC2_T = get_SHC_T2(bT);
-
+//    int valley = 0;
+//    int band_index = 2;
+//    chemical_potential mu = 0e0;
 ////    for(int valley=0; valley<valleys; valley++) {
 //        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
 //        chemical_potential mu_min = double(EL[valley][band_index])+1e-5;

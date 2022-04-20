@@ -485,151 +485,26 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
     CGAL::make_surface_mesh(c2t3, surface, criteria, CGAL::Non_manifold_tag());
     Surface_mesh sm;
     CGAL::facets_in_complex_2_to_triangle_mesh(c2t3, sm);
+    for(Surface_mesh::Face_index fd : sm.faces()) {
+        for(Surface_mesh::Vertex_index vd : vertices_around_face(sm.halfedge(fd), sm)) {
+        kpoint k = {sm.point(vd).x(), sm.point(vd).y(), sm.point(vd).z()};
+        double e = get_E_L(valley, band_index, k) - mu;
+        if (std::abs(e) > 1e-7)
+            std::cout << vd << ", " << e  << std::endl;
+        }
+    }
 
-    std::ofstream out("sphere.off");
-    out << sm << std::endl;
-    std::cout << "Final number of points: " << tr.number_of_vertices() << "\n";
+//    std::ofstream out("sphere.off");
+//    out << sm << std::endl;
+//    std::cout << "Final number of points: " << tr.number_of_vertices() << "\n";
 
     return sm;
 } // }}}
 
-void divide_triangle(triangles& tri, int valley, int band_index, chemical_potential mu, int i) { // {{{
-    double dS = tri.faces[i].dS;
-//    std::cout << i << ", dS = " << dS << std::endl;
-
-    int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
-    vector3 k1 = tri.vertexes[v[0]];
-    vector3 k2 = tri.vertexes[v[1]];
-    vector3 k3 = tri.vertexes[v[2]];
-    vector3 n1 = tri.normals[v[0]];
-    vector3 n2 = tri.normals[v[1]];
-    vector3 n3 = tri.normals[v[2]];
-
-//    std::cout << "e1 = " << get_E_L(valley, band_index, k1) - mu << ", "
-//              << "e2 = " << get_E_L(valley, band_index, k2) - mu << ", "
-//              << "e3 = " << get_E_L(valley, band_index, k3) - mu << ", "
-//              << std::endl;
-
-    kpoint center = get_center(k1, k2, k3);
-    double ene = get_E_L(valley, band_index, center) - mu;
-//    vector3 c1, c2, normal;
-//    for(int axis=0; axis<space_dim; axis++) {
-//        c1.vec[axis] = k1.vec[axis] - k3.vec[axis];
-//        c2.vec[axis] = k2.vec[axis] - k3.vec[axis];
-//    }
-//    normal.vec[0] = c1.vec[1]*c2.vec[2] - c1.vec[2]*c2.vec[1];
-//    normal.vec[1] = c1.vec[2]*c2.vec[0] - c1.vec[0]*c2.vec[2];
-//    normal.vec[2] = c1.vec[0]*c2.vec[1] - c1.vec[1]*c2.vec[0];
-
-    velocity vel = get_velocity_L(valley, band_index, mu, center);
-
-    double norm = 0e0;
-    for(int axis=0; axis<space_dim; axis++) {
-        norm += vel.vec[axis]*vel.vec[axis];
-//        norm += normal.vec[axis]*normal.vec[axis];
-    }
-    norm = NRsqrt(norm);
-
-    kpoint k;
-    double pm = ene / std::abs(ene);
-    double min = get_min_length(k1, k2, k3);
-    double ek;
-    for(int i=1; i<50; i++) {
-        for(int axis=0; axis<space_dim; axis++) {
-            k.vec[axis] = center.vec[axis] - pm * vel.vec[axis]/norm*min*5e-1*double(i);
-//            k.vec[axis] = center.vec[axis] - pm * normal.vec[axis]/norm*min*5e-1*double(i);
-        }
-        ek = get_E_L(valley, band_index, k) - mu;
-        if (ek*ene < 0e0) break;
-    }
-
-    if ( ek*ene < 0e0 ) {
-//        std::cout << std::scientific << "ek = " << ek << ", ene = " << ene << std::endl;
-        kpoint q = bisec_L2points(valley, band_index, mu, ek, ene, k, center);
-//        ek = get_E_L(valley, band_index, q) - mu;
-//        std::cout << std::scientific << "#" << i << ", 再構成OK: ek = " << ek << std::endl;
-        tri.vertexes.push_back(q);
-        int v_new = tri.vertexes.size()-1;
-        velocity n = get_velocity_L(valley, band_index, mu, q);
-
-        int v[4] = {v_new, tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
-//        std::cout << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << std::endl;
-        kpoint k[4] = {q, k1, k2, k3};
-        int j1, j2, j3;
-        double r = get_length(q, k1);
-        double s = get_length(q, k2);
-        double t = get_length(q, k3);
-//        std::cout << "hoge = " << r << ", " << s << ", " << t << std::endl;
-        if (r > s) {
-            if (r > t) { // r > t, s
-                j1 = 1;
-                j2 = 2;
-                j3 = 3;
-            } else { // t > r > s
-                j1 = 3;
-                j2 = 1;
-                j3 = 2;
-            }
-        } else {
-            if (s > t) { // s > r, t
-                j1 = 2;
-                j2 = 3;
-                j3 = 1;
-            } else { // t > s > r
-                j1 = 3;
-                j2 = 1;
-                j3 = 2;
-            }
-        }
-        tri.faces[i].face[j1-1] = v[0];
-        tri.faces[i].dS = get_dS(k[0], k[j2], k[j3]);
-        face f1, f2;
-        f1.face[0] = v[0];
-        f1.face[1] = v[j1];
-        f1.face[2] = v[j2];
-        f1.dS = get_dS(k[0], k[j1], k[j2]);
-        f2.face[0] = v[0];
-        f2.face[1] = v[j3];
-        f2.face[2] = v[j1];
-        f2.dS = get_dS(k[0], k[j3], k[j1]);
-
-//        kpoint center1  = get_center(q, k1, k2);
-//        kpoint center2  = get_center(q, k1, k3);
-//        kpoint center3  = get_center(q, k2, k3);
-//        vector3 normal1 = get_normal(n, n1, n2);
-//        vector3 normal2 = get_normal(n, n1, n3);
-//        vector3 normal3 = get_normal(n, n2, n3);
-
-        kpoint center1  = q;
-        kpoint center2  = k1;
-        kpoint center3  = k2;
-        vector3 normal1 = n;
-        vector3 normal2 = n1;
-        vector3 normal3 = n2;
-        for(int axis=0; axis<space_dim; axis++) {
-            f1.center[axis] = center1.vec[axis];
-            f1.normal[axis] = normal1.vec[axis];
-            f2.center[axis] = center2.vec[axis];
-            f2.normal[axis] = normal2.vec[axis];
-            tri.faces[i].center[axis] = center3.vec[axis];
-            tri.faces[i].normal[axis] = normal3.vec[axis];
-        }
-
-        tri.faces.push_back(f1);
-        tri.faces.push_back(f2);
-
-//        std::cout << i << ", dS1 = " << tri.faces[i].dS <<
-//                          ", dS2 = " << f1.dS <<
-//                          ", dS3 = " << f2.dS << std::endl;
-//
-
-    }
-} // }}}
-
 triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { // {{{
     CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
-                                                       5e-3,  // radius bound
-                                                       5e-3); // distance bound
+                                                       1e-1,  // radius bound
+                                                       1e-1); // distance bound
     Surface_mesh mesh = get_triangles_cgal_L(valley, band_index, mu, criteria);
 
     int size;
@@ -637,8 +512,10 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
     if (size < 1000) {
         std::cout << "get surface mesh again @ mu = " << mu << ": fs#" << size << std::endl;
         CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
-                                                           1e-3,  // radius bound
-                                                           1e-3); // distance bound
+//                                                           1e-2,  // radius bound
+//                                                           1e-2); // distance bound
+                                                           2e-3,   // for isotropic radius bound
+                                                           2e-3);  //  for isotropicdistance bound
         mesh = get_triangles_cgal_L(valley, band_index, mu, criteria);
     }
     size = mesh.number_of_faces();
@@ -664,7 +541,7 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
 //            center.vec[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
             center.vec[axis] = k1.vec[axis];
         }
-        normal = get_velocity_T(band_index, mu, center);
+        normal = get_velocity_L(valley, band_index, mu, center);
         for(int axis=0; axis<space_dim; axis++) {
             tri.faces[i].center[axis] = center.vec[axis];
             tri.faces[i].normal[axis] = normal.vec[axis];
