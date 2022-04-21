@@ -275,10 +275,12 @@ struct band {
 band set_band_T(int band_index, Energy ene_min, Energy ene_max, int ene_mesh);
 band set_band_2n_T(int band_index, Energy ene_center, Energy delta, int n);
 band set_band_L(int valley, int band_index, Energy ene_min, Energy ene_max, int ene_mesh);
-band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, int n);
+band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, int n, double power);
 
 void init_band_L(band& b, int valley, int band_index);
 void add_fs_L(band& b, int valley, chemical_potential mu);
+
+band combine_band(band b_global, band b_local, int index);
 
 void write_res(Conductivity sigma, chemical_potential mu,  std::string filename);
 void write_res(SHC sigma, chemical_potential mu,  std::string filename);
@@ -289,24 +291,25 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
     int i_mu = 0;
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
         Energy dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
         sigma = times(sigma, dmu);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
         res = add(res, sigma);
     for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
-        dmu = b.ene[i_mu] - b.ene[i_mu-1];
+//        dmu = b.ene[i_mu+1] - b.ene[i_mu];
+        dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
         sigma = times(sigma, dmu);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
         res = add(res, sigma);
     }
     i_mu = b.mesh-1;
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
         dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
         sigma = times(sigma, dmu);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
         res = add(res, sigma);
 }; // }}}
 

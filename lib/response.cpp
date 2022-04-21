@@ -2,7 +2,7 @@
 #include <filesystem>
 
 int i_epsilon_min = 4;
-int i_epsilon_max = 5;
+int i_epsilon_max = i_epsilon_min + 1;
 
 void set_output_directory(std::string dir) { // {{{
     namespace fs = std::filesystem;
@@ -211,78 +211,6 @@ void set_output_directory(std::string dir) { // {{{
 //// }}}
 //
 // L {{{
-//
-//Conductivity get_conductivity_L(band b, int valley) { // {{{
-//    Conductivity response(space_dim, vectorComplex(space_dim, 0e0));
-//
-//    std::string dir = "L"+std::to_string(valley+1)+"_"+std::to_string(bandsL)+"bands";
-//    set_output_directory(dir);
-//
-//    for(int i=i_epsilon_min; i<i_epsilon_max; i++) {
-//        double epsilon = 1e0;
-//        for(int j=0; j<i; j++) {
-//            epsilon *= 1e-1;
-//        }
-//        std::cout << std::scientific << "epsilon = " << epsilon << std::endl;
-//
-//        auto fn = [=](int valley, int band_index, chemical_potential mu, kpoint k) {
-//            Green_function GR = get_green_function_L(mu + epsilon*zi, valley, k);
-//            Green_function GA = get_green_function_L(mu - epsilon*zi, valley, k);
-//
-//            matrixComplex res(space_dim, vectorComplex(space_dim, 0e0));
-//
-//            for(int external=0; external<space_dim; external++) {
-//                matrixComplex C1 = product(vL[valley][external], GR);
-//                for(int axis=0; axis<space_dim; axis++) {
-//                    matrixComplex C2 = product(vL[valley][axis], GA);
-//
-//                    res[external][axis] = tr(product(C1, C2));
-//                }
-//            }
-//
-//            return res;
-//        };
-//
-//        std::string filename = "dat/"+dir+"/conductivity_eps"+std::to_string(epsilon)+".csv";
-//        std::ofstream ofs(filename);
-//        ofs << "mu";
-//        for(int external=0; external<space_dim; external++) {
-//            for(int axis=0; axis<space_dim; axis++) {
-//                ofs << ", " << axises[external]+axises[axis];
-//            }
-//        }
-//        filename = "dat/"+dir+"/conductivity_imag_eps"+std::to_string(epsilon)+".csv";
-//        std::ofstream ofss(filename);
-//        ofss << "mu";
-//        for(int external=0; external<space_dim; external++) {
-//            for(int axis=0; axis<space_dim; axis++) {
-//                ofss << ", " << axises[external]+axises[axis];
-//            }
-//        }
-//        for(int i_mu=0; i_mu<b.mu_mesh; i_mu++) {
-//            matrixComplex sigma(space_dim, vectorComplex(space_dim, 0e0));
-//            chemical_potential mu = b.mu_min + b.dmu*double(i_mu);
-//            integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-//            ofs << std::scientific << mu;
-//            for( auto s : sigma ) {
-//                for( auto v : s ) {
-//                    ofs << std::scientific << ", " << v.real();
-//                }
-//            }
-//            ofs << std::endl;
-//            ofss << std::scientific << mu;
-//            for( auto s : sigma ) {
-//                for( auto v : s ) {
-//                    ofss << std::scientific << ", " << v.imag();
-//                }
-//            }
-//            ofss << std::endl;
-//        }
-//    }
-//
-//    return response;
-//}; // }}}
-//
 void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int valley, int band_index) { // {{{
     std::string dir = "L"+std::to_string(valley+1)+"_"+std::to_string(bandsL)+"bands";
     set_output_directory(dir);
@@ -371,59 +299,64 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
         ofshc22 << std::endl;
 // }}}
 
-        band b_sea;
-        init_band_L(b_sea, valley, band_index);
-
         chemical_potential d_ene = (ene_max - ene_min) / double(ene_mesh-1);
+
+        band b = set_band_L(valley, band_index, ene_min, ene_max, ene_mesh);
+
+        SHC SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+
         for(int i_ene=0; i_ene<ene_mesh; i_ene++) {
+//        for(int i_ene=0; i_ene<1; i_ene++) {
             const chemical_potential mu = ene_min + d_ene*double(i_ene);
+            std::cout << "start: i_ene = " << i_ene << std::endl;
 
             int e_mesh = 20;
 
-            band bL;
-            bL = set_band_2n_L(valley, band_index, mu, 2e1*epsilon, e_mesh);
-            add_fs_L(b_sea, valley, mu);
-
-// dos output {{{
-            for(int i_e=0; i_e<bL.mesh; i_e++) {
-                ofdos << std::scientific << bL.tri[i_e].ene << ", " << bL.dos[i_e] << std::endl;
-            }
-// }}}
-
-            Conductivity sigma(space_dim, vectorComplex(space_dim, 0e0));
-            sigma = get_conductivity_L(bL, epsilon, mu, valley);
-// conductivity output {{{
-            ofsigma1 << std::scientific << mu;
-            ofsigma2 << std::scientific << mu;
-            for( auto s : sigma ) {
-                for( auto v : s ) {
-                    ofsigma1 << std::scientific << ", " << v.real();
-                    ofsigma2 << std::scientific << ", " << v.imag();
-                }
-            }
-            ofsigma1 << std::endl;
-            ofsigma2 << std::endl;
-// }}}
-
-            SHC SHC1(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
-            SHC1 = get_SHC_L1(bL, epsilon, mu, valley);
-// SHC1 output {{{
-            ofshc11 << std::scientific << mu;
-            ofshc12 << std::scientific << mu;
-            for( auto e : SHC1 ) {
-                for( auto a : e ) {
-                    for( auto s : a ) {
-                        ofshc11 << std::scientific << ", " << s.real();
-                        ofshc12 << std::scientific << ", " << s.imag();
-                    }
-                }
-            }
-            ofshc11 << std::endl;
-            ofshc12 << std::endl;
-// }}}
-
-            SHC SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
-            SHC2 = get_SHC_L2(b_sea, epsilon, mu, valley);
+//            band bL = set_band_2n_L(valley, band_index, mu, 2e1*epsilon, e_mesh, 7e-1);
+//
+//// dos output {{{
+//            for(int i_e=0; i_e<bL.mesh; i_e++) {
+//                ofdos << std::scientific << bL.tri[i_e].ene << ", " << bL.dos[i_e] << std::endl;
+//            }
+//// }}}
+//
+//            Conductivity sigma = get_conductivity_L(bL, epsilon, mu, valley);
+//// conductivity output {{{
+//            ofsigma1 << std::scientific << mu;
+//            ofsigma2 << std::scientific << mu;
+//            for( auto s : sigma ) {
+//                for( auto v : s ) {
+//                    ofsigma1 << std::scientific << ", " << v.real();
+//                    ofsigma2 << std::scientific << ", " << v.imag();
+//                }
+//            }
+//            ofsigma1 << std::endl;
+//            ofsigma2 << std::endl;
+//// }}}
+//
+//            SHC SHC1 = get_SHC_L1(bL, epsilon, mu, valley);
+//// SHC1 output {{{
+//            ofshc11 << std::scientific << mu;
+//            ofshc12 << std::scientific << mu;
+//            for( auto e : SHC1 ) {
+//                for( auto a : e ) {
+//                    for( auto s : a ) {
+//                        ofshc11 << std::scientific << ", " << s.real();
+//                        ofshc12 << std::scientific << ", " << s.imag();
+//                    }
+//                }
+//            }
+//            ofshc11 << std::endl;
+//            ofshc12 << std::endl;
+//// }}}
+//
+            e_mesh = 30;
+            band bL = set_band_2n_L(valley, band_index, mu, 1e1*epsilon, e_mesh, 8.5e-1);
+            band b_tmp = combine_band(b, bL, i_ene);
+            SHC SHC2_mu = get_SHC_L2(b_tmp, epsilon, mu, valley);
+//            SHC SHC2_mu = get_SHC_L2(bL, epsilon, mu, valley);
+            SHC2_mu = times(SHC2_mu, d_ene);
+            SHC2 = add(SHC2, SHC2_mu);
 // SHC2 output {{{
             ofshc21 << std::scientific << mu;
             ofshc22 << std::scientific << mu;
@@ -501,8 +434,8 @@ SHC get_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley) { // {
 
     auto fn = [=](int valley, int band_index, chemical_potential mu, kpoint k) {
         SHC res(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
-        Green_function GR = get_green_function_L(mu + eps_num*zi, valley, k);
-        Green_function GA = get_green_function_L(mu - eps_num*zi, valley, k);
+        Green_function GR = get_green_function_L(mu + epsilon*zi, valley, k);
+        Green_function GA = get_green_function_L(mu - epsilon*zi, valley, k);
 
         for(int external=0; external<space_dim; external++) {
             matrixComplex vGR = product(vL[valley][external], GR);

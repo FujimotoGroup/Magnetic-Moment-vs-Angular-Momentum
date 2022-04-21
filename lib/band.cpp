@@ -101,7 +101,7 @@ band set_band_L(int valley, int band_index, Energy ene_min, Energy ene_max, int 
         auto func =[](int i_thread, band& b, int valley, int band_index) {
             for(int i_mu=i_thread; i_mu<b.mesh; i_mu=i_mu+thread_num) {
                 mtx.lock();
-                std::cout << "mu = " << b.ene[i_mu] << std::endl;
+//                std::cout << "mu = " << b.ene[i_mu] << std::endl;
                 mtx.unlock();
                 b.tri[i_mu] = get_triangles_L(valley, band_index, b.ene[i_mu]);
                 b.dos[i_mu] = get_DOS_L(b.tri[i_mu], valley, band_index, b.ene[i_mu]);
@@ -118,7 +118,7 @@ band set_band_L(int valley, int band_index, Energy ene_min, Energy ene_max, int 
     return b;
 }; // }}}
 
-band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, int n) { // {{{
+band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, int n, double power) { // {{{
     band b;
     b.index = band_index;
     b.mesh  = 2*n+1;
@@ -126,15 +126,14 @@ band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, 
     b.tri.resize(b.mesh);
     b.dos.resize(b.mesh);
 
-    double p = 7e-1;
     b.ene[n] = ene_center;
     for(int i=0; i<n; i++) {
         double dn = delta;
-        for(int j = 0; j<i; ++j) dn *= p;
+        for(int j = 0; j<i; ++j) dn *= power;
         b.ene[i] = ene_center - dn;
 
         dn = delta;
-        for(int j = 0; j<n-i-1; j++) dn *= p;
+        for(int j = 0; j<n-i-1; j++) dn *= power;
         b.ene[n+i+1] = ene_center + dn;
     }
 
@@ -176,5 +175,28 @@ void add_fs_L(band& b, int valley, chemical_potential mu) { // {{{
     b.ene.push_back(mu);
     b.tri.push_back(tri);
     b.dos.push_back(dos);
-    std::cout << "hoge" << std::endl;
+}; // }}}
+
+band combine_band(band b_global, band b_local, int index) { // {{{
+    band b;
+    b.index = b_global.index;
+    b.mesh  = b_global.mesh - 1 + b_local.mesh;
+
+    for(int i=0; i<index; i++) {
+        b.ene.push_back(b_global.ene[i]);
+        b.tri.push_back(b_global.tri[i]);
+        b.dos.push_back(b_global.dos[i]);
+    }
+    for(int i=0; i<b_local.mesh; i++) {
+        b.ene.push_back(b_local.ene[i]);
+        b.tri.push_back(b_local.tri[i]);
+        b.dos.push_back(b_local.dos[i]);
+    }
+    for(int i=index+1; i<b_global.mesh; i++) {
+        b.ene.push_back(b_global.ene[i]);
+        b.tri.push_back(b_global.tri[i]);
+        b.dos.push_back(b_global.dos[i]);
+    }
+
+    return b;
 }; // }}}
