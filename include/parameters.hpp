@@ -1,6 +1,5 @@
 #ifndef   PARAMETERS_HPP
-#define   PARAMETERS_HPP
-
+#define   PARAMETERS_HPP 
 #include <cmath>
 #include <complex>
 #include <vector>
@@ -278,6 +277,9 @@ band set_band_2n_T(int band_index, Energy ene_center, Energy delta, int n);
 band set_band_L(int valley, int band_index, Energy ene_min, Energy ene_max, int ene_mesh);
 band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, int n);
 
+void init_band_L(band& b, int valley, int band_index);
+void add_fs_L(band& b, int valley, chemical_potential mu);
+
 void write_res(Conductivity sigma, chemical_potential mu,  std::string filename);
 void write_res(SHC sigma, chemical_potential mu,  std::string filename);
 
@@ -314,6 +316,7 @@ Green_function get_green_function_L(Complex ene, int valley, kpoint k);
 SHC get_SHC_T1(band b);
 SHC get_SHC_T2(band b);
 SHC get_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley);
+SHC get_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley);
 
 Conductivity get_conductivity_T(band b);
 Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, int valley);

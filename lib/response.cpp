@@ -1,8 +1,8 @@
 #include "parameters.hpp"
 #include <filesystem>
 
-int i_epsilon_min = 3;
-int i_epsilon_max = 6;
+int i_epsilon_min = 4;
+int i_epsilon_max = 5;
 
 void set_output_directory(std::string dir) { // {{{
     namespace fs = std::filesystem;
@@ -345,6 +345,34 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
         }
         ofshc12 << std::endl;
 // }}}
+// init spin Hall conductivity 2 file {{{
+        filename = "dat/"+dir+"/spin_Hall_conductivity2_real_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream ofshc21(filename);
+        ofshc21 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    ofshc21 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        ofshc21 << std::endl;
+
+        filename = "dat/"+dir+"/spin_Hall_conductivity2_imag_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream ofshc22(filename);
+        ofshc22 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    ofshc22 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        ofshc22 << std::endl;
+// }}}
+
+        band b_sea;
+        init_band_L(b_sea, valley, band_index);
 
         chemical_potential d_ene = (ene_max - ene_min) / double(ene_mesh-1);
         for(int i_ene=0; i_ene<ene_mesh; i_ene++) {
@@ -354,6 +382,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
 
             band bL;
             bL = set_band_2n_L(valley, band_index, mu, 2e1*epsilon, e_mesh);
+            add_fs_L(b_sea, valley, mu);
 
 // dos output {{{
             for(int i_e=0; i_e<bL.mesh; i_e++) {
@@ -391,6 +420,23 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             }
             ofshc11 << std::endl;
             ofshc12 << std::endl;
+// }}}
+
+            SHC SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+            SHC2 = get_SHC_L2(b_sea, epsilon, mu, valley);
+// SHC2 output {{{
+            ofshc21 << std::scientific << mu;
+            ofshc22 << std::scientific << mu;
+            for( auto e : SHC2 ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        ofshc21 << std::scientific << ", " << s.real();
+                        ofshc22 << std::scientific << ", " << s.imag();
+                    }
+                }
+            }
+            ofshc21 << std::endl;
+            ofshc22 << std::endl;
 // }}}
         }
     }
@@ -439,6 +485,40 @@ SHC get_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley) { // {
 
 //                    res[external][axis][spin] = tr(product(vsGR, vGA)) - 5e-1*(tr(product(vsGR, vGR)) + tr(product(vsGA, vGA)));
                     res[external][axis][spin] = tr(product(vsGR, vGA));
+                }
+            }
+        }
+        return res;
+    };
+
+    integrate_band_L(fn, response, b, valley, mu);
+
+    return response;
+}; // }}}
+
+SHC get_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley) { // {{{
+    SHC response(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+
+    auto fn = [=](int valley, int band_index, chemical_potential mu, kpoint k) {
+        SHC res(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+        Green_function GR = get_green_function_L(mu + eps_num*zi, valley, k);
+        Green_function GA = get_green_function_L(mu - eps_num*zi, valley, k);
+
+        for(int external=0; external<space_dim; external++) {
+            matrixComplex vGR = product(vL[valley][external], GR);
+            matrixComplex vGA = product(vL[valley][external], GA);
+            matrixComplex GRv = product(GR, vL[valley][external]);
+            matrixComplex GAv = product(GA, vL[valley][external]);
+            matrixComplex QR  = minus(GRv, vGR);
+            matrixComplex QA  = minus(GAv, vGA);
+            matrixComplex vR  = product(GR, product(QR, GR));
+            matrixComplex vA  = product(GA, product(QA, GA));
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    matrixComplex R = product(v_s_L[valley][axis][spin], vR);
+                    matrixComplex A = product(v_s_L[valley][axis][spin], vA);
+
+                    res[external][axis][spin] = tr(R) - tr(A);
                 }
             }
         }

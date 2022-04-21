@@ -163,3 +163,18 @@ band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, 
     return b;
 }; // }}}
 
+void init_band_L(band& b, int valley, int band_index) { // {{{
+    b.index = band_index;
+    b.mesh  = 0;
+}; // }}}
+
+void add_fs_L(band& b, int valley, chemical_potential mu) { // {{{
+    triangles tri = get_triangles_L(valley, b.index, mu);
+    double dos = get_DOS_L(tri, valley, b.index, mu);
+
+    b.mesh += 1;
+    b.ene.push_back(mu);
+    b.tri.push_back(tri);
+    b.dos.push_back(dos);
+    std::cout << "hoge" << std::endl;
+}; // }}}
