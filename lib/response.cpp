@@ -317,7 +317,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
 
 // dos output {{{
             for(int i_e=0; i_e<bL.mesh; i_e++) {
-                ofdos << std::scientific << bL.tri[i_e].ene << ", " << bL.dos[i_e] << std::endl;
+                ofdos << std::scientific << bL.ene[i_e] << ", " << bL.dos[i_e] << std::endl;
             }
 // }}}
 

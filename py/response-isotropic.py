@@ -25,79 +25,45 @@ bandsL = int(physics.get('bandsL'))
 lowest_T = int(physics.get('lowest_band_T'))
 lowest_L = int(physics.get('lowest_band_L'))
 
+EL0 = float(physics.get('EL0'))
+EL2 = float(physics.get('EL2'))
+delta = (EL2 - EL0)/2e0
+
 numeric = config['numeric']
 
 colors =['k', 'b', 'g', 'r', 'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan', 'navy', 'indigo']
-#
-## T conductivity {{{
-## 2,3 layout - bare {{{
-#fig, axes = plt.subplots(2,3,figsize=(12,10))
-#axes = axes.flatten()
-#for i in np.arange(6):
-#    label = "{:.6f}".format(1e-1**(i+1))
-#    readfile = data+'T'+str(bandsT)+'bands/conductivity_eps'+label+'.csv'
-#    conductivity = pd.read_csv(readfile,header=0).values
-#    axes[i].set_title("eps = "+label)
-#    axes[i].set_xlabel("mu")
-#    axes[i].plot(conductivity[:,0], conductivity[:,1], color=colors[3], label="xx")
-#    axes[i].plot(conductivity[:,0], conductivity[:,5], color=colors[2], label="yy")
-#    axes[i].plot(conductivity[:,0], conductivity[:,9], color=colors[1], label="zz")
-#    axes[i].legend()
-#
+
+# dos {{{
+# 1,1 layout -  {{{
+def dos(x):
+    if abs(x - delta) > 0e0:
+        return np.abs(x)*np.sqrt(x**2 - delta**2)
+    else:
+        return 0e0
+
+fig, axes = plt.subplots(1,1,figsize=(10,10))
+i = 3
+label = "{:.6f}".format(1e-1**(i+1))
+readfile = data+'L1_'+str(bandsL)+'bands/dos_eps'+label+'.csv'
+dos = pd.read_csv(readfile,header=0).values
+
+n = 1000.0
+mu_range = np.linspace(dos[:,0].min()*n, dos[:,0].max()*n, 1000)
+mu_range = mu_range / n
+
+axes.set_title("dos")
+axes.set_xlabel("mu")
+axes.set_ylim(-0.00001,0.001)
+axes.scatter(dos[:,0], dos[:,1], s=2, label="numeric")
+
 #plt.savefig(png+"conductivity_T-"+str(bandsT)+"bands.png", bbox_inches = 'tight', dpi=300)
 #plt.rc("svg", fonttype="none")
 #plt.savefig(svg+"conductivity_T-"+str(bandsT)+"bands.svg")
-##plt.show()
-#plt.close()
-## }}}
-## 1,3 layout - log {{{
-#title = ["xx", "yy", "zz"]
-#index = [1, 5, 9]
-#fig, axes = plt.subplots(1,3,figsize=(12,10))
-#axes = axes.flatten()
-#for i in np.arange(3):
-#    axes[i].set_title("sigma_"+title[i])
-#    axes[i].set_xlabel("mu")
-#    axes[i].set_ylim(-5,25)
-#    for j in np.arange(6):
-#        label = "{:.6f}".format(1e-1**(j+1))
-#        readfile = data+'T'+str(bandsT)+'bands/conductivity_eps'+label+'.csv'
-#        conductivity = pd.read_csv(readfile,header=0).values
-#        axes[i].plot(conductivity[:,0], np.log(conductivity[:,index[i]]), color=colors[j], label=label)
-#    axes[i].legend()
-#
-#plt.savefig(png+"conductivity_log_T-"+str(bandsT)+"bands.png", bbox_inches = 'tight', dpi=300)
-#plt.rc("svg", fonttype="none")
-#plt.savefig(svg+"conductivity_log_T-"+str(bandsT)+"bands.svg")
-##plt.show()
-#plt.close()
-## }}}
-## }}}
-## T spin Hall conductivity {{{
-## 2,3 layout - bare {{{
-#fig, axes = plt.subplots(2,3,figsize=(12,10))
-#axes = axes.flatten()
-#for i in np.arange(6):
-#    label = "{:.6f}".format(1e-1**(i+1))
-#    readfile = data+'T'+str(bandsT)+'bands/spin_Hall_conductivity1_eps'+label+'.csv'
-#    df = pd.read_csv(readfile,header=0)
-#    titles = df.columns.values
-#    conductivity = df.values
-#    axes[i].set_title("eps = "+label)
-#    axes[i].set_xlabel("mu")
-#    plot_lists = [1, 5, 6, 8, 11, 12, 13, 16, 20, 22]
-#    for j in plot_lists:
-#        axes[i].plot(conductivity[:,0], conductivity[:,j], label=titles[j])
-#    axes[i].legend()
-#
-#plt.savefig(png+"spin_Hall_conductivity1_T-"+str(bandsT)+"bands.png", bbox_inches = 'tight', dpi=300)
-#plt.rc("svg", fonttype="none")
-#plt.savefig(svg+"spin_Hall_conductivity1_T-"+str(bandsT)+"bands.svg")
-##plt.show()
-#plt.close()
-## }}}
-## }}}
-#
+plt.show()
+plt.close()
+# }}}
+# }}}
+
 # L conductivity {{{
 # 1,2 layout - diagonal vs off-diagonal {{{
 fig, axes = plt.subplots(1,2,figsize=(10,5))
@@ -194,7 +160,6 @@ conductivity = df.values
 n = 1000.0
 mu_range = np.linspace(conductivity[:,0].min()*n, conductivity[:,0].max()*n, 1000)
 mu_range = mu_range / n
-def func(x, a, b, c):
 
 axes.set_title("fitting")
 axes.set_xlabel("mu")
