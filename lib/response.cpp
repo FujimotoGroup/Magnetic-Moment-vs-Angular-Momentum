@@ -306,57 +306,54 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
         SHC SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
 
         for(int i_ene=0; i_ene<ene_mesh; i_ene++) {
-//        for(int i_ene=0; i_ene<1; i_ene++) {
             const chemical_potential mu = ene_min + d_ene*double(i_ene);
             std::cout << "start: i_ene = " << i_ene << std::endl;
 
-            int e_mesh = 20;
+            int e_mesh = 30;
+            double e_cut = 2e1*epsilon;
 
-//            band bL = set_band_2n_L(valley, band_index, mu, 2e1*epsilon, e_mesh, 7e-1);
-//
-//// dos output {{{
-//            for(int i_e=0; i_e<bL.mesh; i_e++) {
-//                ofdos << std::scientific << bL.tri[i_e].ene << ", " << bL.dos[i_e] << std::endl;
-//            }
-//// }}}
-//
-//            Conductivity sigma = get_conductivity_L(bL, epsilon, mu, valley);
-//// conductivity output {{{
-//            ofsigma1 << std::scientific << mu;
-//            ofsigma2 << std::scientific << mu;
-//            for( auto s : sigma ) {
-//                for( auto v : s ) {
-//                    ofsigma1 << std::scientific << ", " << v.real();
-//                    ofsigma2 << std::scientific << ", " << v.imag();
-//                }
-//            }
-//            ofsigma1 << std::endl;
-//            ofsigma2 << std::endl;
-//// }}}
-//
-//            SHC SHC1 = get_SHC_L1(bL, epsilon, mu, valley);
-//// SHC1 output {{{
-//            ofshc11 << std::scientific << mu;
-//            ofshc12 << std::scientific << mu;
-//            for( auto e : SHC1 ) {
-//                for( auto a : e ) {
-//                    for( auto s : a ) {
-//                        ofshc11 << std::scientific << ", " << s.real();
-//                        ofshc12 << std::scientific << ", " << s.imag();
-//                    }
-//                }
-//            }
-//            ofshc11 << std::endl;
-//            ofshc12 << std::endl;
-//// }}}
-//
-            e_mesh = 30;
-            band bL = set_band_2n_L(valley, band_index, mu, 1e1*epsilon, e_mesh, 8.5e-1);
-            band b_tmp = combine_band(b, bL, i_ene);
+            band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, 8.8e-1);
+            band b_tmp = combine_band_2n(b, bL);
+
+// dos output {{{
+            for(int i_e=0; i_e<bL.mesh; i_e++) {
+                ofdos << std::scientific << bL.tri[i_e].ene << ", " << bL.dos[i_e] << std::endl;
+            }
+// }}}
+
+            Conductivity sigma = get_conductivity_L(bL, epsilon, mu, valley);
+// conductivity output {{{
+            ofsigma1 << std::scientific << mu;
+            ofsigma2 << std::scientific << mu;
+            for( auto s : sigma ) {
+                for( auto v : s ) {
+                    ofsigma1 << std::scientific << ", " << v.real();
+                    ofsigma2 << std::scientific << ", " << v.imag();
+                }
+            }
+            ofsigma1 << std::endl;
+            ofsigma2 << std::endl;
+// }}}
+
+            SHC SHC1 = get_SHC_L1(bL, epsilon, mu, valley);
+// SHC1 output {{{
+            ofshc11 << std::scientific << mu;
+            ofshc12 << std::scientific << mu;
+            for( auto e : SHC1 ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        ofshc11 << std::scientific << ", " << s.real();
+                        ofshc12 << std::scientific << ", " << s.imag();
+                    }
+                }
+            }
+            ofshc11 << std::endl;
+            ofshc12 << std::endl;
+// }}}
+
             SHC SHC2_mu = get_SHC_L2(b_tmp, epsilon, mu, valley);
-//            SHC SHC2_mu = get_SHC_L2(bL, epsilon, mu, valley);
-            SHC2_mu = times(SHC2_mu, d_ene);
-            SHC2 = add(SHC2, SHC2_mu);
+            SHC2_mu = times(SHC2_mu, d_ene*5e-1);
+            if (i_ene > 0) SHC2 = add(SHC2, SHC2_mu);
 // SHC2 output {{{
             ofshc21 << std::scientific << mu;
             ofshc22 << std::scientific << mu;
@@ -371,6 +368,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             ofshc21 << std::endl;
             ofshc22 << std::endl;
 // }}}
+            SHC2 = add(SHC2, SHC2_mu);
         }
     }
 }; // }}}

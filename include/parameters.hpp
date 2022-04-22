@@ -61,6 +61,11 @@ extern const int bandsL;
 extern const int lowest_band_T;
 extern const int lowest_band_L;
 
+extern double mu_cutoff_T;
+extern double mu_cutoff_L;
+extern int mu_cutoff_mesh_T;
+extern int mu_cutoff_mesh_L;
+
 extern vectorReal band_edge_T;
 extern vectorReal band_edge_T_sign;
 extern matrixReal band_edge_L;
@@ -280,18 +285,21 @@ band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, 
 void init_band_L(band& b, int valley, int band_index);
 void add_fs_L(band& b, int valley, chemical_potential mu);
 
-band combine_band(band b_global, band b_local, int index);
+band combine_band(band b1, band b2);
+band combine_band_2n(band b_global, band b_local);
 
 void write_res(Conductivity sigma, chemical_potential mu,  std::string filename);
 void write_res(SHC sigma, chemical_potential mu,  std::string filename);
 
 template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
 //    std::string filename = "sigma.csv";
+//    std::string filename1 = "sigma1.csv";
     N sigma;
     int i_mu = 0;
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
         Energy dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
+//        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
         res = add(res, sigma);
@@ -300,6 +308,7 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
 //        dmu = b.ene[i_mu+1] - b.ene[i_mu];
         dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
+//        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
         res = add(res, sigma);
@@ -308,6 +317,7 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
         dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
+//        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
         res = add(res, sigma);

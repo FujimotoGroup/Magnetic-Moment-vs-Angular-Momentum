@@ -130,10 +130,12 @@ band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, 
     for(int i=0; i<n; i++) {
         double dn = delta;
         for(int j = 0; j<i; ++j) dn *= power;
+        dn = dn * double(n-i)/double(n);
         b.ene[i] = ene_center - dn;
 
         dn = delta;
         for(int j = 0; j<n-i-1; j++) dn *= power;
+        dn = dn * double(i+1)/double(n);
         b.ene[n+i+1] = ene_center + dn;
     }
 
@@ -177,12 +179,35 @@ void add_fs_L(band& b, int valley, chemical_potential mu) { // {{{
     b.dos.push_back(dos);
 }; // }}}
 
-band combine_band(band b_global, band b_local, int index) { // {{{
+band combine_band(band b1, band b2) { // {{{
+    band b;
+    b.index = b1.index;
+    b.mesh  = b1.mesh + b2.mesh;
+
+    for(int i=0; i<b1.mesh; i++) {
+        b.ene.push_back(b1.ene[i]);
+        b.tri.push_back(b1.tri[i]);
+        b.dos.push_back(b1.dos[i]);
+    }
+    for(int i=0; i<b2.mesh; i++) {
+        b.ene.push_back(b2.ene[i]);
+        b.tri.push_back(b2.tri[i]);
+        b.dos.push_back(b2.dos[i]);
+    }
+
+    return b;
+}; // }}}
+
+band combine_band_2n(band b_global, band b_local) { // {{{
     band b;
     b.index = b_global.index;
-    b.mesh  = b_global.mesh - 1 + b_local.mesh;
 
-    for(int i=0; i<index; i++) {
+    int index = 0;
+    for(int i=0; i<b_global.mesh; i++) {
+        if( b_global.ene[i] > b_local.ene[0] ) {
+            index = i;
+            break;
+        }
         b.ene.push_back(b_global.ene[i]);
         b.tri.push_back(b_global.tri[i]);
         b.dos.push_back(b_global.dos[i]);
@@ -193,10 +218,12 @@ band combine_band(band b_global, band b_local, int index) { // {{{
         b.dos.push_back(b_local.dos[i]);
     }
     for(int i=index+1; i<b_global.mesh; i++) {
+        if( b_global.ene[i] < b_local.ene[b_local.mesh-1] ) continue;
         b.ene.push_back(b_global.ene[i]);
         b.tri.push_back(b_global.tri[i]);
         b.dos.push_back(b_global.dos[i]);
     }
 
+    b.mesh  = b.tri.size();
     return b;
 }; // }}}

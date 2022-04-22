@@ -30,6 +30,11 @@ vectorReal band_edge_T;
 vectorReal band_edge_T_sign0 = { 1e0, 1e0, 1e0, 1e0,-1e0,-1e0,-1e0,-1e0,-1e0,-1e0, 1e0, 1e0, -1e0,-1e0, 1e0, 1e0};
 vectorReal band_edge_T_sign;
 
+double mu_cutoff_T;
+double mu_cutoff_L;
+int mu_cutoff_mesh_T;
+int mu_cutoff_mesh_L;
+
 const int bandsL = 4; const int lowest_band_L = 9;
 //const int bandsL = 12; const int lowest_band_L = 1;
 
@@ -52,7 +57,7 @@ const double cutoff = 2e-1*g0;
 double dk[3];
 const int k_mesh = 100;
 const int k_mesh_more = 70;
-const int mu_mesh = 50;
+const int mu_mesh = 120;
 //const int k_mesh = 30; const int k_mesh_more = 50; const int mu_mesh = 32;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
