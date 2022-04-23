@@ -311,6 +311,10 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             const chemical_potential mu = b_main.ene[i_ene];
             std::cout << "start: i_ene = " << i_ene << ": mu = " << mu << std::endl;
 
+// dos output {{{
+            ofdos << std::scientific << mu << ", " << b_main.dos[i_ene] << std::endl;
+// }}}
+
             int e_mesh = 30;
             double e_cut = 2e1*epsilon;
             band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, 9e-1);
@@ -330,12 +334,6 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
                 b_tmp = combine_band(bL, b2);
             }
             b_tmp = combine_band_2n(b, bL);
-
-// dos output {{{
-            for(int i_e=0; i_e<bL.mesh; i_e++) {
-                ofdos << std::scientific << bL.ene[i_e] << ", " << bL.dos[i_e] << std::endl;
-            }
-// }}}
 
             Conductivity sigma = get_conductivity_L(bL, epsilon, mu, valley);
 // conductivity output {{{
