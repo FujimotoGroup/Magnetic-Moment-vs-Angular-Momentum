@@ -306,7 +306,6 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
     for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-//        dmu = b.ene[i_mu+1] - b.ene[i_mu];
         dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
 //        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);

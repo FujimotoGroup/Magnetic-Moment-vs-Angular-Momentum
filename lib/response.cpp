@@ -2,7 +2,7 @@
 #include <filesystem>
 
 int i_epsilon_min = 4;
-int i_epsilon_max = i_epsilon_min + 1;
+int i_epsilon_max = 6;
 
 void set_output_directory(std::string dir) { // {{{
     namespace fs = std::filesystem;
@@ -301,19 +301,35 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
 
         chemical_potential d_ene = (ene_max - ene_min) / double(ene_mesh-1);
 
-        band b = set_band_L(valley, band_index, ene_min, ene_max, ene_mesh);
+        band b_cut = set_band_L(valley, band_index, mu_cutoff_L, ene_min-d_ene, mu_cutoff_mesh_L);
+        band b_main = set_band_L(valley, band_index, ene_min, ene_max, ene_mesh);
+        band b = combine_band(b_cut, b_main);
 
         SHC SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
 
-        for(int i_ene=0; i_ene<ene_mesh; i_ene++) {
-            const chemical_potential mu = ene_min + d_ene*double(i_ene);
-            std::cout << "start: i_ene = " << i_ene << std::endl;
+        for(int i_ene=0; i_ene<b_main.mesh; i_ene++) {
+            const chemical_potential mu = b_main.ene[i_ene];
+            std::cout << "start: i_ene = " << i_ene << ": mu = " << mu << std::endl;
 
             int e_mesh = 30;
             double e_cut = 2e1*epsilon;
+            band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, 9e-1);
+            band b_tmp;
 
-            band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, 8.8e-1);
-            band b_tmp = combine_band_2n(b, bL);
+            if (e_cut < d_ene*1.1e0) {
+                int mesh = 5;
+                double min1 = mu - d_ene + e_cut;
+                double max1 = mu - e_cut*1.1e0;
+                double min2 = mu + e_cut*1.1e0;
+                double max2 = mu + d_ene - e_cut;
+                if (i_ene == 0) {
+                }
+                band b1 = set_band_L(valley, band_index, min1, max1, mesh);
+                band b2 = set_band_L(valley, band_index, min2, max2, mesh);
+                b_tmp = combine_band(b1, bL);
+                b_tmp = combine_band(bL, b2);
+            }
+            b_tmp = combine_band_2n(b, bL);
 
 // dos output {{{
             for(int i_e=0; i_e<bL.mesh; i_e++) {
