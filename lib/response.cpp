@@ -329,8 +329,6 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             double power = 9e-1;
             band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
 
-            band b_tmp = combine_band_2n(b, bL);
-
             Conductivity sigma = get_conductivity_L(bL, epsilon, mu, valley);
 // conductivity output {{{
             ofsigma1 << std::scientific << mu;
@@ -345,7 +343,9 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             ofsigma2 << std::endl;
 // }}}
 
-            SHC SHC1 = get_SHC_L1(bL, epsilon, mu, valley);
+            band b_sum = combine_band_2n(b, bL);
+
+            SHC SHC1 = get_SHC_L1(b_sum, epsilon, mu, valley);
 // SHC1 output {{{
             ofshc11 << std::scientific << mu;
             ofshc12 << std::scientific << mu;
@@ -361,7 +361,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             ofshc12 << std::endl;
 // }}}
 
-            SHC SHC2_mu = get_SHC_L2(b_tmp, epsilon, mu, valley);
+            SHC SHC2_mu = get_SHC_L2(b_sum, epsilon, mu, valley);
             SHC2_mu = times(SHC2_mu, d_ene*5e-1);
             if (i_ene > 0) SHC2 = add(SHC2, SHC2_mu);
 // SHC2 output {{{
