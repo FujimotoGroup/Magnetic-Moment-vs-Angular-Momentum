@@ -301,9 +301,18 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
 
         chemical_potential d_ene = (ene_max - ene_min) / double(ene_mesh-1);
 
-        band b_cut = set_band_L(valley, band_index, mu_cutoff_L, ene_min-d_ene, mu_cutoff_mesh_L);
         band b_main = set_band_L(valley, band_index, ene_min, ene_max, ene_mesh);
-        band b = combine_band(b_cut, b_main);
+        if (mu_cutoff_L < ene_min) {
+            band b_cut = set_band_L(valley, band_index, mu_cutoff_L, ene_min-d_ene, mu_cutoff_mesh_L);
+            band b = combine_band(b_cut, b_main);
+        } else if (ene_max < mu_cutoff_L) {
+            band b_cut = set_band_L(valley, band_index, ene_max+d_ene, mu_cutoff_L, mu_cutoff_mesh_L);
+            band b = combine_band(b_main, b_cut);
+        } else {
+            std::cerr << "mu_cutoff_L shoudl be smaller than ene_min or larger than ene_max" << std::endl;
+            exit(0);
+        }
+        band b = b_main;
 
         SHC SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
 
@@ -312,28 +321,15 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             std::cout << "start: i_ene = " << i_ene << ": mu = " << mu << std::endl;
 
 // dos output {{{
-            ofdos << std::scientific << mu << ", " << b_main.dos[i_ene] << std::endl;
+            ofdos << std::scientific << mu << ", " << b_main.dos[i_ene] / (angstrom*angstrom*angstrom) << std::endl;
 // }}}
 
-            int e_mesh = 30;
-            double e_cut = 2e1*epsilon;
-            band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, 9e-1);
-            band b_tmp;
+            int e_mesh = 40;
+            double e_cut = 60e0*epsilon;
+            double power = 9e-1;
+            band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
 
-            if (e_cut < d_ene*1.1e0) {
-                int mesh = 5;
-                double min1 = mu - d_ene + e_cut;
-                double max1 = mu - e_cut*1.1e0;
-                double min2 = mu + e_cut*1.1e0;
-                double max2 = mu + d_ene - e_cut;
-                if (i_ene == 0) {
-                }
-                band b1 = set_band_L(valley, band_index, min1, max1, mesh);
-                band b2 = set_band_L(valley, band_index, min2, max2, mesh);
-                b_tmp = combine_band(b1, bL);
-                b_tmp = combine_band(bL, b2);
-            }
-            b_tmp = combine_band_2n(b, bL);
+            band b_tmp = combine_band_2n(b, bL);
 
             Conductivity sigma = get_conductivity_L(bL, epsilon, mu, valley);
 // conductivity output {{{
@@ -410,6 +406,9 @@ Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, i
 
     integrate_band_L(fn, response, b, valley, mu);
 
+    double coef = (charge*v0)*(charge*v0) * hbar / (4e0*pi) / (angstrom*angstrom*angstrom) / charge;
+    response = times(response, coef);
+
     return response;
 }; // }}}
 
@@ -437,6 +436,9 @@ SHC get_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley) { // {
     };
 
     integrate_band_L(fn, response, b, valley, mu);
+
+    double coef = - charge * v0*v0 * hbar / (2e0*pi) / (angstrom*angstrom*angstrom);
+    response = times(response, coef);
 
     return response;
 }; // }}}
@@ -471,6 +473,9 @@ SHC get_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley) { // {
     };
 
     integrate_band_L(fn, response, b, valley, mu);
+
+    double coef = - charge * v0*v0 * hbar / (4e0*pi) / (angstrom*angstrom*angstrom);
+    response = times(response, coef);
 
     return response;
 }; // }}}

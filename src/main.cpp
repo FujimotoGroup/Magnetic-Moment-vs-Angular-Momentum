@@ -186,6 +186,7 @@ int main(){
     chemical_potential mu_max = 0e0;
     band bL;
     set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
+
 //    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
 //    Conductivity sigma_L = get_conductivity_L(bL, valley);
 //    band_index = 2;

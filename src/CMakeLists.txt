@@ -5,6 +5,6 @@ target_link_libraries(main PUBLIC mkl_sequential)
 target_link_libraries(main PUBLIC mkl_core)
 target_link_libraries(main PUBLIC pthread)
 
-target_compile_options(main PUBLIC -O1 -frounding-math)
+target_compile_options(main PUBLIC -O2 -frounding-math)
 
 

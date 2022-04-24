@@ -89,8 +89,6 @@ extern const double eps_num;
 
 extern const double cutoff;
 extern double dk[3];
-extern const int k_mesh;
-extern const int k_mesh_more;
 extern const int mu_mesh;
 
 extern const std::string axises[];
@@ -237,7 +235,6 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
     for (int i_thread=0; i_thread<thread_num; i_thread++) {
         init(part[i_thread], res);
         auto func = [](int i_thread, triangles tri, Fn& fn, N& part, int valley, int band_index, chemical_potential mu) {
-            double coef = 1e0 / (2e0*pi)*(2e0*pi)*(2e0*pi);
             int size = tri.faces.size();
             for(int i=i_thread; i<size; i=i+thread_num) {
                 kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
@@ -246,7 +243,7 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
                     norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
                 }
                 norm = std::sqrt(norm);
-                double dS = tri.faces[i].dS / norm * coef;
+                double dS = tri.faces[i].dS / norm;
                 N c = times(fn(valley, band_index, mu, center), dS);
                 part = add(part, c);
             }
@@ -261,6 +258,8 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
     for (int i_thread=0; i_thread<thread_num; i_thread++) {
         res = add(res, part[i_thread]);
     }
+    double coef = 1e0 / ((2e0*pi)*(2e0*pi)*(2e0*pi));
+    res = times(res, coef);
 }; // }}}
 
 double get_E_T(int band_index, kpoint k);
@@ -295,10 +294,11 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
 //    std::string filename = "sigma.csv";
 //    std::string filename1 = "sigma1.csv";
     N sigma;
+    Energy dmu;
     int i_mu = 0;
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-        Energy dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
+        dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
 //        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
