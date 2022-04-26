@@ -510,7 +510,7 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
     triangles tri;
 
     double sign = band_edge_L_sign[valley][band_index];
-    if(sign*mu < sign*band_edge_L[valley][band_index]) {
+    if(sign*mu <= sign*band_edge_L[valley][band_index]) {
         return tri;
     }
 

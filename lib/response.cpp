@@ -1,13 +1,10 @@
 #include "parameters.hpp"
 #include <filesystem>
 
-int i_epsilon_min = 4;
-int i_epsilon_max = 6;
-
 void set_output_directory(std::string dir) { // {{{
     namespace fs = std::filesystem;
     std::string directory_name("dat/"+dir);
-    fs::create_directory(directory_name)?
+    fs::create_directories(directory_name)?
          std::cout << "created directory - " << directory_name << std::endl :
          std::cout << "create_directory() failed" << std::endl;
 }; // }}}
@@ -212,14 +209,11 @@ void set_output_directory(std::string dir) { // {{{
 //
 // L {{{
 void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int valley, int band_index) { // {{{
-    std::string dir = "L"+std::to_string(valley+1)+"_"+std::to_string(bandsL)+"bands";
+    std::string dir = "L"+std::to_string(valley+1)+"_"+std::to_string(bandsL)+"bands/band_index"+std::to_string(band_index);
     set_output_directory(dir);
 
-    for(int i=i_epsilon_min; i<i_epsilon_max; i++) {
-        double epsilon = 1e0;
-        for(int j=0; j<i; j++) {
-            epsilon *= 1e-1;
-        }
+    for(int i=1; i<6; i++) {
+        double epsilon = double(i)*1e-5;
         std::cout << std::scientific << "epsilon = " << epsilon << std::endl;
 
         std::string filename;
@@ -301,18 +295,18 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
 
         chemical_potential d_ene = (ene_max - ene_min) / double(ene_mesh-1);
 
+        band b;
         band b_main = set_band_L(valley, band_index, ene_min, ene_max, ene_mesh);
         if (mu_cutoff_L < ene_min) {
             band b_cut = set_band_L(valley, band_index, mu_cutoff_L, ene_min-d_ene, mu_cutoff_mesh_L);
-            band b = combine_band(b_cut, b_main);
+            b = combine_band(b_cut, b_main);
         } else if (ene_max < mu_cutoff_L) {
             band b_cut = set_band_L(valley, band_index, ene_max+d_ene, mu_cutoff_L, mu_cutoff_mesh_L);
-            band b = combine_band(b_main, b_cut);
+            b = combine_band(b_main, b_cut);
         } else {
             std::cerr << "mu_cutoff_L shoudl be smaller than ene_min or larger than ene_max" << std::endl;
             exit(0);
         }
-        band b = b_main;
 
         SHC SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
 
@@ -329,7 +323,9 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             double power = 9e-1;
             band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
 
-            Conductivity sigma = get_conductivity_L(bL, epsilon, mu, valley);
+            band b_sum = combine_band_2n(b, bL);
+
+            Conductivity sigma = get_conductivity_L(b_sum, epsilon, mu, valley);
 // conductivity output {{{
             ofsigma1 << std::scientific << mu;
             ofsigma2 << std::scientific << mu;
@@ -342,8 +338,6 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             ofsigma1 << std::endl;
             ofsigma2 << std::endl;
 // }}}
-
-            band b_sum = combine_band_2n(b, bL);
 
             SHC SHC1 = get_SHC_L1(b_sum, epsilon, mu, valley);
 // SHC1 output {{{

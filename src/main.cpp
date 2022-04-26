@@ -187,14 +187,12 @@ int main(){
     band bL;
     set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
 
-//    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
-//    Conductivity sigma_L = get_conductivity_L(bL, valley);
-//    band_index = 2;
-//    mu_min = delta - 1e-2;
-//    mu_max = delta + 2e-2;
-//    bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
-//    SHC sigma_L = get_SHC_L(bL);
-//    Conductivity sigma_T = get_conductivity_T(bT);
+    band_index = 2;
+    mu_cutoff_L = 1e-1;
+    mu_cutoff_mesh_L = 50;
+    mu_min = 0e0;
+    mu_max = delta + 5e-2;
+//    set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
 //// }}}
 
 //    int band_index = 2;

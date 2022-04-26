@@ -291,14 +291,18 @@ void write_res(Conductivity sigma, chemical_potential mu,  std::string filename)
 void write_res(SHC sigma, chemical_potential mu,  std::string filename);
 
 template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
-//    std::string filename = "sigma.csv";
+//    std::string filename = "sigma"+std::to_string(mu)+".csv";
 //    std::string filename1 = "sigma1.csv";
     N sigma;
     Energy dmu;
     int i_mu = 0;
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-        dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
+        if ( (b.ene[i_mu] < band_edge_L[valley][b.index]) & (band_edge_L[valley][b.index] < b.ene[i_mu+1]) ) {
+            dmu = band_edge_L[valley][b.index] - b.ene[i_mu];
+        } else {
+            dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
+        }
 //        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
@@ -306,7 +310,13 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
     for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-        dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
+        if ( (b.ene[i_mu-1] < band_edge_L[valley][b.index]) & (band_edge_L[valley][b.index] < b.ene[i_mu]) ) {
+            dmu = b.ene[i_mu+1] - band_edge_L[valley][b.index];
+        } else if ( (b.ene[i_mu] < band_edge_L[valley][b.index]) & (band_edge_L[valley][b.index] < b.ene[i_mu+1]) ) {
+            dmu = band_edge_L[valley][b.index] - b.ene[i_mu-1];
+        } else {
+            dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
+        }
 //        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
@@ -315,7 +325,11 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
     i_mu = b.mesh-1;
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-        dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
+        if ( (b.ene[i_mu-1] < band_edge_L[valley][b.index]) & (band_edge_L[valley][b.index] < b.ene[i_mu]) ) {
+            dmu = b.ene[i_mu] - band_edge_L[valley][b.index];
+        } else {
+            dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
+        }
 //        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
