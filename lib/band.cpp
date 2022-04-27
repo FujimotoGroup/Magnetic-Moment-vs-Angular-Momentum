@@ -217,7 +217,7 @@ band combine_band_2n(band b_global, band b_local) { // {{{
         b.tri.push_back(b_local.tri[i]);
         b.dos.push_back(b_local.dos[i]);
     }
-    for(int i=index+1; i<b_global.mesh; i++) {
+    for(int i=index; i<b_global.mesh; i++) {
         if( b_global.ene[i] < b_local.ene[b_local.mesh-1] ) continue;
         b.ene.push_back(b_global.ene[i]);
         b.tri.push_back(b_global.tri[i]);

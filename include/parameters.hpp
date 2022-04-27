@@ -292,7 +292,8 @@ void write_res(SHC sigma, chemical_potential mu,  std::string filename);
 
 template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
 //    std::string filename = "sigma"+std::to_string(mu)+".csv";
-//    std::string filename1 = "sigma1.csv";
+//    std::ofstream ofs(filename);
+//    ofs.close();
     N sigma;
     Energy dmu;
     int i_mu = 0;
@@ -303,7 +304,6 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         } else {
             dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
         }
-//        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
         res = add(res, sigma);
@@ -317,7 +317,6 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         } else {
             dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
         }
-//        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
         res = add(res, sigma);
@@ -330,7 +329,6 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         } else {
             dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
         }
-//        write_res(sigma, b.ene[i_mu]-mu, filename1);
         sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
         res = add(res, sigma);
