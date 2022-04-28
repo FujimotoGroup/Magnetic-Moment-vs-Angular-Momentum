@@ -231,15 +231,19 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             exit(0);
         }
         if ( (ene_min < band_edge_L[valley][band_index]) & (band_edge_L[valley][band_index] < ene_max) ) {
-            band b_edge = set_band_2n_L(valley, band_index, band_edge_L[valley][band_index], 2e0*epsilon, 15, 7e-1);
+            int e_mesh = 15;
+            double e_cut = 60e0*epsilon;
+            double power = 7e-1;
+            band b_edge = set_band_2n_L(valley, band_index, band_edge_L[valley][band_index], e_cut, e_mesh, power);
             b_main = combine_band_2n(b_main, b_edge);
+
         }
 
         std::vector<Conductivity> sigma_e;
         std::vector<SHC> sigma_s1, sigma_s2;
-        sigma_e.resize(ene_mesh);
-        sigma_s1.resize(ene_mesh);
-        sigma_s2.resize(ene_mesh);
+        sigma_e.resize(b_main.mesh);
+        sigma_s1.resize(b_main.mesh);
+        sigma_s2.resize(b_main.mesh);
 
         std::string filename;
 // init dos file {{{
@@ -468,12 +472,12 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             }
             ofshc2 << std::endl;
 // }}}
-            de = (b.ene[i_ene+1] - b.ene[i_ene])*5e-1;
+            de = (b_main.ene[i_ene+1] - b_main.ene[i_ene])*5e-1;
             SHC2_mu = times(sigma_s2[i_ene], de);
             SHC2 = add(SHC2, SHC2_mu);
         for(int i_ene=1; i_ene<b_main.mesh-1; i_ene++) {
             mu = b_main.ene[i_ene];
-            de = (b.ene[i_ene+1] - b.ene[i_ene-1])*5e-1;
+            de = (b_main.ene[i_ene+1] - b_main.ene[i_ene-1])*5e-1;
             SHC2_mu = times(sigma_s2[i_ene], de);
             SHC2 = add(SHC2, SHC2_mu);
 // SHC2 output {{{
@@ -491,7 +495,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
         }
         i_ene = b_main.mesh-1;
             mu = b_main.ene[i_ene];
-            de = (b.ene[i_ene] - b.ene[i_ene-1])*5e-1;
+            de = (b_main.ene[i_ene] - b_main.ene[i_ene-1])*5e-1;
             SHC2_mu = times(sigma_s2[i_ene], de);
             SHC2 = add(SHC2, SHC2_mu);
 // SHC2 output {{{

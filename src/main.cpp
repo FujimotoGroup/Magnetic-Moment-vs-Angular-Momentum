@@ -179,7 +179,7 @@ int main(){
     int band_index = 0;
     double delta = (EL[valley][2] - EL[valley][0])*5e-1;
     mu_cutoff_L = - 1e-1;
-    mu_cutoff_mesh_L = 50;
+    mu_cutoff_mesh_L = 100;
     band_edge_L[valley][0] = -delta; band_edge_L[valley][1] = -delta;
     band_edge_L[valley][2] =  delta; band_edge_L[valley][3] =  delta;
     chemical_potential mu_min = - delta - 5e-2;
@@ -189,7 +189,7 @@ int main(){
 
     band_index = 2;
     mu_cutoff_L = 1e-1;
-    mu_cutoff_mesh_L = 50;
+    mu_cutoff_mesh_L = 100;
     mu_min = 0e0;
     mu_max = delta + 5e-2;
     set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);

@@ -224,6 +224,6 @@ band combine_band_2n(band b_global, band b_local) { // {{{
         b.dos.push_back(b_global.dos[i]);
     }
 
-    b.mesh  = b.tri.size();
+    b.mesh  = b.ene.size();
     return b;
 }; // }}}
