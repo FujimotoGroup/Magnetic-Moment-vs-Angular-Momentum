@@ -353,7 +353,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
 // }}}
 
             sigma_s1[i_ene] = get_SHC_L1(b_sum, epsilon, mu, valley);
-// SHC1 output {{{
+//// SHC1 output {{{
             ofshc11 << std::scientific << mu;
             ofshc12 << std::scientific << mu;
             for( auto e : sigma_s1[i_ene] ) {
@@ -383,6 +383,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             ofshc21 << std::endl;
             ofshc22 << std::endl;
 // }}}
+
         }
 
         Conductivity Sigma(space_dim, vectorComplex(space_dim, 0e0));
@@ -477,7 +478,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             SHC2 = add(SHC2, SHC2_mu);
         for(int i_ene=1; i_ene<b_main.mesh-1; i_ene++) {
             mu = b_main.ene[i_ene];
-            de = (b_main.ene[i_ene+1] - b_main.ene[i_ene-1])*5e-1;
+            de = (b_main.ene[i_ene+1] - b_main.ene[i_ene-1])*2.5e-1;
             SHC2_mu = times(sigma_s2[i_ene], de);
             SHC2 = add(SHC2, SHC2_mu);
 // SHC2 output {{{

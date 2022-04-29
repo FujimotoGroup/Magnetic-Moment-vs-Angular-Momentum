@@ -291,7 +291,7 @@ void write_res(Conductivity sigma, chemical_potential mu,  std::string filename)
 void write_res(SHC sigma, chemical_potential mu,  std::string filename);
 
 template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
-//    std::string filename = "sigma"+std::to_string(mu)+".csv";
+//    std::string filename = "spin_conductivity2_mu"+std::to_string(mu)+".csv";
 //    std::ofstream ofs(filename);
 //    ofs.close();
     N sigma;
@@ -304,8 +304,8 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         } else {
             dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
         }
-        sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
+        sigma = times(sigma, dmu);
         res = add(res, sigma);
     for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
         init(sigma, res);
@@ -317,8 +317,8 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         } else {
             dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
         }
-        sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
+        sigma = times(sigma, dmu);
         res = add(res, sigma);
     }
     i_mu = b.mesh-1;
@@ -329,8 +329,8 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         } else {
             dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
         }
-        sigma = times(sigma, dmu);
 //        write_res(sigma, b.ene[i_mu]-mu, filename);
+        sigma = times(sigma, dmu);
         res = add(res, sigma);
 }; // }}}
 

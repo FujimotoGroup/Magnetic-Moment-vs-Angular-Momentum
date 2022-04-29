@@ -192,7 +192,7 @@ int main(){
     mu_cutoff_mesh_L = 100;
     mu_min = 0e0;
     mu_max = delta + 5e-2;
-    set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
+//    set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
 //// }}}
 
 //    int band_index = 2;
