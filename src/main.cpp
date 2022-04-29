@@ -173,25 +173,24 @@ int main(){
 //    }
 //// }}}
 
-// isotropic Dirac (required modification in lib/hamiltonian.cpp) {{{
-    set_isotropic();
-    int valley = 0;
-    int band_index = 0;
-    double delta = (EL[valley][2] - EL[valley][0])*5e-1;
-    mu_cutoff_L = - 1e-1;
-    mu_cutoff_mesh_L = 100;
-    band_edge_L[valley][0] = -delta; band_edge_L[valley][1] = -delta;
-    band_edge_L[valley][2] =  delta; band_edge_L[valley][3] =  delta;
-    chemical_potential mu_min = - delta - 5e-2;
-    chemical_potential mu_max = 0e0;
-    band bL;
-    set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
-
-    band_index = 2;
-    mu_cutoff_L = 1e-1;
-    mu_cutoff_mesh_L = 100;
-    mu_min = 0e0;
-    mu_max = delta + 5e-2;
+//// isotropic Dirac (required modification in lib/hamiltonian.cpp) {{{
+//    set_isotropic();
+//    int valley = 0;
+//    int band_index = 0;
+//    double delta = (EL[valley][2] - EL[valley][0])*5e-1;
+//    mu_cutoff_L = - 1e-1;
+//    mu_cutoff_mesh_L = 100;
+//    band_edge_L[valley][0] = -delta; band_edge_L[valley][1] = -delta;
+//    band_edge_L[valley][2] =  delta; band_edge_L[valley][3] =  delta;
+//    chemical_potential mu_min = - delta - 5e-2;
+//    chemical_potential mu_max = 0e0;
+//    set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
+//
+//    band_index = 2;
+//    mu_cutoff_L = 1e-1;
+//    mu_cutoff_mesh_L = 100;
+//    mu_min = 0e0;
+//    mu_max = delta + 5e-2;
 //    set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
 //// }}}
 
@@ -228,15 +227,15 @@ int main(){
 //    SHC SHC1_T = get_SHC_T1(bT);
 //    SHC SHC2_T = get_SHC_T2(bT);
 
-//    int valley = 0;
-//    int band_index = 2;
+    int valley = 0;
+    int band_index = 6;
 //    chemical_potential mu = 0e0;
 ////    for(int valley=0; valley<valleys; valley++) {
-//        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
-//        chemical_potential mu_min = double(EL[valley][band_index])+1e-5;
-//        band bL;
-//        bL = set_band_L(valley, band_index, mu_min, mu_max, mu_mesh);
-//        Conductivity sigma_L = get_conductivity_L(bL, valley);
+        mu_cutoff_L = 8e-1;
+        mu_cutoff_mesh_L = 100;
+        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
+        chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
+        set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
 ////    }
 
 //    sys_T T = get_T();
