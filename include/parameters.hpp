@@ -1,5 +1,5 @@
 #ifndef   PARAMETERS_HPP
-#define   PARAMETERS_HPP 
+#define   PARAMETERS_HPP
 #include <cmath>
 #include <complex>
 #include <vector>
@@ -19,6 +19,7 @@
 #include <CGAL/IO/facets_in_complex_2_to_triangle_mesh.h>
 #include <CGAL/Surface_mesh.h>
 #include <fstream>
+#include <chrono>
 typedef CGAL::Surface_mesh_default_triangulation_3 Tr;
 // c2t3
 typedef CGAL::Complex_2_in_triangulation_3<Tr> C2t3;
@@ -291,9 +292,9 @@ void write_res(Conductivity sigma, chemical_potential mu,  std::string filename)
 void write_res(SHC sigma, chemical_potential mu,  std::string filename);
 
 template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
-//    std::string filename = "spin_conductivity2_mu"+std::to_string(mu)+".csv";
-//    std::ofstream ofs(filename);
-//    ofs.close();
+    std::string filename = "spin_conductivity2_mu"+std::to_string(mu)+".csv";
+    std::ofstream ofs(filename);
+    ofs.close();
     N sigma;
     Energy dmu;
     int i_mu = 0;
@@ -304,7 +305,7 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         } else {
             dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
         }
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
+        write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
     for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
@@ -317,7 +318,7 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         } else {
             dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
         }
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
+        write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
     }
@@ -329,7 +330,7 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         } else {
             dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
         }
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
+        write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
 }; // }}}

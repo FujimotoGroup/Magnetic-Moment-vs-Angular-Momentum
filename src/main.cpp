@@ -1,6 +1,7 @@
 #include "parameters.hpp"
 
 int main(){
+    auto calc_start_time = std::chrono::system_clock::now();
     initialize();
 
 //  output config.ini {{{
@@ -231,10 +232,11 @@ int main(){
     int band_index = 6;
 //    chemical_potential mu = 0e0;
 ////    for(int valley=0; valley<valleys; valley++) {
-        mu_cutoff_L = 8e-1;
-        mu_cutoff_mesh_L = 100;
-        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
+        mu_cutoff_L = 1e-1;
+        mu_cutoff_mesh_L = 50;
+//        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
         chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
+        chemical_potential mu_max = 8e-2;
         set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
 ////    }
 
@@ -245,5 +247,13 @@ int main(){
 //    sys_L_write(L);
 //
 
+    auto calc_end_time = std::chrono::system_clock::now();
+    auto dur = calc_end_time - calc_start_time;
+    auto calc_h = std::chrono::duration_cast<std::chrono::hours>(dur);
+    auto dur_m = dur - std::chrono::duration_cast<std::chrono::seconds>(calc_h);
+    auto calc_m = std::chrono::duration_cast<std::chrono::minutes>(dur_m);
+    auto dur_s = dur_m - std::chrono::duration_cast<std::chrono::seconds>(dur_m);
+    auto calc_s = std::chrono::duration_cast<std::chrono::seconds>(dur_s);
+    std::cout << "calc duration: " << calc_h.count() << " h " << calc_m.count() << " m " << calc_s.count() << " s." << std::endl;
     return 0;
 }
