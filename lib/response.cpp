@@ -213,7 +213,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
     set_output_directory(dir);
 
     for(int i=1; i<2; i++) {
-        double epsilon = double(i)*1e-5;
+        double epsilon = double(i)*1e-4;
         std::cout << std::scientific << "epsilon = " << epsilon << std::endl;
 
         chemical_potential d_ene = (ene_max - ene_min) / double(ene_mesh-1);
@@ -333,7 +333,8 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
 
             int e_mesh = 40;
             double e_cut = 60e0*epsilon;
-            double power = 8.5e-1;
+            double power = 9e-1;
+//            double power = 8.5e-1;
             band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
 
             band b_sum = combine_band_2n(b, bL);

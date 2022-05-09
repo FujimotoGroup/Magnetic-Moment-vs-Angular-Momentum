@@ -56,7 +56,7 @@ epsilon = 1e-5
 label = "{:.6f}".format(epsilon)
 str_damping = "Gamma = "+"{:.2f}".format(epsilon*1e3)+" [meV]"
 
-data = data+'L_'+str(bandsL)+'bands-isotropic/band_index0/'
+data = data+'L_4bands-isotropic/band_index0/'
 
 # dos {{{
 # 1,1 layout -  {{{

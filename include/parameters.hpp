@@ -300,24 +300,14 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
     int i_mu = 0;
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-        if ( (b.ene[i_mu] < band_edge_L[valley][b.index]) & (band_edge_L[valley][b.index] < b.ene[i_mu+1]) ) {
-            dmu = band_edge_L[valley][b.index] - b.ene[i_mu];
-        } else {
-            dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
-        }
+        dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
         write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
     for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-        if ( (b.ene[i_mu-1] < band_edge_L[valley][b.index]) & (band_edge_L[valley][b.index] < b.ene[i_mu]) ) {
-            dmu = b.ene[i_mu+1] - band_edge_L[valley][b.index];
-        } else if ( (b.ene[i_mu] < band_edge_L[valley][b.index]) & (band_edge_L[valley][b.index] < b.ene[i_mu+1]) ) {
-            dmu = band_edge_L[valley][b.index] - b.ene[i_mu-1];
-        } else {
-            dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
-        }
+        dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
         write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
@@ -325,11 +315,7 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
     i_mu = b.mesh-1;
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-        if ( (b.ene[i_mu-1] < band_edge_L[valley][b.index]) & (band_edge_L[valley][b.index] < b.ene[i_mu]) ) {
-            dmu = b.ene[i_mu] - band_edge_L[valley][b.index];
-        } else {
-            dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
-        }
+        dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
         write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
