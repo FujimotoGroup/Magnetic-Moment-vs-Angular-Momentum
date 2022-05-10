@@ -292,7 +292,7 @@ void write_res(Conductivity sigma, chemical_potential mu,  std::string filename)
 void write_res(SHC sigma, chemical_potential mu,  std::string filename);
 
 template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
-    std::string filename = "spin_conductivity2_mu"+std::to_string(mu)+".csv";
+    std::string filename = "spin_conductivity2_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
     std::ofstream ofs(filename);
     ofs.close();
     N sigma;

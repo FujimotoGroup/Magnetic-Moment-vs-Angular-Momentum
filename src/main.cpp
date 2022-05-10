@@ -228,13 +228,21 @@ int main(){
 //    SHC SHC1_T = get_SHC_T1(bT);
 //    SHC SHC2_T = get_SHC_T2(bT);
 
-//    int valley = 0;
+//    for(int valley=0; valley<valleys; valley++) {
+//        int band_index = 4;
+//        mu_cutoff_L = -1e-1;
+//        mu_cutoff_mesh_L = 20;
+//        chemical_potential mu_min = -8e-2;
+//        chemical_potential mu_max = double(EL[valley][band_index])+1e-2;
+//        set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
+//   }
+
     for(int valley=0; valley<valleys; valley++) {
-        int band_index = 4;
-        mu_cutoff_L = -1e-1;
+        int band_index = 6;
+        mu_cutoff_L = 6e-2;
         mu_cutoff_mesh_L = 20;
-        chemical_potential mu_min = -8e-2;
-        chemical_potential mu_max = double(EL[valley][band_index])+1e-2;
+        chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
+        chemical_potential mu_max = 4e-2;
         set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
    }
 
