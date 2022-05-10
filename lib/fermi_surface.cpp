@@ -209,11 +209,13 @@ velocity get_velocity_T(int band_index, chemical_potential mu, kpoint k) { // {{
     return v;
 }; // }}}
 
-Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double c, CGAL::Surface_mesh_default_criteria_3<Tr> criteria) { // {{{
+Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double bounce) { // {{{
+    double c = cutoff;
     Tr tr;            // 3D-Delaunay triangulation
     C2t3 c2t3 (tr);   // 2D-complex in 3D-Delaunay triangulation
     // defining the surface
     auto dispersionT = [&](Point_3 p) {
+        const FT x2=p.x()*p.x(), y2=p.y()*p.y(), z2=p.z()*p.z();
         kpoint k;
         k.vec[0] = double(p.x());
         k.vec[1] = double(p.y());
@@ -222,7 +224,14 @@ Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double 
 //        std::cout << p.x() << ", " << p.y() << ", " << p.z() << ", " << e << std::endl;
         return e;
     };
-    Surface_3 surface(dispersionT, Sphere_3(CGAL::ORIGIN, c), 1e-8);
+    Surface_3 surface(dispersionT,             // pointer to function
+                      Sphere_3(CGAL::ORIGIN, c), 5e-9);  // bounding sphere
+
+    CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
+                                                       bounce,  // radius bound
+                                                       bounce); // distance bound
+
+    // meshing surface
     CGAL::make_surface_mesh(c2t3, surface, criteria, CGAL::Non_manifold_tag());
     Surface_mesh sm;
     CGAL::facets_in_complex_2_to_triangle_mesh(c2t3, sm);
@@ -230,7 +239,7 @@ Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double 
         for(Surface_mesh::Vertex_index vd : vertices_around_face(sm.halfedge(fd), sm)) {
         kpoint k = {sm.point(vd).x(), sm.point(vd).y(), sm.point(vd).z()};
         double e = get_E_T(band_index, k) - mu;
-        if (std::abs(e) > 1e-7)
+        if (std::abs(e) > 1e-8)
             std::cout << vd << ", " << e  << std::endl;
         }
     }
@@ -243,25 +252,25 @@ Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double 
 } // }}}
 
 triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
-    CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
-                                                       5e-3,  // radius bound
-                                                       5e-3); // distance bound
-    Surface_mesh mesh = get_triangles_cgal_T(band_index, mu, cutoff, criteria);
+    triangles tri;
 
-    int size;
-
-    size = mesh.number_of_faces();
-    if (size < 1000) {
-        std::cout << "get surface mesh again @ mu = " << mu << ": fs#" << size << std::endl;
-        CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
-                                                           1e-3,  // radius bound
-                                                           1e-3); // distance bound
-        mesh = get_triangles_cgal_T(band_index, mu, cutoff, criteria);
+    double sign = band_edge_T_sign[band_index];
+    if(sign*mu <= sign*band_edge_T[band_index]) {
+        return tri;
     }
-    size = mesh.number_of_faces();
-    std::cout << "mu = " << mu << "; final fs face# " << size << std::endl;
 
-    triangles tri = set_triangles(mu, mesh);
+    Surface_mesh mesh;
+    double c = 1e-1;
+    int size = 0;
+    do {
+        c *= 5e-1;
+        mesh = get_triangles_cgal_T(band_index, mu, c);
+        size = mesh.number_of_vertices();
+    } while (size < 4000);
+    size = mesh.number_of_faces();
+    std::cout << "mu = " << mu << "; final fs face# " << size << " and vertex# " << mesh.number_of_vertices() << std::endl;
+
+    tri = set_triangles(mu, mesh);
 
     size = tri.vertexes.size();
     tri.normals.resize(size);
@@ -278,7 +287,6 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
         vector3 center;
         vector3 normal;
         for(int axis=0; axis<space_dim; axis++) {
-//            center.vec[axis] = (k1.vec[axis] + k2.vec[axis] + k3.vec[axis])/3e0;
             center.vec[axis] = k1.vec[axis];
         }
         normal = get_velocity_T(band_index, mu, center);
@@ -330,14 +338,13 @@ int triangles_write_T(triangles tri, std::string name) { // {{{
         }
 
         for (int i=0; i<size; i++) {
-
             int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
 
-            double norm = 0e0;
-            for(int axis=0; axis<space_dim; axis++) {
-                norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
-            }
-            norm = NRsqrt(norm);
+//            double norm = 0e0;
+//            for(int axis=0; axis<space_dim; axis++) {
+//                norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
+//            }
+//            norm = NRsqrt(norm);
 
             ofs << std::scientific
                 << kT[0]+tri.vertexes[v[0]].vec[0] << ", "
@@ -362,6 +369,12 @@ int triangles_write_T(triangles tri, std::string name) { // {{{
             ofs << ",," << std::endl;
 
         }
+
+    }
+    std::string check_name = name+"_check.csv";
+    std::ofstream oft(check_name);
+    for (int i=0; i<size; i++) {
+        oft << std::scientific << i << ", " << tri.faces[i].dS << std::endl;
     }
 
     return 0;
@@ -480,7 +493,7 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
         return e;
     };
     Surface_3 surface(dispersionL,             // pointer to function
-                      Sphere_3(CGAL::ORIGIN, c), 1e-8);  // bounding sphere
+                      Sphere_3(CGAL::ORIGIN, c), 5e-9);  // bounding sphere
 
     CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
                                                        bounce,  // radius bound
@@ -494,7 +507,7 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
         for(Surface_mesh::Vertex_index vd : vertices_around_face(sm.halfedge(fd), sm)) {
         kpoint k = {sm.point(vd).x(), sm.point(vd).y(), sm.point(vd).z()};
         double e = get_E_L(valley, band_index, k) - mu;
-        if (std::abs(e) > 1e-7)
+        if (std::abs(e) > 1e-8)
             std::cout << vd << ", " << e  << std::endl;
         }
     }
@@ -521,7 +534,7 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         c *= 5e-1;
         mesh = get_triangles_cgal_L(valley, band_index, mu, c);
         size = mesh.number_of_vertices();
-    } while (size < 3000);
+    } while (size < 4000);
     size = mesh.number_of_faces();
     std::cout << "mu = " << mu << "; final fs face# " << size << " and vertex# " << mesh.number_of_vertices() << std::endl;
 

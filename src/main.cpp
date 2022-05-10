@@ -195,75 +195,52 @@ int main(){
 //    set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
 //// }}}
 
-//    int band_index = 2;
+
+//// get Triangulation T {{{
+//    int band_index = 4;
 //    chemical_potential mu = 0e0;
-//    int valley = 0;
-//    chemical_potential mu = 0e0;
-//    chemical_potential mu = -1.4e-1;
 //    triangles tri = get_triangles_T(band_index, mu);
 //    double dos = get_DOS_T(tri, band_index, mu);
-//    std::string name = "./triangle_T";
+//    std::string name = "./dat/triangle_T-mu0e0";
 //    triangles_write_T(tri, name);
 //    std::cout << std::setprecision(15) << tri.faces.size() << ", " << dos << std::endl;
-//
-//    triangles tri = get_triangles_L(valley, band_index, mu);
-//    double dos = get_DOS_L(tri, valley, band_index, mu);
-//    std::string name = "./triangle_L1";
-//    triangles_write_L(tri, name, valley);
-//    std::cout << std::setprecision(15) << tri.faces.size() << ", " << dos << std::endl;
-////    std::string dos_file = "dos"+std::to_string(band_index)+".csv";
-////    std::ofstream ofs(dos_file, std::ios::app);
-////    ofs << std::scientific << tri.faces.size() << ", " << dos << std::endl;
-////    std::string filename = "tri_k"+std::to_string(k_mesh)+".csv";
-////    triangles_write(tri, filename);
-//
-//    int band_index = 5;
-//    chemical_potential mu_max = double(ET[band_index])-5e-5;
-////    chemical_potential mu_min = double(ET[band_index])-2.5e-1;
-////    chemical_potential mu_max = -0.5e-1;
-//    chemical_potential mu_min = -1.4e-1;
-//    band bT;
-//    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh);
-//    Conductivity sigma_T = get_conductivity_T(bT);
-//    SHC SHC1_T = get_SHC_T1(bT);
-//    SHC SHC2_T = get_SHC_T2(bT);
+//// }}}
+
+//// get Triangulation L {{{
+//    for(int valley=0; valley<valleys; valley++) {
+//        int band_index = 6; // for 12bands
+//        triangles tri = get_triangles_L(valley, band_index, mu);
+//        double dos = get_DOS_L(tri, valley, band_index, mu);
+//        std::string name = "./dat/triangle_L"+std::to_string(valley+1)+"-mu0e0";
+//        triangles_write_L(tri, name, valley);
+//        std::cout << std::setprecision(15) << tri.faces.size() << ", " << dos << std::endl;
+//    }
+//// }}}
+
+    int band_index = 4;
+    chemical_potential mu_min =-8e-2;
+    chemical_potential mu_max = 4e-2;
+    band bT;
+    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
+    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
 
 //    for(int valley=0; valley<valleys; valley++) {
-//        int band_index = 4;
+//        int band_index = 4; // for 12bands
 //        mu_cutoff_L = -1e-1;
 //        mu_cutoff_mesh_L = 20;
 //        chemical_potential mu_min = -8e-2;
 //        chemical_potential mu_max = double(EL[valley][band_index])+1e-2;
-//        set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
+//        set_response_L(mu_min, mu_max, mu_mesh_L, valley, band_index);
 //   }
 
-    for(int valley=0; valley<valleys; valley++) {
-        int band_index = 6;
-        mu_cutoff_L = 6e-2;
-        mu_cutoff_mesh_L = 20;
-        chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
-        chemical_potential mu_max = 4e-2;
-        set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
-   }
-
-//    int valley = 0;
-//    int band_index = 6;
-////    chemical_potential mu = 0e0;
-//////    for(int valley=0; valley<valleys; valley++) {
-//        mu_cutoff_L = 1e-1;
+//    for(int valley=0; valley<valleys; valley++) {
+//        int band_index = 6; // for 12bands
+//        mu_cutoff_L = 6e-2;
 //        mu_cutoff_mesh_L = 20;
-////        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
 //        chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
-//        chemical_potential mu_max = 8e-2;
-//        set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
-//////    }
-
-//    sys_T T = get_T();
-//    sys_T_write(T);
-
-//    sys_L L = get_L();
-//    sys_L_write(L);
-//
+//        chemical_potential mu_max = 4e-2;
+//        set_response_L(mu_min, mu_max, mu_mesh_L, valley, band_index);
+//   }
 
     auto calc_end_time = std::chrono::system_clock::now();
     auto dur = calc_end_time - calc_start_time;

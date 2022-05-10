@@ -20,7 +20,7 @@ band set_band_T(int band_index, Energy ene_min, Energy ene_max, int ene_mesh) { 
         auto func =[](int i_thread, band& b, int band_index) {
             for(int i_mu=i_thread; i_mu<b.mesh; i_mu=i_mu+thread_num) {
                 mtx.lock();
-                std::cout << "mu = " << b.ene[i_mu] << std::endl;
+//                std::cout << "mu = " << b.ene[i_mu] << std::endl;
                 mtx.unlock();
                 b.tri[i_mu] = get_triangles_T(band_index, b.ene[i_mu]);
                 b.dos[i_mu] = get_DOS_T(b.tri[i_mu], band_index, b.ene[i_mu]);
@@ -37,7 +37,7 @@ band set_band_T(int band_index, Energy ene_min, Energy ene_max, int ene_mesh) { 
     return b;
 }; // }}}
 
-band set_band_2n_T(int band_index, Energy ene_center, Energy delta, int n) { // {{{
+band set_band_2n_T(int band_index, Energy ene_center, Energy delta, int n, double power) { // {{{
     band b;
     b.index = band_index;
     b.mesh  = 2*n+1;
@@ -48,11 +48,13 @@ band set_band_2n_T(int band_index, Energy ene_center, Energy delta, int n) { // 
     b.ene[n] = ene_center;
     for(int i=0; i<n; i++) {
         double dn = delta;
-        for(int j = 0; j<i; j++) dn *= 5e-1;
+        for(int j = 0; j<i; ++j) dn *= power;
+        dn = dn * double(n-i)/double(n);
         b.ene[i] = ene_center - dn;
 
         dn = delta;
-        for(int j = 0; j<n-i-1; j++) dn *= 5e-1;
+        for(int j = 0; j<n-i-1; j++) dn *= power;
+        dn = dn * double(i+1)/double(n);
         b.ene[n+i+1] = ene_center + dn;
     }
 
@@ -64,7 +66,7 @@ band set_band_2n_T(int band_index, Energy ene_center, Energy delta, int n) { // 
         auto func =[](int i_thread, band& b, int band_index) {
             for(int i_mu=i_thread; i_mu<b.mesh; i_mu=i_mu+thread_num) {
                 mtx.lock();
-                std::cout << "mu = " << b.ene[i_mu] << std::endl;
+//                std::cout << "mu = " << b.ene[i_mu] << std::endl;
                 mtx.unlock();
                 b.tri[i_mu] = get_triangles_T(band_index, b.ene[i_mu]);
                 b.dos[i_mu] = get_DOS_T(b.tri[i_mu], band_index, b.ene[i_mu]);

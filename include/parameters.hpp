@@ -90,7 +90,8 @@ extern const double eps_num;
 
 extern const double cutoff;
 extern double dk[3];
-extern const int mu_mesh;
+extern const int mu_mesh_T;
+extern const int mu_mesh_L;
 
 extern const std::string axises[];
 extern const int valleys;
@@ -200,7 +201,6 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
     for (int i_thread=0; i_thread<thread_num; i_thread++) {
         init(part[i_thread], res);
         auto func = [](int i_thread, triangles tri, Fn& fn, N& part, int band_index, chemical_potential mu) {
-            double coef = 1e0 / (2e0*pi)*(2e0*pi)*(2e0*pi);
             int size = tri.faces.size();
             for(int i=i_thread; i<size; i=i+thread_num) {
                 kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
@@ -209,7 +209,7 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
                     norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
                 }
                 norm = std::sqrt(norm);
-                double dS = tri.faces[i].dS / norm * coef;
+                double dS = tri.faces[i].dS / norm;
                 N c = times(fn(band_index, mu, center), dS);
                 part = add(part, c);
             }
@@ -224,6 +224,8 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
     for (int i_thread=0; i_thread<thread_num; i_thread++) {
         res = add(res, part[i_thread]);
     }
+    double coef = 1e0 / ((2e0*pi)*(2e0*pi)*(2e0*pi));
+    res = times(res, coef);
 }; // }}}
 
 template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
@@ -278,7 +280,7 @@ struct band {
 };
 
 band set_band_T(int band_index, Energy ene_min, Energy ene_max, int ene_mesh);
-band set_band_2n_T(int band_index, Energy ene_center, Energy delta, int n);
+band set_band_2n_T(int band_index, Energy ene_center, Energy delta, int n, double power);
 band set_band_L(int valley, int band_index, Energy ene_min, Energy ene_max, int ene_mesh);
 band set_band_2n_L(int valley, int band_index, Energy ene_center, Energy delta, int n, double power);
 
@@ -290,6 +292,36 @@ band combine_band_2n(band b_global, band b_local);
 
 void write_res(Conductivity sigma, chemical_potential mu,  std::string filename);
 void write_res(SHC sigma, chemical_potential mu,  std::string filename);
+
+template<class Fn, class N> void integrate_band_T(Fn fn, N& res, band b, chemical_potential mu) { // {{{
+    std::string filename = "spin_conductivity2_T-band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
+    std::ofstream ofs(filename);
+    ofs.close();
+    N sigma;
+    Energy dmu;
+    int i_mu = 0;
+        init(sigma, res);
+        integrate_triangles_T(fn, sigma, b.tri[i_mu], b.index, mu);
+        dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
+        write_res(sigma, b.ene[i_mu]-mu, filename);
+        sigma = times(sigma, dmu);
+        res = add(res, sigma);
+    for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
+        init(sigma, res);
+        integrate_triangles_T(fn, sigma, b.tri[i_mu], b.index, mu);
+        dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
+        write_res(sigma, b.ene[i_mu]-mu, filename);
+        sigma = times(sigma, dmu);
+        res = add(res, sigma);
+    }
+    i_mu = b.mesh-1;
+        init(sigma, res);
+        integrate_triangles_T(fn, sigma, b.tri[i_mu], b.index, mu);
+        dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
+        write_res(sigma, b.ene[i_mu]-mu, filename);
+        sigma = times(sigma, dmu);
+        res = add(res, sigma);
+}; // }}}
 
 template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
     std::string filename = "spin_conductivity2_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
@@ -324,13 +356,14 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
 Green_function get_green_function_T(Complex ene, kpoint k);
 Green_function get_green_function_L(Complex ene, int valley, kpoint k);
 
-SHC get_SHC_T1(band b);
-SHC get_SHC_T2(band b);
+SHC get_SHC_T1(band b, Energy epsilon, chemical_potential mu);
+SHC get_SHC_T2(band b, Energy epsilon, chemical_potential mu);
 SHC get_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley);
 SHC get_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley);
 
-Conductivity get_conductivity_T(band b);
+Conductivity get_conductivity_T(band b, Energy epsilon, chemical_potential mu);
 Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, int valley);
 
+void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int band_index);
 void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int valley, int band_index);
 #endif // PARAMETERS_HPP
