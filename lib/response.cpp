@@ -331,10 +331,9 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             ofdos << std::scientific << mu << ", " << b_main.dos[i_ene] / (angstrom*angstrom*angstrom) << std::endl;
 // }}}
 
-            int e_mesh = 40;
+            int e_mesh = 47;
             double e_cut = 60e0*epsilon;
             double power = 9e-1;
-//            double power = 8.5e-1;
             band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
 
             band b_sum = combine_band_2n(b, bL);

@@ -206,14 +206,11 @@ int main(){
 //    triangles_write_T(tri, name);
 //    std::cout << std::setprecision(15) << tri.faces.size() << ", " << dos << std::endl;
 //
-//    int band_index = 6;
-//    chemical_potential mu = 1e-2;
-//    int valley = 0;
 //    triangles tri = get_triangles_L(valley, band_index, mu);
-////    double dos = get_DOS_L(tri, valley, band_index, mu);
+//    double dos = get_DOS_L(tri, valley, band_index, mu);
 //    std::string name = "./triangle_L1";
 //    triangles_write_L(tri, name, valley);
-////    std::cout << std::setprecision(15) << tri.faces.size() << ", " << dos << std::endl;
+//    std::cout << std::setprecision(15) << tri.faces.size() << ", " << dos << std::endl;
 ////    std::string dos_file = "dos"+std::to_string(band_index)+".csv";
 ////    std::ofstream ofs(dos_file, std::ios::app);
 ////    ofs << std::scientific << tri.faces.size() << ", " << dos << std::endl;
@@ -231,17 +228,27 @@ int main(){
 //    SHC SHC1_T = get_SHC_T1(bT);
 //    SHC SHC2_T = get_SHC_T2(bT);
 
-    int valley = 0;
-    int band_index = 2;
-//    chemical_potential mu = 0e0;
-////    for(int valley=0; valley<valleys; valley++) {
-        mu_cutoff_L = 1e-1;
+//    int valley = 0;
+    for(int valley=0; valley<valleys; valley++) {
+        int band_index = 4;
+        mu_cutoff_L = -1e-1;
         mu_cutoff_mesh_L = 20;
-//        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
-        chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
-        chemical_potential mu_max = 8e-2;
+        chemical_potential mu_min = -8e-2;
+        chemical_potential mu_max = double(EL[valley][band_index])+1e-2;
         set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
-//    }
+   }
+
+//    int valley = 0;
+//    int band_index = 6;
+////    chemical_potential mu = 0e0;
+//////    for(int valley=0; valley<valleys; valley++) {
+//        mu_cutoff_L = 1e-1;
+//        mu_cutoff_mesh_L = 20;
+////        chemical_potential mu_max = double(EL[valley][band_index])+4e-1;
+//        chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
+//        chemical_potential mu_max = 8e-2;
+//        set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
+//////    }
 
 //    sys_T T = get_T();
 //    sys_T_write(T);
