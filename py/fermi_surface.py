@@ -7,7 +7,6 @@ from scipy.interpolate import griddata
 from mpl_toolkits.mplot3d import Axes3D
 import pandas as pd
 import configparser as cnf
-import open3d as o3d
 
 home = "../"
 data = "../dat/"
@@ -32,48 +31,10 @@ numeric = config['numeric']
 colors =['k', 'b', 'g', 'r', 'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan', 'navy', 'indigo']
 
 # {{{
-#readfile = '../fs55839.csv'
-#T = pd.read_csv(readfile,header=None).values
-#pcdT = o3d.geometry.PointCloud()
-#pcdT.points  = o3d.utility.Vector3dVector(T[:,0:3])
-#pcdT.normals = o3d.utility.Vector3dVector(T[:,3:6])
-#meshT = o3d.io.read_triangle_mesh("../triangles55839.obj")
-#meshT.compute_vertex_normals()
-#meshT.paint_uniform_color([1, 0.706, 0])
-##o3d.visualization.draw_geometries([pcdT,meshT])
-#readfile = '../fs38858.csv'
-#L1 = pd.read_csv(readfile,header=None).values
-#pcdL1 = o3d.geometry.PointCloud()
-#pcdL1.points  = o3d.utility.Vector3dVector(L1[:,0:3])
-#pcdL1.normals = o3d.utility.Vector3dVector(L1[:,3:6])
-#meshL1 = o3d.io.read_triangle_mesh("../triangles38858.obj")
-#meshL1.compute_vertex_normals()
-#meshL1.paint_uniform_color([1, 0.706, 0])
-#o3d.visualization.draw_geometries([pcdL1,meshL1])
-#readfile = '../fs5466.csv'
-#L2 = pd.read_csv(readfile,header=None).values
-#pcdL2 = o3d.geometry.PointCloud()
-#pcdL2.points  = o3d.utility.Vector3dVector(L2[:,0:3])
-#pcdL2.normals = o3d.utility.Vector3dVector(L2[:,3:6])
-#meshL2 = o3d.io.read_triangle_mesh("../triangles5466.obj")
-#meshL2.compute_vertex_normals()
-#meshL2.paint_uniform_color([1, 0.706, 0])
-#o3d.visualization.draw_geometries([pcdL2,meshL2])
-#readfile = '../fs43087.csv'
-#L3 = pd.read_csv(readfile,header=None).values
-#pcdL3 = o3d.geometry.PointCloud()
-#pcdL3.points  = o3d.utility.Vector3dVector(L3[:,0:3])
-#pcdL3.normals = o3d.utility.Vector3dVector(L3[:,3:6])
-#meshL3 = o3d.io.read_triangle_mesh("../triangles43087.obj")
-#meshL3.compute_vertex_normals()
-#meshL3.paint_uniform_color([1, 0.706, 0])
-##o3d.visualization.draw_geometries([pcdL3,meshL3])
-#}}}
-
-# {{{
 
 # T {{{
-readfile = '../dat/triangle_T_vertex.csv'
+name = data+'triangle_T-mu0e0'
+readfile = name+'_vertex.csv'
 T = pd.read_csv(readfile,header=None).values
 T_kx_max, T_kx_min = np.max(T[:,0]), np.min(T[:,0])
 T_ky_max, T_ky_min = np.max(T[:,1]), np.min(T[:,1])
@@ -95,7 +56,7 @@ ax.set_zlabel("kz")
 ax.set_xlim(T_window[0])
 ax.set_ylim(T_window[1])
 ax.set_zlim(T_window[2])
-readfile = '../dat/triangle_T_face.csv'
+readfile = name+'_face.csv'
 T = pd.read_csv(readfile,header=None)
 T = T.groupby((T.isnull().all(axis=1)).cumsum())
 for index, g in T:
@@ -103,6 +64,11 @@ for index, g in T:
     if len(g) > 0:
         g = g.values
         ax.plot(g[:,0],  g[:,1],  g[:,2], color=colors[9])
+
+fn = index
+str_vertex_num = "face num = "+str(fn)
+ax_pos = ax.get_position()
+fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_vertex_num)
 
 plt.savefig(png+"Fermi_surface_T.png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
@@ -112,7 +78,8 @@ plt.close()
 # }}}
 
 # L1 {{{
-readfile = '../dat/triangle_L1_vertex.csv'
+name = data+'triangle_L1-mu0e0'
+readfile = name+'_vertex.csv'
 L1 = pd.read_csv(readfile,header=None).values
 L1_kx_max, L1_kx_min = np.max(L1[:,0]), np.min(L1[:,0])
 L1_ky_max, L1_ky_min = np.max(L1[:,1]), np.min(L1[:,1])
@@ -134,7 +101,7 @@ ax.set_zlabel("kz")
 ax.set_xlim(L1_window[0])
 ax.set_ylim(L1_window[1])
 ax.set_zlim(L1_window[2])
-readfile = '../dat/triangle_L1_face.csv'
+readfile = name+'_face.csv'
 L1 = pd.read_csv(readfile,header=None)
 L1 = L1.groupby((L1.isnull().all(axis=1)).cumsum())
 for index, g in L1:
@@ -142,6 +109,11 @@ for index, g in L1:
     if len(g) > 0:
         g = g.values
         ax.plot(g[:,0],  g[:,1],  g[:,2], color=colors[4])
+
+fn = index
+str_vertex_num = "face num = "+str(fn)
+ax_pos = ax.get_position()
+fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_vertex_num)
 
 plt.savefig(png+"Fermi_surface_L1.png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
@@ -151,7 +123,8 @@ plt.close()
 # }}}
 
 # L2 {{{
-readfile = '../dat/triangle_L2_vertex.csv'
+name = data+'triangle_L2-mu0e0'
+readfile = name+'_vertex.csv'
 L2 = pd.read_csv(readfile,header=None).values
 L2_kx_max, L2_kx_min = np.max(L2[:,0]), np.min(L2[:,0])
 L2_ky_max, L2_ky_min = np.max(L2[:,1]), np.min(L2[:,1])
@@ -173,7 +146,7 @@ ax.set_zlabel("kz")
 ax.set_xlim(L2_window[0])
 ax.set_ylim(L2_window[1])
 ax.set_zlim(L2_window[2])
-readfile = '../dat/triangle_L2_face.csv'
+readfile = name+'_face.csv'
 L2 = pd.read_csv(readfile,header=None)
 L2 = L2.groupby((L2.isnull().all(axis=1)).cumsum())
 for index, g in L2:
@@ -181,6 +154,11 @@ for index, g in L2:
     if len(g) > 0:
         g = g.values
         ax.plot(g[:,0],  g[:,1],  g[:,2], color=colors[7])
+
+fn = index
+str_vertex_num = "face num = "+str(fn)
+ax_pos = ax.get_position()
+fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_vertex_num)
 
 plt.savefig(png+"Fermi_surface_L2.png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
@@ -190,7 +168,8 @@ plt.close()
 # }}}
 
 # L3 {{{
-readfile = '../dat/triangle_L3_vertex.csv'
+name = data+'triangle_L3-mu0e0'
+readfile = name+'_vertex.csv'
 L3 = pd.read_csv(readfile,header=None).values
 L3_kx_max, L3_kx_min = np.max(L3[:,0]), np.min(L3[:,0])
 L3_ky_max, L3_ky_min = np.max(L3[:,1]), np.min(L3[:,1])
@@ -212,7 +191,7 @@ ax.set_zlabel("kz")
 ax.set_xlim(L3_window[0])
 ax.set_ylim(L3_window[1])
 ax.set_zlim(L3_window[2])
-readfile = '../dat/triangle_L3_face.csv'
+readfile = name+'_face.csv'
 L3 = pd.read_csv(readfile,header=None)
 L3 = L3.groupby((L3.isnull().all(axis=1)).cumsum())
 for index, g in L3:
@@ -220,6 +199,11 @@ for index, g in L3:
     if len(g) > 0:
         g = g.values
         ax.plot(g[:,0],  g[:,1],  g[:,2], color=colors[6])
+
+fn = index
+str_vertex_num = "face num = "+str(fn)
+ax_pos = ax.get_position()
+fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_vertex_num)
 
 plt.savefig(png+"Fermi_surface_L3.png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
