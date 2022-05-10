@@ -92,6 +92,7 @@ extern const double cutoff;
 extern double dk[3];
 extern const int mu_mesh_T;
 extern const int mu_mesh_L;
+extern const int fermi_surface_mesh_lim;
 
 extern const std::string axises[];
 extern const int valleys;
