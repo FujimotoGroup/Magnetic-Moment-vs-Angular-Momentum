@@ -218,6 +218,8 @@ int main(){
 //// }}}
 
     int band_index = 4;
+    mu_cutoff_T = -1e-1;
+    mu_cutoff_mesh_T = 20;
     chemical_potential mu_min =-8e-2;
     chemical_potential mu_max = 4e-2;
     band bT;
