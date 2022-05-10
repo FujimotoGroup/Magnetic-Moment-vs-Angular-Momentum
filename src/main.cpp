@@ -201,7 +201,7 @@ int main(){
     chemical_potential mu = 0e0;
     triangles tri = get_triangles_T(band_index, mu);
     double dos = get_DOS_T(tri, band_index, mu);
-    std::string name = "./dat/triangle_T-mu0e0";
+    std::string name = "./dat/triangle_T-mu0e0-rough";
     triangles_write_T(tri, name);
     std::cout << std::setprecision(15) << tri.faces.size() << ", " << dos << std::endl;
 // }}}
@@ -211,7 +211,7 @@ int main(){
         int band_index = 6; // for 12bands
         triangles tri = get_triangles_L(valley, band_index, mu);
         double dos = get_DOS_L(tri, valley, band_index, mu);
-        std::string name = "./dat/triangle_L"+std::to_string(valley+1)+"-mu0e0";
+        std::string name = "./dat/triangle_L"+std::to_string(valley+1)+"-mu0e0-rough";
         triangles_write_L(tri, name, valley);
         std::cout << std::setprecision(15) << tri.faces.size() << ", " << dos << std::endl;
     }
