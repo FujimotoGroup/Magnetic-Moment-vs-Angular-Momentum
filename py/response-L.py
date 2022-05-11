@@ -61,6 +61,7 @@ total_conductivity = []
 total_spin_conductivity1 = []
 total_spin_conductivity2 = []
 
+# L {{{
 for valley in np.arange(1,4):
     data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index4/'
 
@@ -100,7 +101,7 @@ for valley in np.arange(1,4):
     readfile = data+'mu-dependence/conductivity_eps'+label+'.csv'
     conductivity = pd.read_csv(readfile,header=0).values
     total_conductivity.append(conductivity)
-    window = [-1.1e0*conductivity[:,1:-1].max(), conductivity[:,1:-1].max()*1.1e0]
+    window = [-1.1e0*conductivity[:,1:].max(), conductivity[:,1:].max()*1.1e0]
     for ax in axes:
         ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
         ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
@@ -154,7 +155,7 @@ for valley in np.arange(1,4):
     conductivity2 = pd.read_csv(readfile,header=0).values
     total_spin_conductivity2.append(conductivity2)
 
-    maximun = max(np.abs(conductivity1[:,1:-1].max()*1.1e0), np.abs(conductivity2[:,1:-1].max()*1.1e0))
+    maximun = max(np.abs(conductivity1[:,1:].max()*1.1e0), np.abs(conductivity2[:,1:].max()*1.1e0))
     window = [-maximun, maximun]
 
 # L spin conductivity 1 {{{
@@ -307,7 +308,7 @@ plt.close()
 # 1,2 layout - diagonal vs off-diagonal {{{
 fig, axes = plt.subplots(1,2,figsize=(14,7))
 axes = axes.flatten()
-window = [-0.01e0*conductivity[:,1:-1].max(), conductivity[:,1:-1].max()*1.1e0]
+window = [-0.01e0*conductivity[:,1:].max(), conductivity[:,1:].max()*1.1e0]
 for ax in axes:
     ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
     ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
@@ -350,7 +351,7 @@ plt.savefig(svg+"conductivity_L-total-"+str(bandsL)+"bands_gamma"+label+".svg")
 plt.close()
 # }}}
 
-maximun = max(np.abs(conductivity1[:,1:-1].max()*1.1e0), np.abs(conductivity2[:,1:-1].max()*1.1e0))
+maximun = max(np.abs(conductivity1[:,1:].max()*1.1e0), np.abs(conductivity2[:,1:].max()*1.1e0))
 window = [-maximun, maximun]
 
 # spin conductivity1
@@ -451,7 +452,7 @@ plt.close()
 # conductivity 1,4 layout -  {{{
 fig, axes = plt.subplots(1,4,figsize=(28,7))
 axes = axes.flatten()
-window = [-0.01e0*conductivity[:,1:-1].max(), conductivity[:,1:-1].max()*1.1e0]
+window = [-0.01e0*conductivity[:,1:].max(), conductivity[:,1:].max()*1.1e0]
 
 for ax in axes:
     ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
@@ -481,7 +482,7 @@ axes[3].plot(conductivity[:,0], conductivity[:,5], color=colors[2])
 axes[3].plot(conductivity[:,0], conductivity[:,9], color=colors[1])
 axes[3].legend()
 
-ax_pos = axes[2].get_position()
+ax_pos = axes[3].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
 plt.savefig(png+"conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
@@ -495,7 +496,7 @@ plt.close()
 fig, axes = plt.subplots(1,4,figsize=(28,7))
 axes = axes.flatten()
 
-maximun = max(np.abs(conductivity1[:,1:-1].max()*1.1e0), np.abs(conductivity2[:,1:-1].max()*1.1e0))
+maximun = max(np.abs(conductivity1[:,1:].max()*1.1e0), np.abs(conductivity2[:,1:].max()*1.1e0))
 window = [-maximun, maximun]
 
 for ax in axes:
@@ -508,24 +509,25 @@ for i in np.arange(3):
     axes[i].set_xlabel("mu [eV]")
     axes[i].set_ylim(window)
     k = 0
+    plot_lists = [6, 16, 20]
     for j in plot_lists:
-        axes[0].scatter(total_spin_conductivity1[:,0], total_spin_conductivity1[:,j], s=3, marker=markers[k], edgecolors=colors[k], facecolor='None', label=titles[j])
-        axes[0].plot(total_spin_conductivity1[:,0], total_spin_conductivity1[:,j], color=colors[k])
+        axes[i].scatter(total_spin_conductivity1[i][:,0], total_spin_conductivity1[i][:,j], s=3, marker=markers[k], edgecolors=colors[k], facecolor='None', label=titles[j])
+        axes[i].plot(total_spin_conductivity1[i][:,0], total_spin_conductivity1[i][:,j], color=colors[k])
         k = k + 1
     axes[i].legend()
 
 axes[3].set_title("sum")
 axes[3].set_xlabel("mu [eV]")
 axes[3].set_ylim(window)
-axes[3].scatter(conductivity1[:,0], conductivity1[:,1], s=3, marker=markers[0], edgecolors=colors[3], facecolor='None', label="xx")
-axes[3].scatter(conductivity1[:,0], conductivity1[:,5], s=3, marker=markers[1], edgecolors=colors[2], facecolor='None', label="yy")
-axes[3].scatter(conductivity1[:,0], conductivity1[:,9], s=3, marker=markers[3], edgecolors=colors[1], facecolor='None', label="zz")
-axes[3].plot(conductivity1[:,0], conductivity1[:,1], color=colors[3])
-axes[3].plot(conductivity1[:,0], conductivity1[:,5], color=colors[2])
-axes[3].plot(conductivity1[:,0], conductivity1[:,9], color=colors[1])
+k = 0
+plot_lists = [6, 16, 20]
+for j in plot_lists:
+    axes[3].scatter(conductivity1[:,0], conductivity1[:,j], s=3, marker=markers[k], edgecolors=colors[k], facecolor='None', label=titles[j])
+    axes[3].plot(conductivity1[:,0], conductivity1[:,j], color=colors[k])
+    k = k + 1
 axes[3].legend()
 
-ax_pos = axes[2].get_position()
+ax_pos = axes[3].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
 plt.savefig(png+"spin_conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
@@ -548,26 +550,26 @@ for i in np.arange(3):
     axes[i].set_title("L"+str(i+1))
     axes[i].set_xlabel("mu [eV]")
     axes[i].set_ylim(window)
-    axes[i].scatter(total_spin_conductivity2[i][:,0], total_spin_conductivity2[i][:,1], s=3, marker=markers[0], edgecolors=colors[3], facecolor='None', label="xx")
-    axes[i].scatter(total_spin_conductivity2[i][:,0], total_spin_conductivity2[i][:,5], s=3, marker=markers[1], edgecolors=colors[2], facecolor='None', label="yy")
-    axes[i].scatter(total_spin_conductivity2[i][:,0], total_spin_conductivity2[i][:,9], s=3, marker=markers[3], edgecolors=colors[1], facecolor='None', label="zz")
-    axes[i].plot(total_spin_conductivity2[i][:,0], total_spin_conductivity2[i][:,1], color=colors[3])
-    axes[i].plot(total_spin_conductivity2[i][:,0], total_spin_conductivity2[i][:,5], color=colors[2])
-    axes[i].plot(total_spin_conductivity2[i][:,0], total_spin_conductivity2[i][:,9], color=colors[1])
+    k = 0
+    plot_lists = [6, 16, 20]
+    for j in plot_lists:
+        axes[i].scatter(total_spin_conductivity2[i][:,0], total_spin_conductivity2[i][:,j], s=3, marker=markers[k], edgecolors=colors[k], facecolor='None', label=titles[j])
+        axes[i].plot(total_spin_conductivity2[i][:,0], total_spin_conductivity2[i][:,j], color=colors[k])
+        k = k + 1
     axes[i].legend()
 
 axes[3].set_title("sum")
 axes[3].set_xlabel("mu [eV]")
 axes[3].set_ylim(window)
-axes[3].scatter(conductivity2[:,0], conductivity2[:,1], s=3, marker=markers[0], edgecolors=colors[3], facecolor='None', label="xx")
-axes[3].scatter(conductivity2[:,0], conductivity2[:,5], s=3, marker=markers[1], edgecolors=colors[2], facecolor='None', label="yy")
-axes[3].scatter(conductivity2[:,0], conductivity2[:,9], s=3, marker=markers[3], edgecolors=colors[1], facecolor='None', label="zz")
-axes[3].plot(conductivity2[:,0], conductivity2[:,1], color=colors[3])
-axes[3].plot(conductivity2[:,0], conductivity2[:,5], color=colors[2])
-axes[3].plot(conductivity2[:,0], conductivity2[:,9], color=colors[1])
+k = 0
+plot_lists = [6, 16, 20]
+for j in plot_lists:
+    axes[3].scatter(conductivity2[:,0], conductivity2[:,j], s=3, marker=markers[k], edgecolors=colors[k], facecolor='None', label=titles[j])
+    axes[3].plot(conductivity2[:,0], conductivity2[:,j], color=colors[k])
+    k = k + 1
 axes[3].legend()
 
-ax_pos = axes[2].get_position()
+ax_pos = axes[3].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
 plt.savefig(png+"spin_conductivity2_L-comparison-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
@@ -575,4 +577,5 @@ plt.rc("svg", fonttype="none")
 plt.savefig(svg+"spin_conductivity2_L-comparison-"+str(bandsL)+"bands_gamma"+label+".svg")
 #plt.show()
 plt.close()
+# }}}
 # }}}
