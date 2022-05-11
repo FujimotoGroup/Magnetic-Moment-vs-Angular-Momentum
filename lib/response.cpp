@@ -419,7 +419,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
     std::string dir = "L"+std::to_string(valley+1)+"_"+std::to_string(bandsL)+"bands/band_index"+std::to_string(band_index);
     set_output_directory(dir);
 
-    for(int i=1; i<2; i++) {
+    for(int i=5; i<6; i++) {
         double epsilon = double(i)*1e-4;
         std::cout << std::scientific << "epsilon = " << epsilon << std::endl;
 
