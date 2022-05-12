@@ -731,11 +731,14 @@ Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, i
         matrixComplex res(space_dim, vectorComplex(space_dim, 0e0));
 
         for(int external=0; external<space_dim; external++) {
-            matrixComplex C1 = product(vL[valley][external], GR);
+            matrixComplex vGRe = product(vL[valley][external], GR);
+            matrixComplex vGAe = product(vL[valley][external], GA);
             for(int axis=0; axis<space_dim; axis++) {
-                matrixComplex C2 = product(vL[valley][axis], GA);
+                matrixComplex vGRa = product(vL[valley][axis], GR);
+                matrixComplex vGAa = product(vL[valley][axis], GA);
 
-                res[external][axis] = tr(product(C1, C2));
+                res[external][axis] = tr(product(vGRa, vGAe)) - 5e-1*(tr(product(vGRa, vGRe)) + tr(product(vGAa, vGAe)));
+//                res[external][axis] = tr(product(C1, C2));
             }
         }
 

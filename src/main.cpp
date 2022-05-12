@@ -241,7 +241,8 @@ int main(){
 
 // L point band_index:6 {{{
     for(int valley=0; valley<valleys; valley++) {
-        int band_index = 6; // for 12bands
+//        int band_index = 6; // for 12bands
+        int band_index = 2; // for 4bands
         mu_cutoff_L = 6e-2;
         mu_cutoff_mesh_L = 20;
         chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
