@@ -44,7 +44,7 @@ numeric = config['numeric']
 markers = ["o", ",", "D", "v", "^", "<", ">", "s", "p", "1", "2"]
 colors =['k', 'b', 'g', 'r', 'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan', 'navy', 'indigo']
 
-epsilon = 1e-4
+epsilon = 5e-4
 label = "{:.6f}".format(epsilon)
 str_damping = "Gamma = "+"{:.2f}".format(epsilon*1e3)+" [meV]"
 

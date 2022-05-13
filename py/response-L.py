@@ -52,7 +52,7 @@ mu_range2 = np.linspace(-delta*n, 0e0, int(n))
 x2 = mu_range2 / n
 x = np.append(x1, x2)
 
-epsilon = 1e-4
+epsilon = 5e-4
 label = "{:.6f}".format(epsilon)
 str_damping = "Gamma = "+"{:.2f}".format(epsilon*1e3)+" [meV]"
 
@@ -63,7 +63,7 @@ total_spin_conductivity2 = []
 
 # L {{{
 for valley in np.arange(1,4):
-    data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index4/'
+    data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index6/'
 
 # dos L {{{
 # 1,1 layout -  {{{
