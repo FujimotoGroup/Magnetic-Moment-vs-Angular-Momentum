@@ -14,7 +14,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
     std::string dir = "T_"+std::to_string(bandsT)+"bands/band_index"+std::to_string(band_index);
     set_output_directory(dir);
 
-    for(int i=1; i<2; i++) {
+    for(int i=5; i<6; i++) {
         double epsilon = double(i)*1e-4;
         std::cout << std::scientific << "epsilon = " << epsilon << std::endl;
 
@@ -355,15 +355,15 @@ SHC get_SHC_T1(band b, Energy epsilon, chemical_potential mu) { // {{{
         Green_function GR = get_green_function_T(e + epsilon*zi, k);
         Green_function GA = get_green_function_T(e - epsilon*zi, k);
         for(int external=0; external<space_dim; external++) {
-//            matrixComplex vGR    = product(vT[external], GR);
+            matrixComplex vGR    = product(vT[external], GR);
             matrixComplex vGA    = product(vT[external], GA);
             for(int axis=0; axis<space_dim; axis++) {
                 for(int spin=0; spin<spin_dim; spin++) {
                     matrixComplex vsGR   = product(v_s_T[axis][spin], GR);
-//                    matrixComplex vsGA   = product(v_s_T[axis][spin], GA);
+                    matrixComplex vsGA   = product(v_s_T[axis][spin], GA);
 
-//                    res[external][axis][spin] = tr(product(vsGR, vGA)) - 5e-1*(tr(product(vsGR, vGR)) + tr(product(vsGA, vGA)));
-                    res[external][axis][spin] = tr(product(vsGR, vGA));
+                    res[external][axis][spin] = tr(product(vsGR, vGA)) - 5e-1*(tr(product(vsGR, vGR)) + tr(product(vsGA, vGA)));
+//                    res[external][axis][spin] = tr(product(vsGR, vGA));
                 }
             }
         }

@@ -217,16 +217,16 @@ int main(){
 //    }
 //// }}}
 
-//// T point {{{
-//    int band_index = 4;
-//    mu_cutoff_T = -1e-1;
-//    mu_cutoff_mesh_T = 20;
-//    chemical_potential mu_min =-8e-2;
-//    chemical_potential mu_max = 4e-2;
-//    band bT;
-//    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
-//    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
-//// }}}
+// T point {{{
+    int band_index = 4;
+    mu_cutoff_T = -1e-1;
+    mu_cutoff_mesh_T = 20;
+    chemical_potential mu_min =-8e-2;
+    chemical_potential mu_max = 4e-2;
+    band bT;
+    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
+    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
+// }}}
 
 //// L point band_index:4 {{{
 //    for(int valley=0; valley<valleys; valley++) {
@@ -239,18 +239,17 @@ int main(){
 //   }
 //// }}}
 
-// L point band_index:6 {{{
-    int valley = 0;
+//// L point band_index:6 {{{
 //    for(int valley=0; valley<valleys; valley++) {
-        int band_index = 6; // for 12bands
-//        int band_index = 2; // for 4bands
-        mu_cutoff_L = 1e-1;
-        mu_cutoff_mesh_L = 20;
-        chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
-        chemical_potential mu_max = 8e-2;
-        set_response_L(mu_min, mu_max, mu_mesh_L, valley, band_index);
+//        int band_index = 6; // for 12bands
+////        int band_index = 2; // for 4bands
+//        mu_cutoff_L = 1e-1;
+//        mu_cutoff_mesh_L = 20;
+//        chemical_potential mu_min = double(EL[valley][band_index])-1e-2;
+//        chemical_potential mu_max = 8e-2;
+//        set_response_L(mu_min, mu_max, mu_mesh_L, valley, band_index);
 //   }
-// }}}
+//// }}}
 
     auto calc_end_time = std::chrono::system_clock::now();
     auto dur = calc_end_time - calc_start_time;
