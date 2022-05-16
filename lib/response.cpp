@@ -34,7 +34,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
         }
         if ( (ene_min < band_edge_T[band_index]) & (band_edge_T[band_index] < ene_max) ) {
             int e_mesh = 15;
-            double e_cut = 10e0*epsilon;
+            double e_cut = 1.9e0*epsilon;
             double power = 7e-1;
             band b_edge = set_band_2n_T(band_index, band_edge_T[band_index], e_cut, e_mesh, power);
             b_main = combine_band_2n(b_main, b_edge);
@@ -134,7 +134,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
 // }}}
 
             int e_mesh = 47;
-            double e_cut = 60e0*epsilon;
+            double e_cut = 59e0*epsilon;
             double power = 9e-1;
             band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
 
@@ -441,7 +441,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
         }
         if ( (ene_min < band_edge_L[valley][band_index]) & (band_edge_L[valley][band_index] < ene_max) ) {
             int e_mesh = 15;
-            double e_cut = 10e0*epsilon;
+            double e_cut = 1.9e0*epsilon;
             double power = 7e-1;
             band b_edge = set_band_2n_L(valley, band_index, band_edge_L[valley][band_index], e_cut, e_mesh, power);
             b_main = combine_band_2n(b_main, b_edge);
@@ -541,7 +541,7 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
 // }}}
 
             int e_mesh = 47;
-            double e_cut = 60e0*epsilon;
+            double e_cut = 59e0*epsilon;
             double power = 9e-1;
             band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
 

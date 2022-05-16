@@ -55,8 +55,8 @@ const double g0 = 1.3861e0; // angstrom^-1
 
 const double cutoff = 2e-1*g0;
 double dk[3];
-const int mu_mesh_T = 80;
-const int mu_mesh_L = 80;
+const int mu_mesh_T = 160;
+const int mu_mesh_L = 160;
 const int fermi_surface_mesh_lim = 3000;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
