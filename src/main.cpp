@@ -217,53 +217,59 @@ int main(){
 //    }
 //// }}}
 
-//// T point {{{
-//    int band_index = 4;
-//    mu_cutoff_T = -1e-1;
-//    mu_cutoff_mesh_T = 20;
-//    chemical_potential mu_min =-8e-2;
-//    chemical_potential mu_max = 8e-2;
-//    band bT;
-//    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
-//    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
+// T point {{{
+    int band_index = 4;
+    mu_cutoff_T = -1e-1;
+    mu_cutoff_mesh_T = 20;
+    chemical_potential mu_min =-8e-2;
+    chemical_potential mu_max = 8e-2;
+    band bT;
+    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
+    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
+// }}}
+
+//// L points {{{
+//    for(int valley=0; valley<valleys; valley++) {
+//        vectorReal e_min(2, 0e0);
+//        vectorReal e_max(2, 0e0);
+//        std::vector<int> e_mesh(2, 0);
+//
+//        e_min[0] = -8e-2;
+//        e_max[1] =  8e-2;
+//
+//        for(int i=0; i<mu_mesh_L; i++) {
+//            Energy de = (e_max[1] - e_min[0]) / double(mu_mesh_L);
+//            Energy e1 = e_min[0] + double(i)*de;
+//            Energy e2 = e_min[0] + double(i+1)*de;
+//            Energy e_tmp = EL[valley][4] + (EL[valley][6] - EL[valley][4])*5e-1;
+//            if ( (e1 < e_tmp) & (e2 < e_tmp) ) {
+//                e_max[0] = e1;
+//                e_min[1] = e2;
+//
+//                e_mesh[0] = i + 1;
+//                e_mesh[1] = mu_mesh_L - i;
+//            }
+//        }
+//
+//        std::cout << e_min[0] << ", " << e_max[0] << ", " << e_mesh[0] << ", " << (e_max[0] - e_min[0]) / double(e_mesh[0]-1) << std::endl;
+//        std::cout << e_min[1] << ", " << e_max[1] << ", " << e_mesh[1] << ", " << (e_max[1] - e_min[1]) / double(e_mesh[1]-1)  << std::endl;
+//
+//// L point band_index:4 {{{
+//        int band_index = 4; // for 12bands
+////        int band_index = 0; // for 4bands
+//        mu_cutoff_L = -1e-1;
+//        mu_cutoff_mesh_L = 20;
+//        set_response_L(e_min[0], e_max[0], e_mesh[0], valley, band_index);
 //// }}}
-
-    for(int valley=0; valley<valleys; valley++) {
-        vectorReal e_min(2, 0e0);
-        vectorReal e_max(2, 0e0);
-        std::vector<int> e_mesh(2, 0);
-
-        e_min[0] = -8e-2;
-        e_max[1] =  8e-2;
-
-        for(int i=0; i<mu_mesh_L; i++) {
-            Energy de = (e_max[1] - e_min[0]) / double(mu_mesh_L);
-            Energy e1 = e_min[0] + double(i)*de;
-            Energy e2 = e_min[0] + double(i+1)*de;
-            Energy e_tmp = EL[valley][4] + (EL[valley][6] - EL[valley][4])*5e-1;
-            if ( (e1 < e_tmp) & (e2 < e_tmp) ) {
-                e_max[0] = e1;
-                e_min[1] = e2;
-
-                e_mesh[0] = i + 1;
-                e_mesh[1] = mu_mesh_L - i;
-            }
-        }
-
-// L point band_index:4 {{{
-        int band_index = 4; // for 12bands
-        mu_cutoff_L = -1e-1;
-        mu_cutoff_mesh_L = 20;
-        set_response_L(e_min[0], e_max[0], e_mesh[0], valley, band_index);
-// }}}
-// L point band_index:6 {{{
-        band_index = 6; // for 12bands
-//        int band_index = 2; // for 4bands
-        mu_cutoff_L = 1e-1;
-        mu_cutoff_mesh_L = 20;
-        set_response_L(e_min[1], e_max[1], e_mesh[1], valley, band_index);
-// }}}
-   }
+//// L point band_index:6 {{{
+//        band_index = 6; // for 12bands
+////        int band_index = 2; // for 4bands
+//        mu_cutoff_L = 1e-1;
+//        mu_cutoff_mesh_L = 20;
+//        set_response_L(e_min[1], e_max[1], e_mesh[1], valley, band_index);
+//// }}}
+//   }
+//// }}}
 
     auto calc_end_time = std::chrono::system_clock::now();
     auto dur = calc_end_time - calc_start_time;
