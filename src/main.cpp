@@ -229,6 +229,14 @@ int main(){
 //// }}}
 
 // L points {{{
+    int num_band[2];
+    if (bandsL == 4) { // for 4bands
+        num_band[0] = 0;
+        num_band[1] = 2;
+    } else { // for 12bands
+        num_band[0] = 4;
+        num_band[1] = 6;
+    }
     for(int valley=0; valley<valleys; valley++) {
         vectorReal e_min(2, 0e0);
         vectorReal e_max(2, 0e0);
@@ -241,7 +249,7 @@ int main(){
             Energy de = (e_max[1] - e_min[0]) / double(mu_mesh_L);
             Energy e1 = e_min[0] + double(i)*de;
             Energy e2 = e_min[0] + double(i+1)*de;
-            Energy e_tmp = EL[valley][4] + (EL[valley][6] - EL[valley][4])*5e-1;
+            Energy e_tmp = EL[valley][num_band[0]] + (EL[valley][num_band[1]] - EL[valley][num_band[0]])*5e-1;
             if ( (e1 < e_tmp) & (e2 < e_tmp) ) {
                 e_max[0] = e1;
                 e_min[1] = e2;
@@ -254,16 +262,14 @@ int main(){
         std::cout << e_min[0] << ", " << e_max[0] << ", " << e_mesh[0] << ", " << (e_max[0] - e_min[0]) / double(e_mesh[0]-1) << std::endl;
         std::cout << e_min[1] << ", " << e_max[1] << ", " << e_mesh[1] << ", " << (e_max[1] - e_min[1]) / double(e_mesh[1]-1)  << std::endl;
 
-// L point band_index:4 {{{
-        int band_index = 4; // for 12bands
-//        int band_index = 0; // for 4bands
+// L point band_index:4 (0) {{{
+        int band_index = num_band[0];
         mu_cutoff_L = -1e-1;
         mu_cutoff_mesh_L = 20;
         set_response_L(e_min[0], e_max[0], e_mesh[0], valley, band_index);
 // }}}
-// L point band_index:6 {{{
-        band_index = 6; // for 12bands
-//        int band_index = 2; // for 4bands
+// L point band_index:6 (2) {{{
+        band_index = num_band[1];
         mu_cutoff_L = 1e-1;
         mu_cutoff_mesh_L = 20;
         set_response_L(e_min[1], e_max[1], e_mesh[1], valley, band_index);
