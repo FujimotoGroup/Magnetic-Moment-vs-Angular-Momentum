@@ -233,9 +233,15 @@ int main(){
     if (bandsL == 4) { // for 4bands
         num_band[0] = 0;
         num_band[1] = 2;
-    } else { // for 12bands
+    } else if (bandsL == 8) { // for 8bands
         num_band[0] = 4;
         num_band[1] = 6;
+    } else if (bandsL == 12) { // for 12bands
+        num_band[0] = 4;
+        num_band[1] = 6;
+    } else {
+        std::cerr << "'bandsL' should be 4, 8, 12" << std::endl;
+        exit(0);
     }
     for(int valley=0; valley<valleys; valley++) {
         vectorReal e_min(2, 0e0);
