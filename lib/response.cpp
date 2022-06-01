@@ -355,15 +355,15 @@ SHC get_SHC_T1(band b, Energy epsilon, chemical_potential mu) { // {{{
         Green_function GR = get_green_function_T(e + epsilon*zi, k);
         Green_function GA = get_green_function_T(e - epsilon*zi, k);
         for(int external=0; external<space_dim; external++) {
-            matrixComplex vGR    = product(vT[external], GR);
+//            matrixComplex vGR    = product(vT[external], GR);
             matrixComplex vGA    = product(vT[external], GA);
             for(int axis=0; axis<space_dim; axis++) {
                 for(int spin=0; spin<spin_dim; spin++) {
                     matrixComplex vsGR   = product(v_s_T[axis][spin], GR);
-                    matrixComplex vsGA   = product(v_s_T[axis][spin], GA);
+//                    matrixComplex vsGA   = product(v_s_T[axis][spin], GA);
 
-                    res[external][axis][spin] = tr(product(vsGR, vGA)) - 5e-1*(tr(product(vsGR, vGR)) + tr(product(vsGA, vGA)));
-//                    res[external][axis][spin] = tr(product(vsGR, vGA));
+//                    res[external][axis][spin] = tr(product(vsGR, vGA)) - 5e-1*(tr(product(vsGR, vGR)) + tr(product(vsGA, vGA)));
+                    res[external][axis][spin] = tr(product(vsGR, vGA));
                 }
             }
         }
@@ -762,15 +762,15 @@ SHC get_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley) { // {
         Green_function GR = get_green_function_L(e + epsilon*zi, valley, k);
         Green_function GA = get_green_function_L(e - epsilon*zi, valley, k);
         for(int external=0; external<space_dim; external++) {
-            matrixComplex vGR    = product(vL[valley][external], GR);
+//            matrixComplex vGR    = product(vL[valley][external], GR);
             matrixComplex vGA    = product(vL[valley][external], GA);
             for(int axis=0; axis<space_dim; axis++) {
                 for(int spin=0; spin<spin_dim; spin++) {
                     matrixComplex vsGR   = product(v_s_L[valley][axis][spin], GR);
-                    matrixComplex vsGA   = product(v_s_L[valley][axis][spin], GA);
+//                    matrixComplex vsGA   = product(v_s_L[valley][axis][spin], GA);
 
-                    res[external][axis][spin] = tr(product(vsGR, vGA)) - 5e-1*(tr(product(vsGR, vGR)) + tr(product(vsGA, vGA)));
-//                    res[external][axis][spin] = tr(product(vsGR, vGA));
+//                    res[external][axis][spin] = tr(product(vsGR, vGA)) - 5e-1*(tr(product(vsGR, vGR)) + tr(product(vsGA, vGA)));
+                    res[external][axis][spin] = tr(product(vsGR, vGA));
                 }
             }
         }
