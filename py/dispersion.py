@@ -204,7 +204,7 @@ for valley in np.arange(1,4):
     for i in np.arange(1,16,2):
         ax1.scatter(full[:,0], full[:,i], color=colors[i-1])
 
-    for i in np.arange(1,4,2):
+    for i in np.arange(1,bandsL,2):
         ax2.plot(effective[:,0], effective[:,i], color=colors[i+lowest_L-2])
 
     for i in np.arange(lowest_L,lowest_L+bandsL,2):
@@ -213,9 +213,9 @@ for valley in np.arange(1,4):
         ax3.plot(effective[:,0], effective[:,i], color=colors[i+lowest_L-2], label="effective band#"+str(i))
     ax3.legend()
 
-    plt.savefig(png+"dispersion_L"+str(valley)+"_x.png", bbox_inches = 'tight', dpi=300)
+    plt.savefig(png+"dispersion_L"+str(valley)+"_x-"+str(bandsL)+"bands.png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"dispersion_L"+str(valley)+"_x.svg")
+    plt.savefig(svg+"dispersion_L"+str(valley)+"_x-"+str(bandsL)+"bands.svg")
 #    plt.show()
     plt.close()
 # }}}
@@ -250,7 +250,7 @@ for valley in np.arange(1,4):
     for i in np.arange(1,16,2):
         ax1.scatter(full[:,0], full[:,i], color=colors[i-1])
 
-    for i in np.arange(1,4,2):
+    for i in np.arange(1,bandsL,2):
         ax2.plot(effective[:,0], effective[:,i], color=colors[i+lowest_L-2])
 
     for i in np.arange(lowest_L,lowest_L+bandsL,2):
@@ -259,9 +259,9 @@ for valley in np.arange(1,4):
         ax3.plot(effective[:,0], effective[:,i], color=colors[i+lowest_L-2], label="effective band#"+str(i))
     ax3.legend()
 
-    plt.savefig(png+"dispersion_L"+str(valley)+"_y.png", bbox_inches = 'tight', dpi=300)
+    plt.savefig(png+"dispersion_L"+str(valley)+"_y-"+str(bandsL)+"bands.png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"dispersion_L"+str(valley)+"_y.svg")
+    plt.savefig(svg+"dispersion_L"+str(valley)+"_y-"+str(bandsL)+"bands.svg")
 #    plt.show()
     plt.close()
 # }}}
@@ -296,7 +296,7 @@ for valley in np.arange(1,4):
     for i in np.arange(1,16,2):
         ax1.scatter(full[:,0], full[:,i], color=colors[i-1])
 
-    for i in np.arange(1,4,2):
+    for i in np.arange(1,bandsL,2):
         ax2.plot(effective[:,0], effective[:,i], color=colors[i+lowest_L-2])
 
     for i in np.arange(lowest_L,lowest_L+bandsL,2):
@@ -305,9 +305,9 @@ for valley in np.arange(1,4):
         ax3.plot(effective[:,0], effective[:,i], color=colors[i+lowest_L-2], label="effective band#"+str(i))
     ax3.legend()
 
-    plt.savefig(png+"dispersion_L"+str(valley)+"_z.png", bbox_inches = 'tight', dpi=300)
+    plt.savefig(png+"dispersion_L"+str(valley)+"_z-"+str(bandsL)+"bands.png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"dispersion_L"+str(valley)+"_z.svg")
+    plt.savefig(svg+"dispersion_L"+str(valley)+"_z-"+str(bandsL)+"bands.svg")
 #    plt.show()
     plt.close()
 # }}}

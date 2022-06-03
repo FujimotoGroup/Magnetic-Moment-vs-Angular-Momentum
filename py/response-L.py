@@ -63,19 +63,17 @@ total_spin_conductivity2 = []
 
 # L {{{
 for valley in np.arange(1,4):
-    data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index6/'
+    data1 = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index0/'
+    data2 = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index2/'
 
 # dos L {{{
 # 1,1 layout -  {{{
     fig, axes = plt.subplots(1,1,figsize=(7,7))
-    readfile = data+'dos_eps'+label+'.csv'
-    print(readfile)
+    readfile = data1+'dos_eps'+label+'.csv'
     dos = pd.read_csv(readfile,header=0).values
+    readfile = data2+'dos_eps'+label+'.csv'
+    dos = np.append(dos, pd.read_csv(readfile,header=0).values, axis=0)
     total_dos.append(dos)
-
-    dos_analytic1 = np.abs(x1)*np.sqrt(x1**2 - delta**2) / (2e0*np.pi**2) / (hbar*v0)**3
-    dos_analytic2 = np.full(int(n), 0e0)
-    dos_analytic  = np.append(dos_analytic1, dos_analytic2)
 
     axes.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
     axes.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
@@ -98,8 +96,10 @@ for valley in np.arange(1,4):
 # 1,2 layout - diagonal vs off-diagonal {{{
     fig, axes = plt.subplots(1,2,figsize=(14,7))
     axes = axes.flatten()
-    readfile = data+'mu-dependence/conductivity_eps'+label+'.csv'
+    readfile = data1+'mu-dependence/conductivity_eps'+label+'.csv'
     conductivity = pd.read_csv(readfile,header=0).values
+    readfile = data2+'mu-dependence/conductivity_eps'+label+'.csv'
+    conductivity = np.append(conductivity, pd.read_csv(readfile,header=0).values, axis=0)
     total_conductivity.append(conductivity)
     window = [-1.1e0*conductivity[:,1:].max(), conductivity[:,1:].max()*1.1e0]
     for ax in axes:
@@ -145,14 +145,22 @@ for valley in np.arange(1,4):
 # }}}
 # }}}
 
-    readfile = data+'mu-dependence/spin-conductivity1_eps'+label+'.csv'
+    readfile = data1+'mu-dependence/spin-conductivity1_eps'+label+'.csv'
     df = pd.read_csv(readfile,header=0)
     titles = df.columns.values
     conductivity1 = df.values
+    readfile = data2+'mu-dependence/spin-conductivity1_eps'+label+'.csv'
+    df = pd.read_csv(readfile,header=0)
+    conductivity1 = np.append(conductivity1, df.values, axis=0)
     total_spin_conductivity1.append(conductivity1)
 
-    readfile = data+'mu-dependence/spin-conductivity2_eps'+label+'.csv'
+    readfile = data1+'mu-dependence/spin-conductivity2_eps'+label+'.csv'
     conductivity2 = pd.read_csv(readfile,header=0).values
+    readfile = data2+'mu-dependence/spin-conductivity2_eps'+label+'.csv'
+    val = np.copy(conductivity2[-1, :])
+    val[0] = 0e0
+    conductivity2_tmp = pd.read_csv(readfile,header=0).values + val
+    conductivity2 = np.append(conductivity2, conductivity2_tmp, axis=0)
     total_spin_conductivity2.append(conductivity2)
 
     maximun = max(np.abs(conductivity1[:,1:].max()*1.1e0), np.abs(conductivity2[:,1:].max()*1.1e0))
