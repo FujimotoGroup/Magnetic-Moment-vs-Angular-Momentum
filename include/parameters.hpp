@@ -368,6 +368,11 @@ SHC get_SHC_T2(band b, Energy epsilon, chemical_potential mu);
 SHC get_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley);
 SHC get_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley);
 
+SHC get_angular_SHC_T1(band b, Energy epsilon, chemical_potential mu);
+SHC get_angular_SHC_T2(band b, Energy epsilon, chemical_potential mu);
+SHC get_angular_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley);
+SHC get_angular_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley);
+
 Conductivity get_conductivity_T(band b, Energy epsilon, chemical_potential mu);
 Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, int valley);
 

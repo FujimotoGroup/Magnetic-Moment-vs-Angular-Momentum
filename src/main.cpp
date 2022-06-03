@@ -195,7 +195,6 @@ int main(){
 //    set_response_L(mu_min, mu_max, mu_mesh, valley, band_index);
 //// }}}
 
-
 //// get Triangulation T {{{
 //    int band_index = 4;
 //    chemical_potential mu = 0e0;

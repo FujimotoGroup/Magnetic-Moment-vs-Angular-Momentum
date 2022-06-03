@@ -299,19 +299,19 @@ void initialize() {
     const matrixComplex sigma_y = { {0e0,- zi}, { zi, 0e0} };
     const matrixComplex sigma_z = { {1e0, 0e0}, {0e0,-1e0} };
 // sigma_T[spin] {{{
-    sigmaT.resize(space_dim);
+    sigma_T.resize(spin_dim);
     for (int spin=0; spin<spin_dim; spin++) {
         sigma_T[spin].resize(bandsT);
-        for(int i=l; i<n; i++) {
-            sigma_T[spin][i-l].resize(bandsT);
+        for(int i=0; i<bandsT; i++) {
+            sigma_T[spin][i].resize(bandsT);
         }
     }
     for(int i=0; i<bandsT; i=i+2) {
-        for(int s1=0; s1<1; s1++) {
-            for(int s2=0; s2<1; s2++) {
-                sigma_T[0][2*i+s1][2*i+s2] = sigma_x[s1][s2]
-                sigma_T[1][2*i+s1][2*i+s2] = sigma_y[s1][s2]
-                sigma_T[2][2*i+s1][2*i+s2] = sigma_z[s1][s2]
+        for(int s1=0; s1<2; s1++) {
+            for(int s2=0; s2<2; s2++) {
+                sigma_T[0][i+s1][i+s2] = sigma_x[s1][s2];
+                sigma_T[1][i+s1][i+s2] = sigma_y[s1][s2];
+                sigma_T[2][i+s1][i+s2] = sigma_z[s1][s2];
             }
         }
     }
@@ -330,14 +330,15 @@ void initialize() {
 
     for(int valley=0; valley<valleys; valley++) {
         for(int i=0; i<bandsL; i=i+2) {
-            for(int s1=0; s1<1; s1++) {
-                for(int s2=0; s2<1; s2++) {
-                    sigma_L[valley][0][2*i+s1][2*i+s2] = sigma_x[s1][s2]
-                    sigma_L[valley][1][2*i+s1][2*i+s2] = sigma_y[s1][s2]
-                    sigma_L[valley][2][2*i+s1][2*i+s2] = sigma_z[s1][s2]
+            for(int s1=0; s1<2; s1++) {
+                for(int s2=0; s2<2; s2++) {
+                    sigma_L[valley][0][i+s1][i+s2] = sigma_x[s1][s2];
+                    sigma_L[valley][1][i+s1][i+s2] = sigma_y[s1][s2];
+                    sigma_L[valley][2][i+s1][i+s2] = sigma_z[s1][s2];
                 }
             }
         }
+    }
 // }}}
     // v_sigma_T[axis][spin] {{{
     v_sigma_T.resize(space_dim);
@@ -377,7 +378,7 @@ void initialize() {
                     for(int j=0; j<bandsL; j++) {
                         Complex c = 0e0;
                         for(int k=0; k<bandsL; k++) {
-                            c += (vL[valley][axis][i][k]*sigma_L[valley][spin][k][j] + mu_sigma_L[valley][spin][i][k]*vL[valley][axis][k][j])*5e-1;
+                            c += (vL[valley][axis][i][k]*sigma_L[valley][spin][k][j] + sigma_L[valley][spin][i][k]*vL[valley][axis][k][j])*5e-1;
                         }
                         v_sigma_L[valley][axis][spin][i][j] = c;
                     }
