@@ -548,7 +548,7 @@ SHC get_SHC_T1(band b, Energy epsilon, chemical_potential mu) { // {{{
 
     integrate_band_T(fn, response, b, mu);
 
-    double coef = - charge * v0*v0 * hbar / (2e0*pi) / (angstrom*angstrom*angstrom);
+    double coef = - charge * v0*v0 * hbar / (2e0*pi) / (angstrom*angstrom*angstrom) / muBeV;
     response = times(response, coef);
 
     return response;
@@ -585,7 +585,7 @@ SHC get_SHC_T2(band b, Energy epsilon, chemical_potential mu) { // {{{
 
     integrate_band_T(fn, response, b, mu);
 
-    double coef = - charge * v0*v0 * hbar / (4e0*pi) / (angstrom*angstrom*angstrom);
+    double coef = - charge * v0*v0 * hbar / (4e0*pi) / (angstrom*angstrom*angstrom) / muBeV;
     response = times(response, coef);
 
     return response;
@@ -1200,7 +1200,7 @@ SHC get_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley) { // {
 
     integrate_band_L(fn, response, b, valley, mu);
 
-    double coef = - charge * v0*v0 * hbar / (2e0*pi) / (angstrom*angstrom*angstrom);
+    double coef = - charge * v0*v0 * hbar / (2e0*pi) / (angstrom*angstrom*angstrom) / muBeV;
     response = times(response, coef);
 
     return response;
@@ -1237,7 +1237,7 @@ SHC get_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley) { // {
 
     integrate_band_L(fn, response, b, valley, mu);
 
-    double coef = - charge * v0*v0 * hbar / (4e0*pi) / (angstrom*angstrom*angstrom);
+    double coef = - charge * v0*v0 * hbar / (4e0*pi) / (angstrom*angstrom*angstrom) / muBeV;
     response = times(response, coef);
 
     return response;
