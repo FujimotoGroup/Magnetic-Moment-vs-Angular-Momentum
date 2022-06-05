@@ -1010,10 +1010,10 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             }
             ofsigma << std::endl;
 // }}}
-            SHC1 = sigma_m1[i_ene];
-// SHC1 output {{{
+            magnetic_SHC1 = sigma_m1[i_ene];
+// magnetic SHC1 output {{{
             ofshc1 << std::scientific << mu;
-            for( auto e : SHC1 ) {
+            for( auto e : magnetic_SHC1 ) {
                 for( auto a : e ) {
                     for( auto s : a ) {
                         ofshc1 << std::scientific << ", " << s.real();
