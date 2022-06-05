@@ -49,6 +49,7 @@ extern const double hbar;
 extern const double mass;
 extern const double charge;
 extern const double muB;
+extern const double muBeV;
 
 extern const double v0;
 
