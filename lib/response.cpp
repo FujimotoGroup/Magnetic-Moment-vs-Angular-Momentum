@@ -149,7 +149,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
                 }
             }
         }
-        ofshc12 << std::endl;
+        of_angular_shc12 << std::endl;
 // }}}
 // init spin angular Hall conductivity 2 file {{{
         filename = "dat/"+dir+"/sigma_a2_real_eps"+std::to_string(epsilon)+".csv";
@@ -174,7 +174,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
                 }
             }
         }
-        ofshc22 << std::endl;
+        of_angular_shc22 << std::endl;
 // }}}
 
         int i_ene;
@@ -208,7 +208,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
 // }}}
 
             sigma_m1[i_ene] = get_SHC_T1(b_sum, epsilon, mu);
-//// SHC1 output {{{
+// magnetic SHC1 output {{{
             ofshc11 << std::scientific << mu;
             ofshc12 << std::scientific << mu;
             for( auto e : sigma_m1[i_ene] ) {
@@ -224,7 +224,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
 // }}}
 
             sigma_m2[i_ene] = get_SHC_T2(b_sum, epsilon, mu);
-// SHC2 output {{{
+// magnetic SHC2 output {{{
             ofshc21 << std::scientific << mu;
             ofshc22 << std::scientific << mu;
             for( auto e : sigma_m2[i_ene] ) {
@@ -240,7 +240,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
 // }}}
 
             sigma_a1[i_ene] = get_angular_SHC_T1(b_sum, epsilon, mu);
-//// angular SHC1 output {{{
+// angular SHC1 output {{{
             of_angular_shc11 << std::scientific << mu;
             of_angular_shc12 << std::scientific << mu;
             for( auto e : sigma_a1[i_ene] ) {
@@ -342,7 +342,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
                 }
             }
         }
-        ofshc2 << std::endl;
+        of_angular_shc2 << std::endl;
 // }}}
 
         chemical_potential mu;
@@ -449,7 +449,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
                     }
                 }
             }
-            ofshc2 << std::endl;
+            of_angular_shc2 << std::endl;
 // }}}
             de = (b_main.ene[i_ene+1] - b_main.ene[i_ene])*5e-1;
             angular_SHC2_mu = times(sigma_a2[i_ene], de);
@@ -460,7 +460,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
             angular_SHC2_mu = times(sigma_a2[i_ene], de);
             angular_SHC2 = add(angular_SHC2, angular_SHC2_mu);
 // angular SHC2 output {{{
-            ofshc2 << std::scientific << mu;
+            of_angular_shc2 << std::scientific << mu;
             for( auto e : angular_SHC2 ) {
                 for( auto a : e ) {
                     for( auto s : a ) {
@@ -468,7 +468,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
                     }
                 }
             }
-            ofshc2 << std::endl;
+            of_angular_shc2 << std::endl;
 // }}}
             angular_SHC2 = add(angular_SHC2, angular_SHC2_mu);
         }
@@ -478,7 +478,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
             angular_SHC2_mu = times(sigma_a2[i_ene], de);
             angular_SHC2 = add(angular_SHC2, angular_SHC2_mu);
 // angular SHC2 output {{{
-            ofshc2 << std::scientific << mu;
+            of_angular_shc2 << std::scientific << mu;
             for( auto e : angular_SHC2 ) {
                 for( auto a : e ) {
                     for( auto s : a ) {
@@ -486,7 +486,7 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
                     }
                 }
             }
-            ofshc2 << std::endl;
+            of_angular_shc2 << std::endl;
 // }}}
     }
 // }}}
