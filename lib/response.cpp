@@ -662,7 +662,8 @@ SHC get_angular_SHC_T2(band b, Energy epsilon, chemical_potential mu) { // {{{
 
 // L {{{
 void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int valley, int band_index) { // {{{
-    std::string dir = "L"+std::to_string(valley+1)+"_"+std::to_string(bandsL)+"bands/band_index"+std::to_string(band_index);
+//    std::string dir = "L"+std::to_string(valley+1)+"_"+std::to_string(bandsL)+"bands/band_index"+std::to_string(band_index);
+    std::string dir = "L"+std::to_string(bandsL)+"bands-isotropic/band_index"+std::to_string(band_index);
     set_output_directory(dir);
 
     for(int i=5; i<6; i++) {
