@@ -421,6 +421,7 @@ void set_isotropic() { // {{{
     tensor2Complex v(3, matrixComplex(4, vectorComplex(4, 0e0)));
 
     tensor2Complex mu_s(3, matrixComplex(4, vectorComplex(4, 0e0)));
+    tensor2Complex sigma(3, matrixComplex(4, vectorComplex(4, 0e0)));
 
     for(int k=0; k<2; k++) {
         for(int l=0; l<2; l++) {
@@ -467,6 +468,12 @@ void set_isotropic() { // {{{
                             c += (vL[valley][axis][i][k]*mu_s_L[valley][spin][k][j] + mu_s_L[valley][spin][i][k]*vL[valley][axis][k][j])*5e-1;
                         }
                         v_s_L[valley][axis][spin][i][j] = c;
+
+                        c = 0e0;
+                        for(int k=0; k<4; k++) {
+                            c += (vL[valley][axis][i][k]*sigma_L[valley][spin][k][j] + sigma_L[valley][spin][i][k]*vL[valley][axis][k][j])*5e-1;
+                        }
+                        sigma_L[valley][axis][spin][i][j] = c;
                     }
                 }
             }
