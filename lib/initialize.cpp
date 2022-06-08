@@ -56,7 +56,7 @@ const double g0 = 1.3861e0; // angstrom^-1
 const double cutoff = 2e-1*g0;
 double dk[3];
 const int mu_mesh_T = 160;
-const int mu_mesh_L = 160;
+const int mu_mesh_L = 80;
 const int fermi_surface_mesh_lim = 3000;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
@@ -473,7 +473,7 @@ void set_isotropic() { // {{{
                         for(int k=0; k<4; k++) {
                             c += (vL[valley][axis][i][k]*sigma_L[valley][spin][k][j] + sigma_L[valley][spin][i][k]*vL[valley][axis][k][j])*5e-1;
                         }
-                        sigma_L[valley][axis][spin][i][j] = c;
+                        v_sigma_L[valley][axis][spin][i][j] = c;
                     }
                 }
             }
