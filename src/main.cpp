@@ -174,26 +174,26 @@ int main(){
 //    }
 //// }}}
 
-// isotropic Dirac (required modification in lib/hamiltonian.cpp) {{{
-    set_isotropic();
-    int valley = 0;
-    int band_index = 0;
-    double delta = (EL[valley][2] - EL[valley][0])*5e-1;
-    mu_cutoff_L = - 1e-1;
-    mu_cutoff_mesh_L = 100;
-    band_edge_L[valley][0] = -delta; band_edge_L[valley][1] = -delta;
-    band_edge_L[valley][2] =  delta; band_edge_L[valley][3] =  delta;
-    chemical_potential mu_min = - delta - 5e-2;
-    chemical_potential mu_max = 0e0;
-    set_response_L(mu_min, mu_max, mu_mesh_L, valley, band_index);
-
-    band_index = 2;
-    mu_cutoff_L = 1e-1;
-    mu_cutoff_mesh_L = 100;
-    mu_min = 0e0;
-    mu_max = delta + 5e-2;
-    set_response_L(mu_min, mu_max, mu_mesh_L, valley, band_index);
-// }}}
+//// isotropic Dirac (required modification in lib/hamiltonian.cpp) {{{
+//    set_isotropic();
+//    int valley = 0;
+//    int band_index = 0;
+//    double delta = (EL[valley][2] - EL[valley][0])*5e-1;
+//    mu_cutoff_L = - 1e-1;
+//    mu_cutoff_mesh_L = 100;
+//    band_edge_L[valley][0] = -delta; band_edge_L[valley][1] = -delta;
+//    band_edge_L[valley][2] =  delta; band_edge_L[valley][3] =  delta;
+//    chemical_potential mu_min = - delta - 5e-2;
+//    chemical_potential mu_max = 0e0;
+//    set_response_L(mu_min, mu_max, mu_mesh_L, valley, band_index);
+//
+//    band_index = 2;
+//    mu_cutoff_L = 1e-1;
+//    mu_cutoff_mesh_L = 100;
+//    mu_min = 0e0;
+//    mu_max = delta + 5e-2;
+//    set_response_L(mu_min, mu_max, mu_mesh_L, valley, band_index);
+//// }}}
 
 //// get Triangulation T {{{
 //    int band_index = 4;
@@ -216,16 +216,16 @@ int main(){
 //    }
 //// }}}
 
-//// T point {{{
-//    int band_index = 4;
-//    mu_cutoff_T = -1e-1;
-//    mu_cutoff_mesh_T = 20;
-//    chemical_potential mu_min =-8e-2;
-//    chemical_potential mu_max = 8e-2;
-//    band bT;
-//    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
-//    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
-//// }}}
+// T point {{{
+    int band_index = 4;
+    mu_cutoff_T = -1.0e-1;
+    mu_cutoff_mesh_T = 20;
+    chemical_potential mu_min =-0.9e-1;
+    chemical_potential mu_max = 0.9e-1;
+    band bT;
+    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
+    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
+// }}}
 
 //// L points {{{
 //    int num_band[2];
@@ -247,8 +247,8 @@ int main(){
 //        vectorReal e_max(2, 0e0);
 //        std::vector<int> e_mesh(2, 0);
 //
-//        e_min[0] = -8e-2;
-//        e_max[1] =  8e-2;
+//        e_min[0] = -0.9e-1;
+//        e_max[1] =  0.9e-1;
 //
 //        for(int i=0; i<mu_mesh_L; i++) {
 //            Energy de = (e_max[1] - e_min[0]) / double(mu_mesh_L);
@@ -269,13 +269,13 @@ int main(){
 //
 //// L point band_index:4 (0) {{{
 //        int band_index = num_band[0];
-//        mu_cutoff_L = -1e-1;
+//        mu_cutoff_L = -1.0e-1;
 //        mu_cutoff_mesh_L = 20;
 //        set_response_L(e_min[0], e_max[0], e_mesh[0], valley, band_index);
 //// }}}
 //// L point band_index:6 (2) {{{
 //        band_index = num_band[1];
-//        mu_cutoff_L = 1e-1;
+//        mu_cutoff_L = 1.0e-1;
 //        mu_cutoff_mesh_L = 20;
 //        set_response_L(e_min[1], e_max[1], e_mesh[1], valley, band_index);
 //// }}}
