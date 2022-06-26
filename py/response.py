@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from scipy.interpolate import griddata
@@ -30,7 +30,7 @@ lowest_L = int(physics.get('lowest_band_L'))
 markers = ["o", ",", "D", "v", "^", "<", ">", "s", "p", "1", "2"]
 colors =['k', 'b', 'g', 'r', 'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan', 'navy', 'indigo']
 
-epsilon = 5e-5
+epsilon = 5e-4
 label = "{:.6f}".format(epsilon)
 str_damping = "Gamma = "+"{:.2f}".format(epsilon*1e3)+" [meV]"
 
@@ -59,12 +59,15 @@ dos_valley = []
 
 conductivity = []
 conductivity_i = []
+conductivity_i_sum = []
 conductivity_valley = []
 
 conductivity1 = []
 conductivity2 = []
 conductivity1_i = []
 conductivity2_i = []
+conductivity1_i_sum = []
+conductivity2_i_sum = []
 conductivity1_valley = []
 conductivity2_valley = []
 
@@ -198,7 +201,9 @@ plt.close()
 # conductivity {{{
 data = data0+'T_'+str(bandsT)+'bands/band_index4/'
 readfile = data+'mu-dependence/conductivity_eps'+label+'.csv'
-d = pd.read_csv(readfile,header=0).values
+df = pd.read_csv(readfile,header=0)
+titles = df.columns.values
+d = df.values
 conductivity.append(d)
 conductivity_valley.append(d)
 
@@ -215,23 +220,42 @@ for valley in np.arange(1,4):
 
     conductivity_valley.append(np.append(d4, d6, axis=0))
 
-for d in conductivity_valley:
-    ip1d = interpolate.interp1d(d[:,0], d[:,1])
-    conductivity_i.append(ip1d(x))
-conductivity_i = np.array(conductivity_i)
-conductivity_i_sum = np.sum(conductivity_i, axis=0)
+fig, axes = plt.subplots(1,3,figsize=(15,7))
+axes = axes.flatten()
 
-fig, ax = plt.subplots(1,1,figsize=(7,7))
-ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
-ax.set_xlabel("mu [eV]")
-ax.set_ylabel("conductivity [/Ohm m]")
-ax.plot(x, conductivity_i_sum, label="total", c="red")
-for d in conductivity_i:
-    ax.plot(x, d, c="black", lw=1)
-for key, val in labels.items():
-    ax.scatter(conductivity[val][:,0], conductivity[val][:,1], s=4, label=key)
-ax.legend()
+plot_lists = [1, 5, 9]
+for s in np.arange(0,3):
+    conductivity_tmp = []
+    axes[s].set_title(titles[plot_lists[s]])
+    for d in conductivity_valley:
+        ip1d = interpolate.interp1d(d[:,0], d[:,plot_lists[s]])
+        conductivity_tmp.append(ip1d(x))
+    conductivity_tmp = np.array(conductivity_tmp)
+    conductivity_i.append(conductivity_tmp)
+    conductivity_tmp = np.sum(conductivity_tmp, axis=0)
+    conductivity_i_sum.append(conductivity_tmp)
+
+maximun = 0e0
+for s in np.arange(0,3):
+    maximun = max([maximun, np.abs(conductivity_i_sum[s].max()), np.abs(conductivity_i_sum[s].min())])
+
+window = [-maximun*0.01e0, maximun*1.1e0]
+
+axes[0].set_ylabel("conductivity [/Ohm m]")
+for ax in axes:
+    ax.set_xlabel("mu [eV]")
+    ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    ax.set_xlim(-0.08, 0.08)
+    ax.set_ylim(window)
+
+for s in np.arange(0,3):
+    axes[s].plot(x, conductivity_i_sum[s], label="total", c="red")
+    for d in conductivity_i[s]:
+        axes[s].plot(x, d, c="black", lw=1)
+    for key, val in labels.items():
+        axes[s].scatter(conductivity[val][:,0], conductivity[val][:,plot_lists[s]], s=4, label=key)
+    axes[s].legend()
 #plt.show()
 
 plt.savefig(png+"conductivity_total_"+str(bands)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
@@ -241,67 +265,88 @@ plt.savefig(svg+"conductivity_total_"+str(bands)+"bands_gamma"+label+".svg")
 plt.close()
 # }}}
 
-# conductivity1 {{{
+# spin magnetic conductivity1 {{{
 data = data0+'T_'+str(bandsT)+'bands/band_index4/'
-readfile = data+'mu-dependence/spin-conductivity1_eps'+label+'.csv'
-d = pd.read_csv(readfile,header=0).values
+readfile = data+'mu-dependence/spin-magnetic-conductivity1_eps'+label+'.csv'
+df = pd.read_csv(readfile,header=0)
+titles = df.columns.values
+d = df.values
 conductivity1.append(d)
 conductivity1_valley.append(d)
 
 for valley in np.arange(1,4):
     data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
-    readfile = data+'mu-dependence/spin-conductivity1_eps'+label+'.csv'
+    readfile = data+'mu-dependence/spin-magnetic-conductivity1_eps'+label+'.csv'
     d4 = pd.read_csv(readfile,header=0).values
     conductivity1.append(d4)
 
     data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
-    readfile = data+'mu-dependence/spin-conductivity1_eps'+label+'.csv'
+    readfile = data+'mu-dependence/spin-magnetic-conductivity1_eps'+label+'.csv'
     d6 = pd.read_csv(readfile,header=0).values
     conductivity1.append(d6)
 
     conductivity1_valley.append(np.append(d4, d6, axis=0))
 
-for d in conductivity1_valley:
-    ip1d = interpolate.interp1d(d[:,0], d[:,1])
-    conductivity1_i.append(ip1d(x))
-conductivity1_i = np.array(conductivity1_i)
-conductivity1_i_sum = np.sum(conductivity1_i, axis=0)
+fig, axes = plt.subplots(1,3,figsize=(15,7))
+axes = axes.flatten()
 
-fig, ax = plt.subplots(1,1,figsize=(7,7))
-ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
-ax.set_xlabel("mu [eV]")
-ax.set_ylabel("spin conductivity [/Ohm m]")
-ax.plot(x, conductivity1_i_sum, label="total", c="red")
-for d in conductivity1_i:
-    ax.plot(x, d, c="black", lw=1)
-for key, val in labels.items():
-    ax.scatter(conductivity1[val][:,0], conductivity1[val][:,1], s=4, label=key)
-ax.legend()
+plot_lists = [6, 16, 20]
+for s in np.arange(0,3):
+    conductivity1_tmp = []
+    axes[s].set_title(titles[plot_lists[s]])
+    for d in conductivity1_valley:
+        ip1d = interpolate.interp1d(d[:,0], d[:,plot_lists[s]])
+        conductivity1_tmp.append(ip1d(x))
+    conductivity1_tmp = np.array(conductivity1_tmp)
+    conductivity1_i.append(conductivity1_tmp)
+    conductivity1_tmp = np.sum(conductivity1_tmp, axis=0)
+    conductivity1_i_sum.append(conductivity1_tmp)
+
+maximun = 0e0
+for s in np.arange(0,3):
+    maximun = max([maximun, np.abs(conductivity1_i_sum[s].max()), np.abs(conductivity1_i_sum[s].min())])
+
+window = [-maximun*1.1e0, maximun*1.1e0]
+
+axes[0].set_ylabel("spin conductivity [/Ohm m]")
+for ax in axes:
+    ax.set_xlabel("mu [eV]")
+    ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    ax.set_xlim(-0.08, 0.08)
+    ax.set_ylim(window)
+
+for s in np.arange(0,3):
+    axes[s].plot(x, conductivity1_i_sum[s], label="total", c="red")
+    for d in conductivity1_i[s]:
+        axes[s].plot(x, d, c="black", lw=1)
+    for key, val in labels.items():
+        axes[s].scatter(conductivity1[val][:,0], conductivity1[val][:,plot_lists[s]], s=4, label=key)
+    axes[s].legend()
 #plt.show()
 
-plt.savefig(png+"spin-conductivity1_total_"+str(bands)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"spin-magnetic-conductivity1_total_"+str(bands)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"spin-conductivity1_total_"+str(bands)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"spin-magnetic-conductivity1_total_"+str(bands)+"bands_gamma"+label+".svg")
 #plt.show()
 plt.close()
 # }}}
 
-# conductivity2 {{{
+# spin magnetic conductivity2 {{{
 data = data0+'T_'+str(bandsT)+'bands/band_index4/'
-readfile = data+'mu-dependence/spin-conductivity2_eps'+label+'.csv'
+readfile = data+'mu-dependence/spin-magnetic-conductivity2_eps'+label+'.csv'
 d = pd.read_csv(readfile,header=0).values
 conductivity2.append(d)
 conductivity2_valley.append(d)
 
 for valley in np.arange(1,4):
     data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
-    readfile = data+'mu-dependence/spin-conductivity2_eps'+label+'.csv'
+    readfile = data+'mu-dependence/spin-magnetic-conductivity2_eps'+label+'.csv'
     d4 = pd.read_csv(readfile,header=0).values
     conductivity2.append(d4)
 
     data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
-    readfile = data+'mu-dependence/spin-conductivity2_eps'+label+'.csv'
+    readfile = data+'mu-dependence/spin-magnetic-conductivity2_eps'+label+'.csv'
     d6 = pd.read_csv(readfile,header=0).values
 
     val = np.copy(d4[-1, :])
@@ -311,29 +356,258 @@ for valley in np.arange(1,4):
     conductivity2.append(d6)
     conductivity2_valley.append(np.append(d4, d6, axis=0))
 
-for d in conductivity2_valley:
-    ip1d = interpolate.interp1d(d[:,0], d[:,1])
-    conductivity2_i.append(ip1d(x))
-conductivity2_i = np.array(conductivity2_i)
-conductivity2_i_sum = np.sum(conductivity2_i, axis=0)
+fig, axes = plt.subplots(1,3,figsize=(15,7))
+axes = axes.flatten()
 
-fig, ax = plt.subplots(1,1,figsize=(7,7))
-ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
-ax.set_xlabel("mu [eV]")
-ax.set_ylabel("spin conductivity [/Ohm m]")
-ax.plot(x, conductivity2_i_sum, label="total", c="red")
-for d in conductivity2_i:
-    ax.plot(x, d, c="black", lw=1)
-for key, val in labels.items():
-    ax.scatter(conductivity2[val][:,0], conductivity2[val][:,1], s=4, label=key)
-ax.legend()
-#plt.show()
+maximun = 0e0
+plot_lists = [6, 16, 20]
+for s in np.arange(0,3):
+    conductivity2_tmp = []
+    axes[s].set_title(titles[plot_lists[s]])
+    for d in conductivity2_valley:
+        ip1d = interpolate.interp1d(d[:,0], d[:,plot_lists[s]])
+        conductivity2_tmp.append(ip1d(x))
+    conductivity2_tmp = np.array(conductivity2_tmp)
+    conductivity2_i.append(conductivity2_tmp)
+    conductivity2_tmp = np.sum(conductivity2_tmp, axis=0)
+    conductivity2_i_sum.append(conductivity2_tmp)
 
-plt.savefig(png+"spin-conductivity2_total_"+str(bands)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+    maximun = max(maximun, np.abs(conductivity2_tmp.min()))
+
+window = [-maximun*1.1e0, maximun*1.1e0]
+
+axes[0].set_ylabel("spin conductivity [/Ohm m]")
+for ax in axes:
+    ax.set_xlabel("mu [eV]")
+    ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    ax.set_xlim(-0.08, 0.08)
+    ax.set_ylim(window)
+
+for s in np.arange(0,3):
+    axes[s].plot(x, conductivity2_i_sum[s], label="total", c="red")
+    for d in conductivity2_i[s]:
+        axes[s].plot(x, d, c="black", lw=1)
+    for key, val in labels.items():
+        axes[s].scatter(conductivity2[val][:,0], conductivity2[val][:,plot_lists[s]], s=4, label=key)
+    axes[s].legend()
+
+plt.savefig(png+"spin-magnetic-conductivity2_total_"+str(bands)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"spin-conductivity2_total_"+str(bands)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"spin-magnetic-conductivity2_total_"+str(bands)+"bands_gamma"+label+".svg")
 plt.close()
 # }}}
 
+# spin magnetic conductivity 1 + 2 {{{
+conductivity3_i_sum = list(range(3))
+plot_lists = [6, 16, 20]
+for s in np.arange(0,3):
+    conductivity3_i_sum[s] = conductivity1_i_sum[s] + conductivity2_i_sum[s]
 
+maximun = 0e0
+for s in np.arange(0,3):
+    maximun = max([maximun, np.abs(conductivity3_i_sum[s].max()), np.abs(conductivity3_i_sum[s].min())])
+
+window = [-maximun*1.1e0, maximun*1.1e0]
+
+fig, axes = plt.subplots(1,3,figsize=(15,7))
+axes = axes.flatten()
+
+axes[0].set_ylabel("spin conductivity [/Ohm m]")
+for ax in axes:
+    ax.set_xlabel("mu [eV]")
+    ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    ax.set_xlim(-0.08, 0.08)
+    ax.set_ylim(window)
+
+for s in np.arange(0,3):
+    axes[s].set_title(titles[plot_lists[s]])
+    axes[s].plot(x, conductivity1_i_sum[s], label="SHC1",  c=colors[4])
+    axes[s].plot(x, conductivity2_i_sum[s], label="SHC2",  c=colors[7])
+    axes[s].plot(x, conductivity3_i_sum[s], label="total", c=colors[6])
+    axes[s].legend()
+
+plt.savefig(png+"spin-magnetic-conductivity3_total_"+str(bands)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.rc("svg", fonttype="none")
+plt.savefig(svg+"spin-magnetic-conductivity3_total_"+str(bands)+"bands_gamma"+label+".svg")
+plt.close()
+# }}}
+
+conductivity1 = []
+conductivity2 = []
+conductivity1_i = []
+conductivity2_i = []
+conductivity1_i_sum = []
+conductivity2_i_sum = []
+conductivity1_valley = []
+conductivity2_valley = []
+
+# spin angular conductivity1 {{{
+data = data0+'T_'+str(bandsT)+'bands/band_index4/'
+readfile = data+'mu-dependence/spin-angular-conductivity1_eps'+label+'.csv'
+df = pd.read_csv(readfile,header=0)
+titles = df.columns.values
+d = df.values
+conductivity1.append(d)
+conductivity1_valley.append(d)
+
+for valley in np.arange(1,4):
+    data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
+    readfile = data+'mu-dependence/spin-angular-conductivity1_eps'+label+'.csv'
+    d4 = pd.read_csv(readfile,header=0).values
+    conductivity1.append(d4)
+
+    data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
+    readfile = data+'mu-dependence/spin-angular-conductivity1_eps'+label+'.csv'
+    d6 = pd.read_csv(readfile,header=0).values
+    conductivity1.append(d6)
+
+    conductivity1_valley.append(np.append(d4, d6, axis=0))
+
+fig, axes = plt.subplots(1,3,figsize=(15,7))
+axes = axes.flatten()
+
+plot_lists = [6, 16, 20]
+for s in np.arange(0,3):
+    conductivity1_tmp = []
+    axes[s].set_title(titles[plot_lists[s]])
+    for d in conductivity1_valley:
+        ip1d = interpolate.interp1d(d[:,0], d[:,plot_lists[s]])
+        conductivity1_tmp.append(ip1d(x))
+    conductivity1_tmp = np.array(conductivity1_tmp)
+    conductivity1_i.append(conductivity1_tmp)
+    conductivity1_tmp = np.sum(conductivity1_tmp, axis=0)
+    conductivity1_i_sum.append(conductivity1_tmp)
+
+maximun = 0e0
+for s in np.arange(0,3):
+    maximun = max([maximun, np.abs(conductivity1_i_sum[s].max()), np.abs(conductivity1_i_sum[s].min())])
+
+window = [-maximun*1.1e0, maximun*1.1e0]
+
+axes[0].set_ylabel("spin conductivity [/Ohm m]")
+for ax in axes:
+    ax.set_xlabel("mu [eV]")
+    ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    ax.set_xlim(-0.08, 0.08)
+    ax.set_ylim(window)
+
+for s in np.arange(0,3):
+    axes[s].plot(x, conductivity1_i_sum[s], label="total", c="red")
+    for d in conductivity1_i[s]:
+        axes[s].plot(x, d, c="black", lw=1)
+    for key, val in labels.items():
+        axes[s].scatter(conductivity1[val][:,0], conductivity1[val][:,plot_lists[s]], s=4, label=key)
+    axes[s].legend()
+#plt.show()
+
+plt.savefig(png+"spin-angular-conductivity1_total_"+str(bands)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.rc("svg", fonttype="none")
+plt.savefig(svg+"spin-angular-conductivity1_total_"+str(bands)+"bands_gamma"+label+".svg")
+#plt.show()
+plt.close()
+# }}}
+
+# spin angular conductivity2 {{{
+data = data0+'T_'+str(bandsT)+'bands/band_index4/'
+readfile = data+'mu-dependence/spin-angular-conductivity2_eps'+label+'.csv'
+d = pd.read_csv(readfile,header=0).values
+conductivity2.append(d)
+conductivity2_valley.append(d)
+
+for valley in np.arange(1,4):
+    data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
+    readfile = data+'mu-dependence/spin-angular-conductivity2_eps'+label+'.csv'
+    d4 = pd.read_csv(readfile,header=0).values
+    conductivity2.append(d4)
+
+    data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
+    readfile = data+'mu-dependence/spin-angular-conductivity2_eps'+label+'.csv'
+    d6 = pd.read_csv(readfile,header=0).values
+
+    val = np.copy(d4[-1, :])
+    val[0] = 0e0
+    d6 = d6 + val
+
+    conductivity2.append(d6)
+    conductivity2_valley.append(np.append(d4, d6, axis=0))
+
+fig, axes = plt.subplots(1,3,figsize=(15,7))
+axes = axes.flatten()
+
+maximun = 0e0
+plot_lists = [6, 16, 20]
+for s in np.arange(0,3):
+    conductivity2_tmp = []
+    axes[s].set_title(titles[plot_lists[s]])
+    for d in conductivity2_valley:
+        ip1d = interpolate.interp1d(d[:,0], d[:,plot_lists[s]])
+        conductivity2_tmp.append(ip1d(x))
+    conductivity2_tmp = np.array(conductivity2_tmp)
+    conductivity2_i.append(conductivity2_tmp)
+    conductivity2_tmp = np.sum(conductivity2_tmp, axis=0)
+    conductivity2_i_sum.append(conductivity2_tmp)
+
+    maximun = max(maximun, np.abs(conductivity2_tmp.min()))
+
+window = [-maximun*1.1e0, maximun*1.1e0]
+
+axes[0].set_ylabel("spin conductivity [/Ohm m]")
+for ax in axes:
+    ax.set_xlabel("mu [eV]")
+    ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    ax.set_xlim(-0.08, 0.08)
+    ax.set_ylim(window)
+
+for s in np.arange(0,3):
+    axes[s].plot(x, conductivity2_i_sum[s], label="total", c="red")
+    for d in conductivity2_i[s]:
+        axes[s].plot(x, d, c="black", lw=1)
+    for key, val in labels.items():
+        axes[s].scatter(conductivity2[val][:,0], conductivity2[val][:,plot_lists[s]], s=4, label=key)
+    axes[s].legend()
+
+plt.savefig(png+"spin-angular-conductivity2_total_"+str(bands)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.rc("svg", fonttype="none")
+plt.savefig(svg+"spin-angular-conductivity2_total_"+str(bands)+"bands_gamma"+label+".svg")
+plt.close()
+# }}}
+
+# spin angular conductivity 1 + 2 {{{
+conductivity3_i_sum = list(range(3))
+plot_lists = [6, 16, 20]
+for s in np.arange(0,3):
+    conductivity3_i_sum[s] = conductivity1_i_sum[s] + conductivity2_i_sum[s]
+
+maximun = 0e0
+for s in np.arange(0,3):
+    maximun = max([maximun, np.abs(conductivity3_i_sum[s].max()), np.abs(conductivity3_i_sum[s].min())])
+
+window = [-maximun*1.1e0, maximun*1.1e0]
+
+fig, axes = plt.subplots(1,3,figsize=(15,7))
+axes = axes.flatten()
+
+axes[0].set_ylabel("spin conductivity [/Ohm m]")
+for ax in axes:
+    ax.set_xlabel("mu [eV]")
+    ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    ax.set_xlim(-0.08, 0.08)
+    ax.set_ylim(window)
+
+for s in np.arange(0,3):
+    axes[s].set_title(titles[plot_lists[s]])
+    axes[s].plot(x, conductivity1_i_sum[s], label="SHC1",  c=colors[4])
+    axes[s].plot(x, conductivity2_i_sum[s], label="SHC2",  c=colors[7])
+    axes[s].plot(x, conductivity3_i_sum[s], label="total", c=colors[6])
+    axes[s].legend()
+
+plt.savefig(png+"spin-angular-conductivity3_total_"+str(bands)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.rc("svg", fonttype="none")
+plt.savefig(svg+"spin-angular-conductivity3_total_"+str(bands)+"bands_gamma"+label+".svg")
+plt.close()
+# }}}
