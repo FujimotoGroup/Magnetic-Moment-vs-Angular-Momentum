@@ -269,10 +269,10 @@ int main(){
 
         int band_index;
 // L point band_index:4 (0) {{{
-//        int band_index = num_band[0];
-//        mu_cutoff_L = -1.0e-1;
-//        mu_cutoff_mesh_L = 20;
-//        set_response_L(e_min[0], e_max[0], e_mesh[0], valley, band_index);
+        band_index = num_band[0];
+        mu_cutoff_L = -1.0e-1;
+        mu_cutoff_mesh_L = 20;
+        set_response_L(e_min[0], e_max[0], e_mesh[0], valley, band_index);
 // }}}
 // L point band_index:6 (2) {{{
         band_index = num_band[1];
