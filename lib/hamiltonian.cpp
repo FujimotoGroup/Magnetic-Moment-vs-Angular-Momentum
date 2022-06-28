@@ -25,36 +25,36 @@ matrixComplex set_T(double k[3]) { // {{{
 
 matrixComplex set_L(int valley, double k[3]) { // {{{
     matrixComplex value(bandsL, vectorComplex(bandsL, 0e0));
-//    double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];
-//    ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass*5e-1);
-//    ene = 0e0;
-//    for(int i=0; i<bandsL; i++) {
-//        value[i][i] = EL[valley][i] + ene;
-//        for(int j=i+1; j<bandsL; j++) {
-//            for(int axis=0; axis<space_dim; axis++) {
-//                value[i][j] += hbar/angstrom*v0*k[axis]*vL[valley][axis][i][j];
-//                value[j][i] += hbar/angstrom*v0*k[axis]*vL[valley][axis][j][i];
-//            }
-//        }
-//    }
-    double m = (std::abs(EL[valley][2] - EL[valley][0]))*5e-1;
-    double vF = 1e6;
-    double hk= hbar/angstrom*v0;
-    const tensor2Complex sigma = { { {0e0, 1e0}, {1e0, 0e0} },
-                                   { {0e0,- zi}, { zi, 0e0} },
-                                   { {1e0, 0e0}, {0e0,-1e0} } };
-    for(int l=0; l<space_dim; l++) {
-        for(int i=0; i<2; i++) {
-            for(int j=0; j<2; j++) {
-                value[i][2+j] +=  zi*hk*k[l]*sigma[l][i][j];
-                value[2+i][j] += -zi*hk*k[l]*sigma[l][i][j];
+    double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];
+    ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass*5e-1);
+    ene = 0e0;
+    for(int i=0; i<bandsL; i++) {
+        value[i][i] = EL[valley][i] + ene;
+        for(int j=i+1; j<bandsL; j++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                value[i][j] += hbar/angstrom*v0*k[axis]*vL[valley][axis][i][j];
+                value[j][i] += hbar/angstrom*v0*k[axis]*vL[valley][axis][j][i];
             }
         }
     }
-    value[0][0] =  m;
-    value[1][1] =  m;
-    value[2][2] = -m;
-    value[3][3] = -m;
+//    double m = (std::abs(EL[valley][2] - EL[valley][0]))*5e-1;
+//    double vF = 1e6;
+//    double hk= hbar/angstrom*v0;
+//    const tensor2Complex sigma = { { {0e0, 1e0}, {1e0, 0e0} },
+//                                   { {0e0,- zi}, { zi, 0e0} },
+//                                   { {1e0, 0e0}, {0e0,-1e0} } };
+//    for(int l=0; l<space_dim; l++) {
+//        for(int i=0; i<2; i++) {
+//            for(int j=0; j<2; j++) {
+//                value[i][2+j] +=  zi*hk*k[l]*sigma[l][i][j];
+//                value[2+i][j] += -zi*hk*k[l]*sigma[l][i][j];
+//            }
+//        }
+//    }
+//    value[0][0] =  m;
+//    value[1][1] =  m;
+//    value[2][2] = -m;
+//    value[3][3] = -m;
     return value;
 }; // }}}
 
