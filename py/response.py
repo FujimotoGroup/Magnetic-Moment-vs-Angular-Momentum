@@ -75,6 +75,9 @@ axises = {"x":0, "y":1, "z":2}
 e_cutoff = 0.08e0
 k_cutoff = 0.27722e0
 
+cutoff = 0.08
+param = "cutoff"+str(cutoff)+"eV"
+
 # dispersion T point {{{
 fig, ax = plt.subplots(1,3,figsize=(15,7))
 fig.tight_layout()
@@ -141,7 +144,7 @@ for valley in np.arange(1,4):
 # }}}
 
 # dos {{{
-data = data0+'T_'+str(bandsT)+'bands/band_index4/'
+data = data0+'T_'+str(bandsT)+'bands/band_index4/'+param+'/'
 readfile = data+'dos_eps'+label+'.csv'
 d = pd.read_csv(readfile,header=None).values
 dos.append(d)
@@ -199,7 +202,7 @@ plt.close()
 # }}}
 
 # conductivity {{{
-data = data0+'T_'+str(bandsT)+'bands/band_index4/'
+data = data0+'T_'+str(bandsT)+'bands/band_index4/'+param+'/'
 readfile = data+'mu-dependence/conductivity_eps'+label+'.csv'
 df = pd.read_csv(readfile,header=0)
 titles = df.columns.values
@@ -266,7 +269,7 @@ plt.close()
 # }}}
 
 # spin magnetic conductivity1 {{{
-data = data0+'T_'+str(bandsT)+'bands/band_index4/'
+data = data0+'T_'+str(bandsT)+'bands/band_index4/'+param+'/'
 readfile = data+'mu-dependence/spin-magnetic-conductivity1_eps'+label+'.csv'
 df = pd.read_csv(readfile,header=0)
 titles = df.columns.values
@@ -333,7 +336,7 @@ plt.close()
 # }}}
 
 # spin magnetic conductivity2 {{{
-data = data0+'T_'+str(bandsT)+'bands/band_index4/'
+data = data0+'T_'+str(bandsT)+'bands/band_index4/'+param+'/'
 readfile = data+'mu-dependence/spin-magnetic-conductivity2_eps'+label+'.csv'
 d = pd.read_csv(readfile,header=0).values
 conductivity2.append(d)
@@ -444,7 +447,7 @@ conductivity1_valley = []
 conductivity2_valley = []
 
 # spin angular conductivity1 {{{
-data = data0+'T_'+str(bandsT)+'bands/band_index4/'
+data = data0+'T_'+str(bandsT)+'bands/band_index4/'+param+'/'
 readfile = data+'mu-dependence/spin-angular-conductivity1_eps'+label+'.csv'
 df = pd.read_csv(readfile,header=0)
 titles = df.columns.values
@@ -511,7 +514,7 @@ plt.close()
 # }}}
 
 # spin angular conductivity2 {{{
-data = data0+'T_'+str(bandsT)+'bands/band_index4/'
+data = data0+'T_'+str(bandsT)+'bands/band_index4/'+param+'/'
 readfile = data+'mu-dependence/spin-angular-conductivity2_eps'+label+'.csv'
 d = pd.read_csv(readfile,header=0).values
 conductivity2.append(d)

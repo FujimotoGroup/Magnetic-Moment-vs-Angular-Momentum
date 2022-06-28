@@ -7,6 +7,7 @@ from scipy.interpolate import griddata
 import pandas as pd
 import configparser as cnf
 from matplotlib.ticker import ScalarFormatter
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 
 home = "../"
 data0 = "../dat/"
@@ -41,8 +42,11 @@ g_ast    = 2e0*mass*v0**2/(delta*charge)
 
 numeric = config['numeric']
 
+cutoff = 0.1
+param = "cutoff"+str(cutoff)+"eV"
+
 markers = ["o", ",", "D", "v", "^", "<", ">", "s", "p", "1", "2"]
-colors =['k', 'b', 'g', 'r', 'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan', 'navy', 'indigo']
+colors =['k', 'b', 'g', 'r', 'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan', 'navy', 'indigo', '#990099']
 
 n = 1000.0
 mu_range1 = np.linspace((-delta-5e-2)*n, -delta*n, int(n))
@@ -63,10 +67,20 @@ total_spin_magnetic_conductivity2 = []
 total_spin_angular_conductivity1 = []
 total_spin_angular_conductivity2 = []
 
+plot_dict1 = {1:6, 2:16, 3:20}
+plot_dict1_inset = {2:16, 3:20}
+plot_dict2 = {1:12, 2:8, 3:22}
+plot_dict2_inset = {2:8, 3:22}
+plot_dict3 = {1:1, 2:13, 3:5, 4:11}
+plot_dict4a = {0:2, 1:3, 2:4, 3:7, 4:9, 5:10, 6:14, 7:15, 8:17}
+plot_dict4b = {0:18, 1:19, 2:21, 3:23, 4:24, 5:25, 6:26, 7:27}
+
+plot_dict = {1:12, 2:8, 3:20, 4:13}
+
 # L {{{
 for valley in np.arange(1,4):
-    data1 = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index0/'
-    data2 = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index2/'
+    data1 = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index0/'+param+'/'
+    data2 = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index2/'+param+'/'
 
 # dos L {{{
 # 1,1 layout -  {{{
@@ -86,9 +100,9 @@ for valley in np.arange(1,4):
     axes.plot(dos[:,0], dos[:,1])
     axes.legend()
 
-    plt.savefig(png+"dos_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+    plt.savefig(png+"dos_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"dos_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".svg")
+    plt.savefig(svg+"dos_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
     #plt.show()
     plt.close()
 # }}}
@@ -139,9 +153,9 @@ for valley in np.arange(1,4):
     ax_pos = axes[1].get_position()
     fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.1, str_damping)
 
-    plt.savefig(png+"conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+    plt.savefig(png+"conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".svg")
+    plt.savefig(svg+"conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
     #plt.show()
     plt.close()
 # }}}
@@ -169,8 +183,8 @@ for valley in np.arange(1,4):
     window = [-maximun, maximun]
 
 # L spin magnetic conductivity 1 {{{
-# 1,3 layout -  {{{
-    fig, axes = plt.subplots(1,3,figsize=(21,7))
+# 1,4 layout -  {{{
+    fig, axes = plt.subplots(1,4,figsize=(28,7))
     axes = axes.flatten()
 
     for ax in axes:
@@ -181,43 +195,66 @@ for valley in np.arange(1,4):
     axes[0].set_title("off-diagonal 1")
     axes[0].set_xlabel("mu [eV]")
     axes[0].set_ylim(window)
-    plot_lists = [6, 16, 20]
-    i = 0
-    for j in plot_lists:
-        axes[0].scatter(conductivity1[:,0], conductivity1[:,j], s=3, marker=markers[i], edgecolors=colors[i], facecolor='None', label=titles[j])
-        i = i + 1
+    for key, j in plot_dict1.items():
+        axes[0].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[0].legend()
 
     axes[1].set_title("off-diagonal 2")
     axes[1].set_xlabel("mu [eV]")
     axes[1].set_ylim(window)
-    plot_lists = [8, 12, 22]
-    for j in plot_lists:
-        axes[1].scatter(conductivity1[:,0], conductivity1[:,j], s=3, marker=markers[i], edgecolors=colors[i], facecolor='None', label=titles[j])
-        i = i + 1
+    for key, j in plot_dict2.items():
+        axes[1].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[1].legend()
 
-    axes[2].set_title("others")
+    axes[2].set_title("xxx, etc.")
     axes[2].set_xlabel("mu [eV]")
     axes[2].set_ylim(window)
-    plot_lists = [1, 2, 3, 4, 5, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 21, 23, 24, 25, 26, 27]
-    for j in plot_lists:
-        axes[2].scatter(conductivity1[:,0], conductivity1[:,j], s=3, label=titles[j])
+    for key, j in plot_dict3.items():
+        axes[2].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[2].legend()
 
-    ax_pos = axes[2].get_position()
+    left, bottom, width, height = [0.2, 0.05, 0.3, 0.3]
+
+    ax2 = axes[2].inset_axes([left, bottom, width, height])
+    ax2.set_xlim([-cutoff, -cutoff+0.01])
+    ax2.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax2.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    for key, j in plot_dict3.items():
+        ax2.scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
+    axes[2].indicate_inset_zoom(ax2, edgecolor="black")
+
+    axes[3].set_title("others")
+    axes[3].set_xlabel("mu [eV]")
+    axes[3].set_ylim(window)
+    for key, j in plot_dict4a.items():
+        axes[3].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
+    for key, j in plot_dict4b.items():
+        axes[3].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], c=colors[key+len(plot_dict4a)], label=titles[j])
+    axes[3].legend()
+
+    ax3 = axes[3].inset_axes([left, bottom, width, height])
+    ax3.set_xlim([-cutoff, -cutoff+0.01])
+    ax3.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax3.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    for key, j in plot_dict4a.items():
+        ax3.scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
+    for key, j in plot_dict4b.items():
+        axes[3].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], c=colors[key+len(plot_dict4a)], label=titles[j])
+    axes[3].indicate_inset_zoom(ax3, edgecolor="black")
+
+    ax_pos = axes[3].get_position()
     fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-    plt.savefig(png+"spin_magnetic_conductivity1_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+    plt.savefig(png+"spin_magnetic_conductivity1_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"spin_magnetic_conductivity1_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".svg")
+    plt.savefig(svg+"spin_magnetic_conductivity1_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
     #plt.show()
     plt.close()
 # }}}
 # }}}
 # L spin magnetic conductivity 2 {{{
-# 1,3 layout -  {{{
-    fig, axes = plt.subplots(1,3,figsize=(21,7))
+# 1,4 layout -  {{{
+    fig, axes = plt.subplots(1,4,figsize=(28,7))
     axes = axes.flatten()
 
     for ax in axes:
@@ -228,62 +265,95 @@ for valley in np.arange(1,4):
     axes[0].set_title("off-diagonal 1")
     axes[0].set_xlabel("mu [eV]")
     axes[0].set_ylim(window)
-    plot_lists = [6, 16, 20]
-    i = 0
-    for j in plot_lists:
-        axes[0].scatter(conductivity2[:,0], conductivity2[:,j], s=3, marker=markers[i], edgecolors=colors[i], facecolor='None', label=titles[j])
-        i = i + 1
+    for key, j in plot_dict1.items():
+        axes[0].scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[0].legend()
 
     axes[1].set_title("off-diagonal 2")
     axes[1].set_xlabel("mu [eV]")
     axes[1].set_ylim(window)
-    plot_lists = [8, 12, 22]
-    for j in plot_lists:
-        axes[1].scatter(conductivity2[:,0], conductivity2[:,j], s=3, marker=markers[i], edgecolors=colors[i], facecolor='None', label=titles[j])
-        i = i + 1
+    for key, j in plot_dict2.items():
+        axes[1].scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[1].legend()
 
-    axes[2].set_title("others")
+    axes[2].set_title("xxx, etc.")
     axes[2].set_xlabel("mu [eV]")
     axes[2].set_ylim(window)
-    plot_lists = [1, 2, 3, 4, 5, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 21, 23, 24, 25, 26, 27]
-    for j in plot_lists:
-        axes[2].scatter(conductivity2[:,0], conductivity2[:,j], s=1, label=titles[j])
+    for key, j in plot_dict3.items():
+        axes[2].scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[2].legend()
 
-    ax_pos = axes[2].get_position()
+    left, bottom, width, height = [0.4, 0.1, 0.3, 0.3]
+    ax2 = axes[2].inset_axes([left, bottom, width, height])
+    ax2.set_xlim([cutoff-0.01, cutoff])
+    ax2.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax2.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    for key, j in plot_dict3.items():
+        ax2.scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
+    axes[2].indicate_inset_zoom(ax2, edgecolor="black")
+
+    axes[3].set_title("others")
+    axes[3].set_xlabel("mu [eV]")
+    axes[3].set_ylim(window)
+    for key, j in plot_dict4a.items():
+        axes[3].scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
+    for key, j in plot_dict4b.items():
+        axes[3].scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], c=colors[key+len(plot_dict4a)], label=titles[j])
+    axes[3].legend()
+
+    ax_pos = axes[3].get_position()
     fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-    plt.savefig(png+"spin_magnetic_conductivity2_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+    plt.savefig(png+"spin_magnetic_conductivity2_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"spin_magnetic_conductivity2_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".svg")
+    plt.savefig(svg+"spin_magnetic_conductivity2_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
     #plt.show()
     plt.close()
 # }}}
 # }}}
 # L spin magnetic Hall conductivity {{{
-# 1,1 layout -  {{{
-    conductivity3 = conductivity1[:,6] + conductivity2[:,6]
-    fig, axes = plt.subplots(1,1,figsize=(7,7))
+# 1,4 layout -  {{{
+    conductivity3 = conductivity1 + conductivity2
+    conductivity3[:,0] = conductivity1[:,0]
 
-    axes.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-    axes.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+#    maximun = np.abs(conductivity3[:,1:].max()*1.1e0)
+#    window = [-maximun*0.01, maximun]
 
-    axes.set_title("compare")
-    axes.set_xlabel("mu [eV]")
-    axes.set_ylabel("SHC [/Ohm m]")
-    axes.scatter(conductivity1[:,0], conductivity1[:,6], s=2, label="SHC1:"+titles[6])
-    axes.scatter(conductivity2[:,0], conductivity2[:,6], s=2, label="SHC2:"+titles[6])
-    axes.scatter(conductivity1[:,0], conductivity3,      s=2, label="sum :"+titles[6])
-    axes.legend()
+    fig, axes = plt.subplots(1,4,figsize=(28,7))
+    axes = axes.flatten()
 
-    ax_pos = axes.get_position()
-    fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.1, str_damping)
+    axes[0].set_ylabel("SHC [/Ohm m]")
+    for j in np.arange(4):
+        axes[j].set_ylim(window)
+        axes[j].xaxis.set_major_locator(MultipleLocator(0.05))
+        axes[j].xaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
+        axes[j].xaxis.set_minor_locator(MultipleLocator(0.01))
+        axes[j].yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        axes[j].ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+        axes[j].set_xlabel("mu [eV]")
 
-    plt.savefig(png+"spin_magnetic_conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_compare_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+        axes[j].scatter(conductivity1[:,0], conductivity1[:,plot_dict[j+1]], s=7, marker=markers[0], label="SHC1:"+titles[plot_dict[j+1]])
+        axes[j].scatter(conductivity2[:,0], conductivity2[:,plot_dict[j+1]], s=7, marker=markers[1], label="SHC2:"+titles[plot_dict[j+1]])
+        axes[j].scatter(conductivity3[:,0], conductivity3[:,plot_dict[j+1]], s=7, marker=markers[2], label="sum :"+titles[plot_dict[j+1]])
+        axes[j].legend()
+
+    for j in [0, 3]:
+        left, bottom, width, height = [0.1, 0.1, 0.8, 0.35]
+        ax = axes[j].inset_axes([left, bottom, width, height])
+        ax.set_xticks(np.arange(-2,3)*0.05)
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+        ax.scatter(conductivity1[:,0], conductivity1[:,plot_dict[j+1]], s=7, marker=markers[0], label="SHC1:"+titles[plot_dict[j+1]])
+        ax.scatter(conductivity2[:,0], conductivity2[:,plot_dict[j+1]], s=7, marker=markers[1], label="SHC2:"+titles[plot_dict[j+1]])
+        ax.scatter(conductivity3[:,0], conductivity3[:,plot_dict[j+1]], s=7, marker=markers[2], label="sum :"+titles[plot_dict[j+1]])
+        axes[j].indicate_inset_zoom(ax, edgecolor="black")
+
+    ax_pos = axes[3].get_position()
+    fig.text(ax_pos.x1 - 0.1, ax_pos.y1 + 0.01, str_damping)
+
+    plt.savefig(png+"spin_magnetic_conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_compare_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"spin_magnetic_conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_compare_gamma"+label+".svg")
+    plt.savefig(svg+"spin_magnetic_conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_compare_gamma"+label+"_"+param+".svg")
     #plt.show()
     plt.close()
 # }}}
@@ -311,8 +381,8 @@ for valley in np.arange(1,4):
     window = [-maximun, maximun]
 
 # L spin angular conductivity 1 {{{
-# 1,3 layout -  {{{
-    fig, axes = plt.subplots(1,3,figsize=(21,7))
+# 1,4 layout -  {{{
+    fig, axes = plt.subplots(1,4,figsize=(28,7))
     axes = axes.flatten()
 
     for ax in axes:
@@ -323,43 +393,66 @@ for valley in np.arange(1,4):
     axes[0].set_title("off-diagonal 1")
     axes[0].set_xlabel("mu [eV]")
     axes[0].set_ylim(window)
-    plot_lists = [6, 16, 20]
-    i = 0
-    for j in plot_lists:
-        axes[0].scatter(conductivity1[:,0], conductivity1[:,j], s=3, marker=markers[i], edgecolors=colors[i], facecolor='None', label=titles[j])
-        i = i + 1
+    for key, j in plot_dict1.items():
+        axes[0].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[0].legend()
 
     axes[1].set_title("off-diagonal 2")
     axes[1].set_xlabel("mu [eV]")
     axes[1].set_ylim(window)
-    plot_lists = [8, 12, 22]
-    for j in plot_lists:
-        axes[1].scatter(conductivity1[:,0], conductivity1[:,j], s=3, marker=markers[i], edgecolors=colors[i], facecolor='None', label=titles[j])
-        i = i + 1
+    for key, j in plot_dict2.items():
+        axes[1].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[1].legend()
 
-    axes[2].set_title("others")
+    axes[2].set_title("xxx, etc.")
     axes[2].set_xlabel("mu [eV]")
     axes[2].set_ylim(window)
-    plot_lists = [1, 2, 3, 4, 5, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 21, 23, 24, 25, 26, 27]
-    for j in plot_lists:
-        axes[2].scatter(conductivity1[:,0], conductivity1[:,j], s=3, label=titles[j])
+    for key, j in plot_dict3.items():
+        axes[2].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[2].legend()
 
-    ax_pos = axes[2].get_position()
+    left, bottom, width, height = [0.2, 0.05, 0.3, 0.3]
+
+    ax2 = axes[2].inset_axes([left, bottom, width, height])
+    ax2.set_xlim([-cutoff, -cutoff+0.01])
+    ax2.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax2.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    for key, j in plot_dict3.items():
+        ax2.scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
+    axes[2].indicate_inset_zoom(ax2, edgecolor="black")
+
+    axes[3].set_title("others")
+    axes[3].set_xlabel("mu [eV]")
+    axes[3].set_ylim(window)
+    for key, j in plot_dict4a.items():
+        axes[3].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
+    for key, j in plot_dict4b.items():
+        axes[3].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], c=colors[key+len(plot_dict4a)], label=titles[j])
+    axes[3].legend()
+
+    ax3 = axes[3].inset_axes([left, bottom, width, height])
+    ax3.set_xlim([-cutoff, -cutoff+0.01])
+    ax3.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax3.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    for key, j in plot_dict4a.items():
+        ax3.scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
+    for key, j in plot_dict4b.items():
+        axes[3].scatter(conductivity1[:,0], conductivity1[:,j], s=7, marker=markers[key], c=colors[key+len(plot_dict4a)], label=titles[j])
+    axes[3].indicate_inset_zoom(ax3, edgecolor="black")
+
+    ax_pos = axes[3].get_position()
     fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-    plt.savefig(png+"spin_angular_conductivity1_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+    plt.savefig(png+"spin_angular_conductivity1_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"spin_angular_conductivity1_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".svg")
+    plt.savefig(svg+"spin_angular_conductivity1_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
     #plt.show()
     plt.close()
 # }}}
 # }}}
 # L spin angular conductivity 2 {{{
-# 1,3 layout -  {{{
-    fig, axes = plt.subplots(1,3,figsize=(21,7))
+# 1,4 layout -  {{{
+    fig, axes = plt.subplots(1,4,figsize=(28,7))
     axes = axes.flatten()
 
     for ax in axes:
@@ -370,62 +463,95 @@ for valley in np.arange(1,4):
     axes[0].set_title("off-diagonal 1")
     axes[0].set_xlabel("mu [eV]")
     axes[0].set_ylim(window)
-    plot_lists = [6, 16, 20]
-    i = 0
-    for j in plot_lists:
-        axes[0].scatter(conductivity2[:,0], conductivity2[:,j], s=3, marker=markers[i], edgecolors=colors[i], facecolor='None', label=titles[j])
-        i = i + 1
+    for key, j in plot_dict1.items():
+        axes[0].scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[0].legend()
 
     axes[1].set_title("off-diagonal 2")
     axes[1].set_xlabel("mu [eV]")
     axes[1].set_ylim(window)
-    plot_lists = [8, 12, 22]
-    for j in plot_lists:
-        axes[1].scatter(conductivity2[:,0], conductivity2[:,j], s=3, marker=markers[i], edgecolors=colors[i], facecolor='None', label=titles[j])
-        i = i + 1
+    for key, j in plot_dict2.items():
+        axes[1].scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[1].legend()
 
-    axes[2].set_title("others")
+    axes[2].set_title("xxx, etc.")
     axes[2].set_xlabel("mu [eV]")
     axes[2].set_ylim(window)
-    plot_lists = [1, 2, 3, 4, 5, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 21, 23, 24, 25, 26, 27]
-    for j in plot_lists:
-        axes[2].scatter(conductivity2[:,0], conductivity2[:,j], s=1, label=titles[j])
+    for key, j in plot_dict3.items():
+        axes[2].scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
     axes[2].legend()
 
-    ax_pos = axes[2].get_position()
+    left, bottom, width, height = [0.4, 0.1, 0.3, 0.3]
+    ax2 = axes[2].inset_axes([left, bottom, width, height])
+    ax2.set_xlim([cutoff-0.01, cutoff])
+    ax2.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax2.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    for key, j in plot_dict3.items():
+        ax2.scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
+    axes[2].indicate_inset_zoom(ax2, edgecolor="black")
+
+    axes[3].set_title("others")
+    axes[3].set_xlabel("mu [eV]")
+    axes[3].set_ylim(window)
+    for key, j in plot_dict4a.items():
+        axes[3].scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], edgecolors=colors[key], facecolor='None', label=titles[j])
+    for key, j in plot_dict4b.items():
+        axes[3].scatter(conductivity1[:,0], conductivity2[:,j], s=7, marker=markers[key], c=colors[key+len(plot_dict4a)], label=titles[j])
+    axes[3].legend()
+
+    ax_pos = axes[3].get_position()
     fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-    plt.savefig(png+"spin_angular_conductivity2_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+    plt.savefig(png+"spin_angular_conductivity2_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"spin_angular_conductivity2_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+".svg")
+    plt.savefig(svg+"spin_angular_conductivity2_L"+str(valley)+"-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
     #plt.show()
     plt.close()
 # }}}
 # }}}
 # L spin angular Hall conductivity {{{
-# 1,1 layout -  {{{
-    conductivity3 = conductivity1[:,6] + conductivity2[:,6]
-    fig, axes = plt.subplots(1,1,figsize=(7,7))
+# 1,4 layout -  {{{
+    conductivity3 = conductivity1 + conductivity2
+    conductivity3[:,0] = conductivity1[:,0]
 
-    axes.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-    axes.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+#    maximun = np.abs(conductivity3[:,1:].max()*1.1e0)
+#    window = [-maximun*0.01, maximun]
 
-    axes.set_title("compare")
-    axes.set_xlabel("mu [eV]")
-    axes.set_ylabel("SHC [/Ohm m]")
-    axes.scatter(conductivity1[:,0], conductivity1[:,6], s=2, label="SHC1:"+titles[6])
-    axes.scatter(conductivity2[:,0], conductivity2[:,6], s=2, label="SHC2:"+titles[6])
-    axes.scatter(conductivity1[:,0], conductivity3,      s=2, label="sum :"+titles[6])
-    axes.legend()
+    fig, axes = plt.subplots(1,4,figsize=(28,7))
+    axes = axes.flatten()
 
-    ax_pos = axes.get_position()
-    fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.1, str_damping)
+    axes[0].set_ylabel("SHC [/Ohm m]")
+    for j in np.arange(4):
+        axes[j].set_ylim(window)
+        axes[j].xaxis.set_major_locator(MultipleLocator(0.05))
+        axes[j].xaxis.set_major_formatter(FormatStrFormatter('%0.2f'))
+        axes[j].xaxis.set_minor_locator(MultipleLocator(0.01))
+        axes[j].yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        axes[j].ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+        axes[j].set_xlabel("mu [eV]")
 
-    plt.savefig(png+"spin_angular_conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_compare_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+        axes[j].scatter(conductivity1[:,0], conductivity1[:,plot_dict[j+1]], s=7, marker=markers[0], label="SHC1:"+titles[plot_dict[j+1]])
+        axes[j].scatter(conductivity2[:,0], conductivity2[:,plot_dict[j+1]], s=7, marker=markers[1], label="SHC2:"+titles[plot_dict[j+1]])
+        axes[j].scatter(conductivity3[:,0], conductivity3[:,plot_dict[j+1]], s=7, marker=markers[2], label="sum :"+titles[plot_dict[j+1]])
+        axes[j].legend()
+
+    for j in [0, 3]:
+        left, bottom, width, height = [0.1, 0.1, 0.8, 0.35]
+        ax = axes[j].inset_axes([left, bottom, width, height])
+        ax.set_xticks(np.arange(-2,3)*0.05)
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+        ax.scatter(conductivity1[:,0], conductivity1[:,plot_dict[j+1]], s=7, marker=markers[0], label="SHC1:"+titles[plot_dict[j+1]])
+        ax.scatter(conductivity2[:,0], conductivity2[:,plot_dict[j+1]], s=7, marker=markers[1], label="SHC2:"+titles[plot_dict[j+1]])
+        ax.scatter(conductivity3[:,0], conductivity3[:,plot_dict[j+1]], s=7, marker=markers[2], label="sum :"+titles[plot_dict[j+1]])
+        axes[j].indicate_inset_zoom(ax, edgecolor="black")
+
+    ax_pos = axes[3].get_position()
+    fig.text(ax_pos.x1 - 0.1, ax_pos.y1 + 0.01, str_damping)
+
+    plt.savefig(png+"spin_angular_conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_compare_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
     plt.rc("svg", fonttype="none")
-    plt.savefig(svg+"spin_angular_conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_compare_gamma"+label+".svg")
+    plt.savefig(svg+"spin_angular_conductivity_L"+str(valley)+"-"+str(bandsL)+"bands_compare_gamma"+label+"_"+param+".svg")
     #plt.show()
     plt.close()
 # }}}
@@ -457,9 +583,9 @@ axes.scatter(dos[:,0], dos[:,1], s=4, label="numeric")
 axes.plot(dos[:,0], dos[:,1])
 axes.legend()
 
-plt.savefig(png+"dos_L-total-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"dos_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"dos_L-total-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"dos_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
@@ -504,9 +630,9 @@ axes[1].legend()
 ax_pos = axes[1].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.1, str_damping)
 
-plt.savefig(png+"conductivity_L-total-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"conductivity_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"conductivity_L-total-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"conductivity_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
@@ -553,9 +679,9 @@ axes[2].legend()
 ax_pos = axes[2].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-plt.savefig(png+"spin_magnetic_conductivity1_L-total-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"spin_magnetic_conductivity1_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"spin_magnetic_conductivity1_L-total-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"spin_magnetic_conductivity1_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
@@ -600,9 +726,9 @@ axes[2].legend()
 ax_pos = axes[2].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-plt.savefig(png+"spin_magnetic_conductivity2_L-total-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"spin_magnetic_conductivity2_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"spin_magnetic_conductivity2_L-total-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"spin_magnetic_conductivity2_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
@@ -649,9 +775,9 @@ axes[2].legend()
 ax_pos = axes[2].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-plt.savefig(png+"spin_angular_conductivity1_L-total-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"spin_angular_conductivity1_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"spin_angular_conductivity1_L-total-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"spin_angular_conductivity1_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
@@ -696,9 +822,9 @@ axes[2].legend()
 ax_pos = axes[2].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-plt.savefig(png+"spin_angular_conductivity2_L-total-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"spin_angular_conductivity2_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"spin_angular_conductivity2_L-total-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"spin_angular_conductivity2_L-total-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
@@ -740,9 +866,9 @@ axes[3].legend()
 ax_pos = axes[3].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-plt.savefig(png+"conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
@@ -784,9 +910,9 @@ axes[3].legend()
 ax_pos = axes[3].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-plt.savefig(png+"spin_magnetic_conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"spin_magnetic_conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"spin_magnetic_conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"spin_magnetic_conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
@@ -826,9 +952,9 @@ axes[3].legend()
 ax_pos = axes[3].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-plt.savefig(png+"spin_magnetic_conductivity2_L-comparison-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"spin_magnetic_conductivity2_L-comparison-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"spin_magnetic_conductivity2_L-comparison-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"spin_magnetic_conductivity2_L-comparison-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
@@ -870,9 +996,9 @@ axes[3].legend()
 ax_pos = axes[3].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-plt.savefig(png+"spin_angular_conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"spin_angular_conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"spin_angular_conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"spin_angular_conductivity1_L-comparison-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
@@ -912,9 +1038,9 @@ axes[3].legend()
 ax_pos = axes[3].get_position()
 fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_damping)
 
-plt.savefig(png+"spin_angular_conductivity2_L-comparison-"+str(bandsL)+"bands_gamma"+label+".png", bbox_inches = 'tight', dpi=300)
+plt.savefig(png+"spin_angular_conductivity2_L-comparison-"+str(bandsL)+"bands_gamma"+label+"_"+param+".png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
-plt.savefig(svg+"spin_angular_conductivity2_L-comparison-"+str(bandsL)+"bands_gamma"+label+".svg")
+plt.savefig(svg+"spin_angular_conductivity2_L-comparison-"+str(bandsL)+"bands_gamma"+label+"_"+param+".svg")
 #plt.show()
 plt.close()
 # }}}
