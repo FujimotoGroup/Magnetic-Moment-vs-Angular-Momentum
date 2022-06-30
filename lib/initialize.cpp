@@ -395,13 +395,13 @@ void initialize() {
     // }}}
 // }}}
 //  real spin T point {{{
-    int l = lowest_band_T - 1;
-    int n = lowest_band_T + bandsT - 1;
+    l = lowest_band_T - 1;
+    n = lowest_band_T + bandsT - 1;
     real_spin_T.resize(spin_dim);
     for (int axis=0; axis<spin_dim; axis++) {
         matrixComplex v;
         string file_name = "./lib/spin/spin_T_"+axises[axis]+".csv";
-        cout << file_name << endl;
+//        cout << file_name << endl;
         ifstream file(file_name);
         string line;
         while ( getline(file,line) ) {
@@ -420,6 +420,7 @@ void initialize() {
                 real_spin_T[axis][i-l][j-l] = v[i][j];
             }
         }
+    }
 // }}}
     // real spin L points {{{
     l = lowest_band_L - 1;

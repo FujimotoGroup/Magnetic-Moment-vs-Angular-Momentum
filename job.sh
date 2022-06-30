@@ -4,7 +4,7 @@ cmake --build build -j8
 mv main main.$now
 cat << EOF > run.$now
 #!/bin/bash
-#SBATCH -p haku0
+#SBATCH -p haku1
 #SBATCH -n 1
 #SBATCH -c 48
 #SBATCH -J L

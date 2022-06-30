@@ -218,10 +218,10 @@ int main(){
 
 //// T point {{{
 //    int band_index = 4;
-//    mu_cutoff_T = -1.0e-1;
+//    mu_cutoff_T = -1.1e-1;
 //    mu_cutoff_mesh_T = 20;
-//    chemical_potential mu_min =-0.9e-1;
-//    chemical_potential mu_max = 0.9e-1;
+//    chemical_potential mu_min =-1.0e-1;
+//    chemical_potential mu_max = 1.0e-1;
 //    band bT;
 //    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
 //    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
@@ -247,8 +247,8 @@ int main(){
         vectorReal e_max(2, 0e0);
         std::vector<int> e_mesh(2, 0);
 
-        e_min[0] = -0.9e-1;
-        e_max[1] =  0.9e-1;
+        e_min[0] = -1.0e-1;
+        e_max[1] =  1.0e-1;
 
         for(int i=0; i<mu_mesh_L; i++) {
             Energy de = (e_max[1] - e_min[0]) / double(mu_mesh_L);
@@ -282,6 +282,7 @@ int main(){
 // }}}
    }
 // }}}
+
 
     auto calc_end_time = std::chrono::system_clock::now();
     auto dur = calc_end_time - calc_start_time;

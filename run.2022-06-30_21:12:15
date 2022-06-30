@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH -p haku1
+#SBATCH -n 1
+#SBATCH -c 48
+#SBATCH -J L
+#SBATCH -o stdout.%J
+#SBATCH -e stderr.%J
+echo 2022-06-30_21:12:15
+./main.2022-06-30_21:12:15
+RETCODE=$?
+exit ${RETCODE}

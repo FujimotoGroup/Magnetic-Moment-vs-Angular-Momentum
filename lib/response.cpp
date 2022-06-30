@@ -44,11 +44,14 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
         std::vector<Conductivity> sigma_e;
         std::vector<SHC> sigma_m1, sigma_m2;
         std::vector<SHC> sigma_a1, sigma_a2;
+        std::vector<SHC> sigma_r1, sigma_r2;
         sigma_e.resize(b_main.mesh);
         sigma_m1.resize(b_main.mesh);
         sigma_m2.resize(b_main.mesh);
         sigma_a1.resize(b_main.mesh);
         sigma_a2.resize(b_main.mesh);
+        sigma_r1.resize(b_main.mesh);
+        sigma_r2.resize(b_main.mesh);
 
         std::string filename;
 // init dos file {{{
@@ -176,6 +179,56 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
         }
         of_angular_shc22 << std::endl;
 // }}}
+// init real spin Hall conductivity 1 file {{{
+        filename = "dat/"+dir+"/sigma_r1_real_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc11(filename);
+        of_real_shc11 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc11 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc11 << std::endl;
+
+        filename = "dat/"+dir+"/sigma_r1_imag_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc12(filename);
+        of_real_shc12 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc12 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc12 << std::endl;
+// }}}
+// init real spin Hall conductivity 2 file {{{
+        filename = "dat/"+dir+"/sigma_r2_real_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc21(filename);
+        of_real_shc21 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc21 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc21 << std::endl;
+
+        filename = "dat/"+dir+"/sigma_r2_imag_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc22(filename);
+        of_real_shc22 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc22 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc22 << std::endl;
+// }}}
 
         int i_ene;
         for(i_ene=0; i_ene<b_main.mesh; i_ene++) {
@@ -270,6 +323,38 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
             of_angular_shc21 << std::endl;
             of_angular_shc22 << std::endl;
 // }}}
+//
+            sigma_r1[i_ene] = get_real_SHC_T1(b_sum, epsilon, mu);
+// real SHC1 output {{{
+            of_real_shc11 << std::scientific << mu;
+            of_real_shc12 << std::scientific << mu;
+            for( auto e : sigma_r1[i_ene] ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc11 << std::scientific << ", " << s.real();
+                        of_real_shc12 << std::scientific << ", " << s.imag();
+                    }
+                }
+            }
+            of_real_shc11 << std::endl;
+            of_real_shc12 << std::endl;
+// }}}
+
+            sigma_r2[i_ene] = get_real_SHC_T2(b_sum, epsilon, mu);
+// real SHC2 output {{{
+            of_real_shc21 << std::scientific << mu;
+            of_real_shc22 << std::scientific << mu;
+            for( auto e : sigma_r2[i_ene] ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc21 << std::scientific << ", " << s.real();
+                        of_real_shc22 << std::scientific << ", " << s.imag();
+                    }
+                }
+            }
+            of_real_shc21 << std::endl;
+            of_real_shc22 << std::endl;
+// }}}
         }
 
         Conductivity Sigma(space_dim, vectorComplex(space_dim, 0e0));
@@ -277,6 +362,8 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
         SHC magnetic_SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
         SHC angular_SHC1(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
         SHC angular_SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+        SHC real_SHC1(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+        SHC real_SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
 
 // mu dependence @ T = 0 {{{
         dir = dir+"/mu-dependence";
@@ -344,6 +431,32 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
         }
         of_angular_shc2 << std::endl;
 // }}}
+// init real SHC1 file {{{
+        filename = "dat/"+dir+"/real-spin-angular-conductivity1_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc1(filename);
+        of_real_shc1 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc1 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc1 << std::endl;
+// }}}
+// init real SHC2 file {{{
+        filename = "dat/"+dir+"/real-spin-angular-conductivity2_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc2(filename);
+        of_real_shc2 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc2 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc2 << std::endl;
+// }}}
 
         chemical_potential mu;
         for(int i_ene=0; i_ene<b_main.mesh; i_ene++) {
@@ -381,6 +494,18 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
                 }
             }
             of_angular_shc1 << std::endl;
+// }}}
+            real_SHC1 = sigma_r1[i_ene];
+// real SHC1 output {{{
+            of_real_shc1 << std::scientific << mu;
+            for( auto e : real_SHC1 ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc1 << std::scientific << ", " << s.real();
+                    }
+                }
+            }
+            of_real_shc1 << std::endl;
 // }}}
         }
 
@@ -487,6 +612,58 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
                 }
             }
             of_angular_shc2 << std::endl;
+// }}}
+
+        SHC real_SHC2_mu;
+        i_ene = 0;
+            mu = b_main.ene[i_ene];
+// real SHC2 output {{{
+            of_real_shc2 << std::scientific << mu;
+            for( auto e : real_SHC2 ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc2 << std::scientific << ", " << s.real();
+                    }
+                }
+            }
+            of_real_shc2 << std::endl;
+// }}}
+            de = (b_main.ene[i_ene+1] - b_main.ene[i_ene])*5e-1;
+            real_SHC2_mu = times(sigma_r2[i_ene], de);
+            real_SHC2 = add(real_SHC2, real_SHC2_mu);
+        for(int i_ene=1; i_ene<b_main.mesh-1; i_ene++) {
+            mu = b_main.ene[i_ene];
+            de = (b_main.ene[i_ene+1] - b_main.ene[i_ene-1])*2.5e-1;
+            real_SHC2_mu = times(sigma_r2[i_ene], de);
+            real_SHC2 = add(real_SHC2, real_SHC2_mu);
+// real SHC2 output {{{
+            of_real_shc2 << std::scientific << mu;
+            for( auto e : real_SHC2 ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc2 << std::scientific << ", " << s.real();
+                    }
+                }
+            }
+            of_real_shc2 << std::endl;
+// }}}
+            real_SHC2 = add(real_SHC2, real_SHC2_mu);
+        }
+        i_ene = b_main.mesh-1;
+            mu = b_main.ene[i_ene];
+            de = (b_main.ene[i_ene] - b_main.ene[i_ene-1])*5e-1;
+            real_SHC2_mu = times(sigma_r2[i_ene], de);
+            real_SHC2 = add(real_SHC2, real_SHC2_mu);
+// real SHC2 output {{{
+            of_real_shc2 << std::scientific << mu;
+            for( auto e : real_SHC2 ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc2 << std::scientific << ", " << s.real();
+                    }
+                }
+            }
+            of_real_shc2 << std::endl;
 // }}}
     }
 // }}}
@@ -658,6 +835,74 @@ SHC get_angular_SHC_T2(band b, Energy epsilon, chemical_potential mu) { // {{{
 
     return response;
 }; // }}}
+
+SHC get_real_SHC_T1(band b, Energy epsilon, chemical_potential mu) { // {{{
+    SHC response(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+
+    auto fn = [=](int band_index, chemical_potential e, kpoint k) {
+        SHC res(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+        Green_function GR = get_green_function_T(e + epsilon*zi, k);
+        Green_function GA = get_green_function_T(e - epsilon*zi, k);
+        for(int external=0; external<space_dim; external++) {
+//            matrixComplex vGR    = product(vT[external], GR);
+            matrixComplex vGA    = product(vT[external], GA);
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    matrixComplex vsGR   = product(v_spin_T[axis][spin], GR);
+//                    matrixComplex vsGA   = product(v_sigma_T[axis][spin], GA);
+
+//                    res[external][axis][spin] = tr(product(vsGR, vGA)) - 5e-1*(tr(product(vsGR, vGR)) + tr(product(vsGA, vGA)));
+                    res[external][axis][spin] = tr(product(vsGR, vGA));
+                }
+            }
+        }
+        return res;
+    };
+
+    integrate_band_T(fn, response, b, mu);
+
+    double coef = - charge * v0*v0 * hbar / (2e0*pi) / (angstrom*angstrom*angstrom);
+    response = times(response, coef);
+
+    return response;
+}; // }}}
+
+SHC get_real_SHC_T2(band b, Energy epsilon, chemical_potential mu) { // {{{
+    SHC response(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+
+    auto fn = [=](int band_index, chemical_potential mu, kpoint k) {
+        SHC res(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+        Green_function GR = get_green_function_T(mu + epsilon*zi, k);
+        Green_function GA = get_green_function_T(mu - epsilon*zi, k);
+
+        for(int external=0; external<space_dim; external++) {
+            matrixComplex vGR = product(vT[external], GR);
+            matrixComplex vGA = product(vT[external], GA);
+            matrixComplex GRv = product(GR, vT[external]);
+            matrixComplex GAv = product(GA, vT[external]);
+            matrixComplex QR  = minus(GRv, vGR);
+            matrixComplex QA  = minus(GAv, vGA);
+            matrixComplex vR  = product(GR, product(QR, GR));
+            matrixComplex vA  = product(GA, product(QA, GA));
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    matrixComplex R = product(v_spin_T[axis][spin], vR);
+                    matrixComplex A = product(v_spin_T[axis][spin], vA);
+
+                    res[external][axis][spin] = tr(R) - tr(A);
+                }
+            }
+        }
+        return res;
+    };
+
+    integrate_band_T(fn, response, b, mu);
+
+    double coef = - charge * v0*v0 * hbar / (4e0*pi) / (angstrom*angstrom*angstrom);
+    response = times(response, coef);
+
+    return response;
+}; // }}}
 // }}}
 
 // L {{{
@@ -696,11 +941,14 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
         std::vector<Conductivity> sigma_e;
         std::vector<SHC> sigma_m1, sigma_m2;
         std::vector<SHC> sigma_a1, sigma_a2;
+        std::vector<SHC> sigma_r1, sigma_r2;
         sigma_e.resize(b_main.mesh);
         sigma_m1.resize(b_main.mesh);
         sigma_m2.resize(b_main.mesh);
         sigma_a1.resize(b_main.mesh);
         sigma_a2.resize(b_main.mesh);
+        sigma_r1.resize(b_main.mesh);
+        sigma_r2.resize(b_main.mesh);
 
         std::string filename;
 // init dos file {{{
@@ -828,6 +1076,56 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
         }
         of_angular_shc22 << std::endl;
 // }}}
+// init real spin Hall conductivity 1 file {{{
+        filename = "dat/"+dir+"/sigma_r1_real_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc11(filename);
+        of_real_shc11 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc11 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc11 << std::endl;
+
+        filename = "dat/"+dir+"/sigma_r1_imag_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc12(filename);
+        of_real_shc12 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc12 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc12 << std::endl;
+// }}}
+// init real spin Hall conductivity 2 file {{{
+        filename = "dat/"+dir+"/sigma_r2_real_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc21(filename);
+        of_real_shc21 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc21 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc21 << std::endl;
+
+        filename = "dat/"+dir+"/sigma_r2_imag_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc22(filename);
+        of_real_shc22 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc22 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc22 << std::endl;
+// }}}
 
         int i_ene;
         for(i_ene=0; i_ene<b_main.mesh; i_ene++) {
@@ -922,6 +1220,38 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             of_angular_shc21 << std::endl;
             of_angular_shc22 << std::endl;
 // }}}
+//
+            sigma_r1[i_ene] = get_real_SHC_L1(b_sum, epsilon, mu, valley);
+// real SHC1 output {{{
+            of_real_shc11 << std::scientific << mu;
+            of_real_shc12 << std::scientific << mu;
+            for( auto e : sigma_r1[i_ene] ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc11 << std::scientific << ", " << s.real();
+                        of_real_shc12 << std::scientific << ", " << s.imag();
+                    }
+                }
+            }
+            of_real_shc11 << std::endl;
+            of_real_shc12 << std::endl;
+// }}}
+
+            sigma_r2[i_ene] = get_real_SHC_L2(b_sum, epsilon, mu, valley);
+// real SHC2 output {{{
+            of_real_shc21 << std::scientific << mu;
+            of_real_shc22 << std::scientific << mu;
+            for( auto e : sigma_r2[i_ene] ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc21 << std::scientific << ", " << s.real();
+                        of_real_shc22 << std::scientific << ", " << s.imag();
+                    }
+                }
+            }
+            of_real_shc21 << std::endl;
+            of_real_shc22 << std::endl;
+// }}}
 
         }
 
@@ -930,6 +1260,8 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
         SHC magnetic_SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
         SHC angular_SHC1(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
         SHC angular_SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+        SHC real_SHC1(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+        SHC real_SHC2(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
 
 // mu dependence @ T = 0 {{{
         dir = dir+"/mu-dependence";
@@ -997,6 +1329,32 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
         }
         of_angular_shc2 << std::endl;
 // }}}
+// init real SHC1 file {{{
+        filename = "dat/"+dir+"/real-spin-angular-conductivity1_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc1(filename);
+        of_real_shc1 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc1 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc1 << std::endl;
+// }}}
+// init real SHC2 file {{{
+        filename = "dat/"+dir+"/real-spin-angular-conductivity2_eps"+std::to_string(epsilon)+".csv";
+        std::ofstream of_real_shc2(filename);
+        of_real_shc2 << "mu";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    of_real_shc2 << ", " << axises[external]+axises[axis]+axises[spin];
+                }
+            }
+        }
+        of_real_shc2 << std::endl;
+// }}}
 
         chemical_potential mu;
         for(int i_ene=0; i_ene<b_main.mesh; i_ene++) {
@@ -1034,6 +1392,18 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
                 }
             }
             of_angular_shc1 << std::endl;
+// }}}
+            real_SHC1 = sigma_a1[i_ene];
+// real SHC1 output {{{
+            of_real_shc1 << std::scientific << mu;
+            for( auto e : real_SHC1 ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc1 << std::scientific << ", " << s.real();
+                    }
+                }
+            }
+            of_real_shc1 << std::endl;
 // }}}
         }
 
@@ -1140,6 +1510,58 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
                 }
             }
             of_angular_shc2 << std::endl;
+// }}}
+
+        SHC real_SHC2_mu;
+        i_ene = 0;
+            mu = b_main.ene[i_ene];
+// real SHC2 output {{{
+            of_real_shc2 << std::scientific << mu;
+            for( auto e : real_SHC2 ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc2 << std::scientific << ", " << s.real();
+                    }
+                }
+            }
+            of_real_shc2 << std::endl;
+// }}}
+            de = (b_main.ene[i_ene+1] - b_main.ene[i_ene])*5e-1;
+            real_SHC2_mu = times(sigma_r2[i_ene], de);
+            real_SHC2 = add(real_SHC2, real_SHC2_mu);
+        for(int i_ene=1; i_ene<b_main.mesh-1; i_ene++) {
+            mu = b_main.ene[i_ene];
+            de = (b_main.ene[i_ene+1] - b_main.ene[i_ene-1])*2.5e-1;
+            real_SHC2_mu = times(sigma_r2[i_ene], de);
+            real_SHC2 = add(real_SHC2, real_SHC2_mu);
+// real SHC2 output {{{
+            of_real_shc2 << std::scientific << mu;
+            for( auto e : real_SHC2 ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc2 << std::scientific << ", " << s.real();
+                    }
+                }
+            }
+            of_real_shc2 << std::endl;
+// }}}
+            real_SHC2 = add(real_SHC2, real_SHC2_mu);
+        }
+        i_ene = b_main.mesh-1;
+            mu = b_main.ene[i_ene];
+            de = (b_main.ene[i_ene] - b_main.ene[i_ene-1])*5e-1;
+            real_SHC2_mu = times(sigma_r2[i_ene], de);
+            real_SHC2 = add(real_SHC2, real_SHC2_mu);
+// real SHC2 output {{{
+            of_real_shc2 << std::scientific << mu;
+            for( auto e : real_SHC2 ) {
+                for( auto a : e ) {
+                    for( auto s : a ) {
+                        of_real_shc2 << std::scientific << ", " << s.real();
+                    }
+                }
+            }
+            of_real_shc2 << std::endl;
 // }}}
     }
 // }}}
@@ -1296,6 +1718,74 @@ SHC get_angular_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley
                 for(int spin=0; spin<spin_dim; spin++) {
                     matrixComplex R = product(v_sigma_L[valley][axis][spin], vR);
                     matrixComplex A = product(v_sigma_L[valley][axis][spin], vA);
+
+                    res[external][axis][spin] = tr(R) - tr(A);
+                }
+            }
+        }
+        return res;
+    };
+
+    integrate_band_L(fn, response, b, valley, mu);
+
+    double coef = - charge * v0*v0 * hbar / (4e0*pi) / (angstrom*angstrom*angstrom);
+    response = times(response, coef);
+
+    return response;
+}; // }}}
+
+SHC get_real_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley) { // {{{
+    SHC response(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+
+    auto fn = [=](int valley, int band_index, chemical_potential e, kpoint k) {
+        SHC res(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+        Green_function GR = get_green_function_L(e + epsilon*zi, valley, k);
+        Green_function GA = get_green_function_L(e - epsilon*zi, valley, k);
+        for(int external=0; external<space_dim; external++) {
+//            matrixComplex vGR    = product(vL[valley][external], GR);
+            matrixComplex vGA    = product(vL[valley][external], GA);
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    matrixComplex vsGR   = product(v_spin_L[valley][axis][spin], GR);
+//                    matrixComplex vsGA   = product(v_sigma_L[valley][axis][spin], GA);
+
+//                    res[external][axis][spin] = tr(product(vsGR, vGA)) - 5e-1*(tr(product(vsGR, vGR)) + tr(product(vsGA, vGA)));
+                    res[external][axis][spin] = tr(product(vsGR, vGA));
+                }
+            }
+        }
+        return res;
+    };
+
+    integrate_band_L(fn, response, b, valley, mu);
+
+    double coef = - charge * v0*v0 * hbar / (2e0*pi) / (angstrom*angstrom*angstrom);
+    response = times(response, coef);
+
+    return response;
+}; // }}}
+
+SHC get_real_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley) { // {{{
+    SHC response(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+
+    auto fn = [=](int valley, int band_index, chemical_potential mu, kpoint k) {
+        SHC res(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
+        Green_function GR = get_green_function_L(mu + epsilon*zi, valley, k);
+        Green_function GA = get_green_function_L(mu - epsilon*zi, valley, k);
+
+        for(int external=0; external<space_dim; external++) {
+            matrixComplex vGR = product(vL[valley][external], GR);
+            matrixComplex vGA = product(vL[valley][external], GA);
+            matrixComplex GRv = product(GR, vL[valley][external]);
+            matrixComplex GAv = product(GA, vL[valley][external]);
+            matrixComplex QR  = minus(GRv, vGR);
+            matrixComplex QA  = minus(GAv, vGA);
+            matrixComplex vR  = product(GR, product(QR, GR));
+            matrixComplex vA  = product(GA, product(QA, GA));
+            for(int axis=0; axis<space_dim; axis++) {
+                for(int spin=0; spin<spin_dim; spin++) {
+                    matrixComplex R = product(v_spin_L[valley][axis][spin], vR);
+                    matrixComplex A = product(v_spin_L[valley][axis][spin], vA);
 
                     res[external][axis][spin] = tr(R) - tr(A);
                 }
