@@ -73,8 +73,9 @@ fig.text(ax_pos.x1 - 0.15, ax_pos.y1 + 0.05, str_vertex_num)
 plt.savefig(png+"Fermi_surface_T.png", bbox_inches = 'tight', dpi=300)
 plt.rc("svg", fonttype="none")
 plt.savefig(svg+"Fermi_surface_T.svg")
-#plt.show()
+plt.show()
 plt.close()
+exit()
 # }}}
 
 # L1 {{{

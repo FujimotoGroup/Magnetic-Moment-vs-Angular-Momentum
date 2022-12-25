@@ -53,7 +53,7 @@ const double a =  4.5332e0; // angstrom
 const double c = 11.7967e0; // angstrom
 const double g0 = 1.3861e0; // angstrom^-1
 
-const double cutoff = 1e-1*g0;
+const double cutoff = 2e-1*g0;
 double dk[3];
 const int mu_mesh_T = 10;
 const int mu_mesh_L = 160;
@@ -85,12 +85,6 @@ std::vector<std::vector<matrixComplex>> sigma_L;
 
 std::vector<std::vector<matrixComplex>> v_sigma_T;
 std::vector<std::vector<std::vector<matrixComplex>>> v_sigma_L;
-
-std::vector<matrixComplex> real_spin_T;
-std::vector<std::vector<matrixComplex>> real_spin_L;
-
-std::vector<std::vector<matrixComplex>> v_spin_T;
-std::vector<std::vector<std::vector<matrixComplex>>> v_spin_L;
 
 std::mutex mtx;
 
@@ -142,8 +136,8 @@ void initialize() {
 
     }
 // }}}
-//  spin T point {{{
-    real_spin_T.resize(spin_dim);
+//  spin {{{
+    sigma_T.resize(spin_dim);
     for (int axis=0; axis<spin_dim; axis++) {
         matrixComplex v;
         string file_name = "./lib/izaki_Bi_SPH_sigma_data/sig_"+axises[axis]+"_T.dat";
@@ -159,11 +153,11 @@ void initialize() {
             }
             v.push_back(row);
         }
-        real_spin_T[axis].resize(bandsT);
+        sigma_T[axis].resize(bandsT);
         for(int i=l; i<n; i++) {
-            real_spin_T[axis][i-l].resize(bandsT);
+            sigma_T[axis][i-l].resize(bandsT);
             for(int j=l; j<n; j++) {
-                real_spin_T[axis][i-l][j-l] = v[i][j];
+                sigma_T[axis][i-l][j-l] = v[i][j];
             }
         }
     }
@@ -244,10 +238,10 @@ void initialize() {
             }
         }
 // }}}
-// spin L points {{{
-    real_spin_L.resize(valleys);
+// spin {{{
+    sigma_L.resize(valleys);
     for (int valley=0; valley<valleys; valley++) {
-        real_spin_L[valley].resize(spin_dim);
+        sigma_L[valley].resize(spin_dim);
         for (int axis=0; axis<spin_dim; axis++) {
             matrixComplex v;
             string file_name = "./lib/izaki_Bi_SPH_sigma_data/sig_"+axises[axis]+"_L-"+to_string(valley+1)+".dat";
@@ -262,11 +256,11 @@ void initialize() {
                 }
                 v.push_back(row);
             }
-            real_spin_L[valley][axis].resize(bandsL);
+            sigma_L[valley][axis].resize(bandsL);
             for(int i=l; i<n; i++) {
-                real_spin_L[valley][axis][i-l].resize(bandsL);
+                sigma_L[valley][axis][i-l].resize(bandsL);
                 for(int j=l; j<n; j++) {
-                    real_spin_L[valley][axis][i-l][j-l] = v[i][j];
+                    sigma_L[valley][axis][i-l][j-l] = v[i][j];
                 }
             }
         }
@@ -362,47 +356,47 @@ void initialize() {
         }
     }
     // }}}
-    // v_spin_T[axis][spin] {{{
-    v_spin_T.resize(space_dim);
+    // v_sigma_T[axis][spin] {{{
+    v_sigma_T.resize(space_dim);
     for(int axis=0; axis<space_dim; axis++) {
-        v_spin_T[axis].resize(bandsT);
+        v_sigma_T[axis].resize(bandsT);
         for(int spin=0; spin<spin_dim; spin++) {
-            v_spin_T[axis][spin].resize(bandsT);
+            v_sigma_T[axis][spin].resize(bandsT);
             for(int i=0; i<bandsT; i++) {
-                v_spin_T[axis][spin][i].resize(bandsT);
+                v_sigma_T[axis][spin][i].resize(bandsT);
             }
 
             for(int i=0; i<bandsT; i++) {
                 for(int j=0; j<bandsT; j++) {
                     Complex c = 0e0;
                     for(int k=0; k<bandsT; k++) {
-                        c += (vT[axis][i][k]*real_spin_T[spin][k][j] + real_spin_T[spin][i][k]*vT[axis][k][j])*5e-1;
+                        c += (vT[axis][i][k]*sigma_T[spin][k][j] + sigma_T[spin][i][k]*vT[axis][k][j])*5e-1;
                     }
-                    v_spin_T[axis][spin][i][j] = c;
+                    v_sigma_T[axis][spin][i][j] = c;
                 }
             }
         }
     }
     // }}}
-    // v_spin_L[valley][axis][spin] {{{
-    v_spin_L.resize(valleys);
+    // v_sigma_L[valley][axis][spin] {{{
+    v_sigma_L.resize(valleys);
     for(int valley=0; valley<valleys; valley++) {
-        v_spin_L[valley].resize(space_dim);
+        v_sigma_L[valley].resize(space_dim);
         for(int axis=0; axis<space_dim; axis++) {
-            v_spin_L[valley][axis].resize(bandsL);
+            v_sigma_L[valley][axis].resize(bandsL);
             for(int spin=0; spin<spin_dim; spin++) {
-                v_spin_L[valley][axis][spin].resize(bandsL);
+                v_sigma_L[valley][axis][spin].resize(bandsL);
                 for(int i=0; i<bandsL; i++) {
-                    v_spin_L[valley][axis][spin][i].resize(bandsL);
+                    v_sigma_L[valley][axis][spin][i].resize(bandsL);
                 }
 
                 for(int i=0; i<bandsL; i++) {
                     for(int j=0; j<bandsL; j++) {
                         Complex c = 0e0;
                         for(int k=0; k<bandsL; k++) {
-                            c += (vL[valley][axis][i][k]*real_spin_L[valley][spin][k][j] + real_spin_L[valley][spin][i][k]*vL[valley][axis][k][j])*5e-1;
+                            c += (vL[valley][axis][i][k]*sigma_L[valley][spin][k][j] + sigma_L[valley][spin][i][k]*vL[valley][axis][k][j])*5e-1;
                         }
-                        v_spin_L[valley][axis][spin][i][j] = c;
+                        v_sigma_L[valley][axis][spin][i][j] = c;
                     }
                 }
             }

@@ -115,12 +115,6 @@ extern std::vector<std::vector<matrixComplex>> sigma_L;
 extern std::vector<std::vector<matrixComplex>> v_sigma_T;
 extern std::vector<std::vector<std::vector<matrixComplex>>> v_sigma_L;
 
-extern std::vector<matrixComplex> real_spin_T;
-extern std::vector<std::vector<matrixComplex>> real_spin_L;
-
-extern std::vector<std::vector<matrixComplex>> v_spin_T;
-extern std::vector<std::vector<std::vector<matrixComplex>>> v_spin_L;
-
 extern matrixComplex Hamiltonian;
 void initialize();
 void set_isotropic();
@@ -379,11 +373,6 @@ SHC get_angular_SHC_T1(band b, Energy epsilon, chemical_potential mu);
 SHC get_angular_SHC_T2(band b, Energy epsilon, chemical_potential mu);
 SHC get_angular_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley);
 SHC get_angular_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley);
-
-SHC get_real_SHC_T1(band b, Energy epsilon, chemical_potential mu);
-SHC get_real_SHC_T2(band b, Energy epsilon, chemical_potential mu);
-SHC get_real_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley);
-SHC get_real_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley);
 
 Conductivity get_conductivity_T(band b, Energy epsilon, chemical_potential mu);
 Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, int valley);
