@@ -1,0 +1,23 @@
+sig_*_**.dat
+(*：x,y,z, **：計算した対称点)
+
+=== 出力方法 ====
+kp基底に変換後の行列sigx2(1:16,1:16)に対して，
+
+open(80,file='sig_x_**.dat',status='unknown')
+open(81,file='sig_y_**.dat',status='unknown')
+open(82,file='sig_z_**.dat',status='unknown')
+
+do i=1,16
+
+  write(80,*)sigx2(i,:)
+  write(81,*)sigy2(i,:)
+  write(82,*)sigz2(i,:)
+
+end do
+
+=== 確認内容 ===
+１．基底の変換に使用した行列により，Liu_Allenのハミルトニアンが対角化されること
+２．変換の前後共に，それぞれの行列の２乗が単位行列になること．
+３．変換の前後共に，反交換関係が0になること．({sigma_x,sigma_y}={sigma_y,sigma_z}={sigma_z,sigma_x}=0)
+

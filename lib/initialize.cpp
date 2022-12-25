@@ -55,7 +55,7 @@ const double g0 = 1.3861e0; // angstrom^-1
 
 const double cutoff = 1e-1*g0;
 double dk[3];
-const int mu_mesh_T = 160;
+const int mu_mesh_T = 10;
 const int mu_mesh_L = 160;
 const int fermi_surface_mesh_lim = 3000;
 
@@ -115,6 +115,7 @@ void initialize() {
     // T point {{{
     int l = lowest_band_T - 1;
     int n = lowest_band_T + bandsT - 1;
+//  velocity {{{
     vT.resize(space_dim);
     for (int axis=0; axis<space_dim; axis++) {
         matrixComplex v;
@@ -140,7 +141,34 @@ void initialize() {
         }
 
     }
-
+// }}}
+//  spin T point {{{
+    real_spin_T.resize(spin_dim);
+    for (int axis=0; axis<spin_dim; axis++) {
+        matrixComplex v;
+        string file_name = "./lib/izaki_Bi_SPH_sigma_data/sig_"+axises[axis]+"_T.dat";
+//        cout << file_name << endl;
+        ifstream file(file_name);
+        string line;
+        while ( getline(file,line) ) {
+            istringstream stream(line);
+            Complex c;
+            vectorComplex row;
+            while ( stream >> c ) {
+                row.push_back(c);
+            }
+            v.push_back(row);
+        }
+        real_spin_T[axis].resize(bandsT);
+        for(int i=l; i<n; i++) {
+            real_spin_T[axis][i-l].resize(bandsT);
+            for(int j=l; j<n; j++) {
+                real_spin_T[axis][i-l][j-l] = v[i][j];
+            }
+        }
+    }
+// }}}
+// EigenEnergy {{{
     vector<double> e(bands);
     string file_name = "./lib/izaki_Bi_SPH_data/Liu_allen_E_T.dat";
 //    cout << file_name << endl;
@@ -157,7 +185,8 @@ void initialize() {
 //    for (int i=0; i<ET.size(); i++) {
 //        cout << ET[i] << endl;
 //    }
-
+// }}}
+// magnetic moment {{{
     mu_s_T.resize(space_dim);
     for (int spin=0; spin<spin_dim; spin++) {
         matrixComplex v(bands, vectorComplex(bands, 0e0));
@@ -182,11 +211,13 @@ void initialize() {
         }
 
     }
+// }}}
     // }}}
     // L points {{{
     l = lowest_band_L - 1;
     n = lowest_band_L + bandsL - 1;
     vL.resize(valleys);
+// velocity {{{
     mu_s_L.resize(valleys);
     for (int valley=0; valley<valleys; valley++) {
         vL[valley].resize(space_dim);
@@ -212,7 +243,36 @@ void initialize() {
                 }
             }
         }
-
+// }}}
+// spin L points {{{
+    real_spin_L.resize(valleys);
+    for (int valley=0; valley<valleys; valley++) {
+        real_spin_L[valley].resize(spin_dim);
+        for (int axis=0; axis<spin_dim; axis++) {
+            matrixComplex v;
+            string file_name = "./lib/izaki_Bi_SPH_sigma_data/sig_"+axises[axis]+"_L-"+to_string(valley+1)+".dat";
+            ifstream file(file_name);
+            string line;
+            while ( getline(file,line) ) {
+                istringstream stream(line);
+                complex<double> c;
+                vector<complex<double>> row;
+                while ( stream >> c ) {
+                    row.push_back(c);
+                }
+                v.push_back(row);
+            }
+            real_spin_L[valley][axis].resize(bandsL);
+            for(int i=l; i<n; i++) {
+                real_spin_L[valley][axis][i-l].resize(bandsL);
+                for(int j=l; j<n; j++) {
+                    real_spin_L[valley][axis][i-l][j-l] = v[i][j];
+                }
+            }
+        }
+    }
+// }}}
+// EigenEnergy {{{
         vector<double> e(bands);
         string file_name = "./lib/izaki_Bi_SPH_data/Liu_allen_E_L-"+to_string(valley+1)+".dat";
         ifstream file(file_name);
@@ -225,7 +285,8 @@ void initialize() {
             i++;
         }
         EL[valley].assign(&e[lowest_band_L-1], &e[lowest_band_L+bandsL-1]);
-
+// }}}
+// magnetic moment {{{
         mu_s_L[valley].resize(space_dim);
         for (int axis=0; axis<space_dim; axis++) {
             matrixComplex v(bands, vectorComplex(bands, 0e0));
@@ -251,6 +312,7 @@ void initialize() {
 
         }
     }
+// }}}
     // }}}
     // }}}
     // v_s_T[axis][spin] {{{
@@ -295,158 +357,6 @@ void initialize() {
                         }
                         v_s_L[valley][axis][spin][i][j] = c;
                     }
-                }
-            }
-        }
-    }
-    // }}}
-// define sigma_T, sigma_L, v_sigma_T, and v_sigma_L {{{
-    const matrixComplex sigma_x = { {0e0, 1e0}, {1e0, 0e0} };
-    const matrixComplex sigma_y = { {0e0,- zi}, { zi, 0e0} };
-    const matrixComplex sigma_z = { {1e0, 0e0}, {0e0,-1e0} };
-// sigma_T[spin] {{{
-    sigma_T.resize(spin_dim);
-    for (int spin=0; spin<spin_dim; spin++) {
-        sigma_T[spin].resize(bandsT);
-        for(int i=0; i<bandsT; i++) {
-            sigma_T[spin][i].resize(bandsT);
-        }
-    }
-    for(int i=0; i<bandsT; i=i+2) {
-        for(int s1=0; s1<2; s1++) {
-            for(int s2=0; s2<2; s2++) {
-                sigma_T[0][i+s1][i+s2] = sigma_x[s1][s2];
-                sigma_T[1][i+s1][i+s2] = sigma_y[s1][s2];
-                sigma_T[2][i+s1][i+s2] = sigma_z[s1][s2];
-            }
-        }
-    }
-// }}}
-// sigma_L[valley][spin] {{{
-    sigma_L.resize(valleys);
-    for(int valley=0; valley<valleys; valley++) {
-        sigma_L[valley].resize(space_dim);
-        for (int spin=0; spin<spin_dim; spin++) {
-            sigma_L[valley][spin].resize(bandsL);
-            for(int i=0; i<bandsL; i++) {
-                sigma_L[valley][spin][i].resize(bandsL);
-            }
-        }
-    }
-
-    for(int valley=0; valley<valleys; valley++) {
-        for(int i=0; i<bandsL; i=i+2) {
-            for(int s1=0; s1<2; s1++) {
-                for(int s2=0; s2<2; s2++) {
-                    sigma_L[valley][0][i+s1][i+s2] = sigma_x[s1][s2];
-                    sigma_L[valley][1][i+s1][i+s2] = sigma_y[s1][s2];
-                    sigma_L[valley][2][i+s1][i+s2] = sigma_z[s1][s2];
-                }
-            }
-        }
-    }
-// }}}
-    // v_sigma_T[axis][spin] {{{
-    v_sigma_T.resize(space_dim);
-    for(int axis=0; axis<space_dim; axis++) {
-        v_sigma_T[axis].resize(bandsT);
-        for(int spin=0; spin<spin_dim; spin++) {
-            v_sigma_T[axis][spin].resize(bandsT);
-            for(int i=0; i<bandsT; i++) {
-                v_sigma_T[axis][spin][i].resize(bandsT);
-            }
-
-            for(int i=0; i<bandsT; i++) {
-                for(int j=0; j<bandsT; j++) {
-                    Complex c = 0e0;
-                    for(int k=0; k<bandsT; k++) {
-                        c += (vT[axis][i][k]*sigma_T[spin][k][j] + sigma_T[spin][i][k]*vT[axis][k][j])*5e-1;
-                    }
-                    v_sigma_T[axis][spin][i][j] = c;
-                }
-            }
-        }
-    }
-    // }}}
-    // v_sigma_L[valley][axis][spin] {{{
-    v_sigma_L.resize(valleys);
-    for(int valley=0; valley<valleys; valley++) {
-        v_sigma_L[valley].resize(space_dim);
-        for(int axis=0; axis<space_dim; axis++) {
-            v_sigma_L[valley][axis].resize(bandsL);
-            for(int spin=0; spin<spin_dim; spin++) {
-                v_sigma_L[valley][axis][spin].resize(bandsL);
-                for(int i=0; i<bandsL; i++) {
-                    v_sigma_L[valley][axis][spin][i].resize(bandsL);
-                }
-
-                for(int i=0; i<bandsL; i++) {
-                    for(int j=0; j<bandsL; j++) {
-                        Complex c = 0e0;
-                        for(int k=0; k<bandsL; k++) {
-                            c += (vL[valley][axis][i][k]*sigma_L[valley][spin][k][j] + sigma_L[valley][spin][i][k]*vL[valley][axis][k][j])*5e-1;
-                        }
-                        v_sigma_L[valley][axis][spin][i][j] = c;
-                    }
-                }
-            }
-        }
-    }
-    // }}}
-// }}}
-//  real spin T point {{{
-    l = lowest_band_T - 1;
-    n = lowest_band_T + bandsT - 1;
-    real_spin_T.resize(spin_dim);
-    for (int axis=0; axis<spin_dim; axis++) {
-        matrixComplex v;
-        string file_name = "./lib/spin/spin_T_"+axises[axis]+".csv";
-//        cout << file_name << endl;
-        ifstream file(file_name);
-        string line;
-        while ( getline(file,line) ) {
-            istringstream stream(line);
-            Complex c;
-            vectorComplex row;
-            while ( stream >> c ) {
-                row.push_back(c);
-            }
-            v.push_back(row);
-        }
-        real_spin_T[axis].resize(bandsT);
-        for(int i=l; i<n; i++) {
-            real_spin_T[axis][i-l].resize(bandsT);
-            for(int j=l; j<n; j++) {
-                real_spin_T[axis][i-l][j-l] = v[i][j];
-            }
-        }
-    }
-// }}}
-    // real spin L points {{{
-    l = lowest_band_L - 1;
-    n = lowest_band_L + bandsL - 1;
-    real_spin_L.resize(valleys);
-    for (int valley=0; valley<valleys; valley++) {
-        real_spin_L[valley].resize(spin_dim);
-        for (int axis=0; axis<spin_dim; axis++) {
-            matrixComplex v;
-            string file_name = "./lib/spin/spin_L"+to_string(valley+1)+"_"+axises[axis]+".csv";
-            ifstream file(file_name);
-            string line;
-            while ( getline(file,line) ) {
-                istringstream stream(line);
-                complex<double> c;
-                vector<complex<double>> row;
-                while ( stream >> c ) {
-                    row.push_back(c);
-                }
-                v.push_back(row);
-            }
-            real_spin_L[valley][axis].resize(bandsL);
-            for(int i=l; i<n; i++) {
-                real_spin_L[valley][axis][i-l].resize(bandsL);
-                for(int j=l; j<n; j++) {
-                    real_spin_L[valley][axis][i-l][j-l] = v[i][j];
                 }
             }
         }
