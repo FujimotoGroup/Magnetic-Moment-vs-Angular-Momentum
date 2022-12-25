@@ -218,10 +218,10 @@ int main(){
 
 // T point {{{
     int band_index = 4;
-    mu_cutoff_T = -1.1e-1;
+    mu_cutoff_T = -0.10e0;
     mu_cutoff_mesh_T = 20;
-    chemical_potential mu_min =-1.0e-1;
-    chemical_potential mu_max = 1.0e-1;
+    chemical_potential mu_min =-0.08e0;
+    chemical_potential mu_max = 0.08e0;
     band bT;
     bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
     set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
@@ -282,7 +282,7 @@ int main(){
 //// }}}
 //   }
 //// }}}
-//
+
 
     auto calc_end_time = std::chrono::system_clock::now();
     auto dur = calc_end_time - calc_start_time;
