@@ -70,10 +70,23 @@ plot_list_spin_magnetic_conductivity = [ plot_list_magnetic1, plot_list_magnetic
 
 plot_list_sigma = [{5:"yy", 9:"zz"}, {12:"yxz", 8:"xzy"}]
 
+def set_1x1():
+    fig, ax = plt.subplots(1,1,figsize=(figure_size_unit,figure_size_unit))
+    ax.set_xlim([-cutoff, cutoff])
+    ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+    ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+    ax.set_xlabel("$\mu~[\mathrm{eV}]$")
+    ax.grid()
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(xticklabels)
+
+    return fig, ax
+
 def dos_T(params): # dos T {{{
     label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
     label_eps = "{:.6f}".format(params['eps'])
-    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
     readfile = data+'dos_eps'+label_eps+'.csv'
     x = pd.read_csv(readfile,header=None)[0].values
     d = pd.read_csv(readfile,header=None)[1].values
@@ -86,10 +99,11 @@ def dos_T(params): # dos T {{{
         ax.set_xlabel("$\mu~[\mathrm{eV}]$")
         ax.set_ylabel("$\mathrm{DOS}~[/\mathrm{eV m^3}]$")
         ax.grid()
-        ax.plot(x, d, label="T", c="red")
-        ax.legend()
         ax.set_xticks(xticks)
         ax.set_xticklabels(xticklabels)
+
+        ax.scatter(x, d, marker=markers[1], s=70, edgecolors=colors[1], facecolor='None', label="T")
+        ax.legend()
 #        plt.show()
 
         pdf_dir = pdf_base_dir + label_cutoff + "/"
@@ -108,13 +122,15 @@ def dos_L(params): # dos L {{{
     dos_lower = []
     dos_upper = []
     for valley in np.arange(1,4):
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
         readfile = data+'dos_eps'+label_eps+'.csv'
         x_lower = pd.read_csv(readfile,header=None)[0].values
         d_lower = pd.read_csv(readfile,header=None)[1].values
         dos_lower.append(d_lower)
 
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/cutoff'+str(params['cutoff'])+'eV/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
         readfile = data+'dos_eps'+label_eps+'.csv'
         x_upper = pd.read_csv(readfile,header=None)[0].values
         d_upper = pd.read_csv(readfile,header=None)[1].values
@@ -133,8 +149,9 @@ def dos_L(params): # dos L {{{
 
         for valley in np.arange(1,4):
             i = valley - 1
-            ax.plot(x_lower, dos_lower[i], label="L"+str(valley)+"-"+str(lower_band_L))
-            ax.plot(x_upper, dos_upper[i], label="L"+str(valley)+"-"+str(upper_band_L))
+            ax.scatter(x_lower, dos_lower[i], label="L"+str(valley)+"-"+str(lower_band_L) , marker=markers[i], s=70, edgecolors=colors[i], facecolor='None')
+            ax.scatter(x_upper, dos_upper[i], label="L"+str(valley)+"-"+str(upper_band_L) , marker=markers[i+4], s=70, edgecolors=colors[i+4], facecolor='None')
+
 
         ax.legend()
 #        plt.show()
@@ -201,7 +218,8 @@ def electric_conductivity_T(params):# electric conductivity T {{{
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
-    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
     readfile = data+'mu-dependence/conductivity_eps'+label_eps+'.csv'
     df = pd.read_csv(readfile,header=0)
     d = df.values
@@ -269,7 +287,8 @@ def electric_conductivity_L(params):# electric conductivity L {{{
     for valley in np.arange(1,4):
         col = valley - 1
 
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
         readfile = data+'mu-dependence/conductivity_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_lower = df.values
@@ -282,7 +301,8 @@ def electric_conductivity_L(params):# electric conductivity L {{{
             if titles[key].strip() != val:
                 print(titles[key], val)
 
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/cutoff'+str(params['cutoff'])+'eV/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
         readfile = data+'mu-dependence/conductivity_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_upper = df.values
@@ -369,6 +389,54 @@ def electric_conductivity_L(params):# electric conductivity L {{{
     e = conductivity[0][:,0]
     conductivity = conductivity[0] + conductivity[1] + conductivity[2]
     conductivity[:,0] = e
+
+    if params['output']:
+        window_diagonal = [0, 0]
+        window_offdiagonal = [0, 0]
+        for key in plot_list_conductivity_diagonal.keys():
+            window_diagonal[0] = min(window_diagonal[0], conductivity[:,key].min())
+            window_diagonal[1] = max(window_diagonal[1], conductivity[:,key].max())
+
+        window_diagonal = np.array([-window_diagonal[1]*0.02, window_diagonal[1]*1.1])
+        window_offdiagonal = window_diagonal
+        col_num = 2
+        row_num = 1
+        fig, axes = plt.subplots(col_num,row_num,figsize=(figure_size_unit*row_num,figure_size_unit*col_num))
+        axes = axes.T
+
+        for ax in axes:
+            ax.set_xlim([-cutoff, cutoff])
+            ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+            ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
+            ax.grid()
+            ax.set_xticks(xticks)
+            ax.set_xticklabels(xticklabels)
+        axes[1].set_xlabel("$\mu~[\mathrm{eV}]$")
+
+        axes[0].set_ylabel("longitudinal conductivity$\mathrm{~[/\Omega \, m]}$")
+        axes[1].set_ylabel("transverse conductivity  $\mathrm{~[/\Omega \, m]}$")
+
+        i = 0
+        for key, val in plot_list_conductivity_diagonal.items():
+            axes[0].set_ylim(window_diagonal)
+            axes[0].scatter(e, conductivity[:,key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=val)
+            i = i + 1
+
+        for key, val in plot_list_conductivity_offdiagonal.items():
+            axes[1].set_ylim(window_offdiagonal)
+            axes[1].scatter(e, conductivity[:,key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=val)
+            i = i + 1
+
+        axes[0].text(0.05, 0.9, "L sum", bbox=bbox, fontsize="large", transform=axes[0].transAxes)
+
+        for ax in axes:
+            ax.legend(bbox_to_anchor=(1, 1), loc='upper right', borderaxespad=1)
+
+#        plt.show()
+        fig.tight_layout()
+        fig.savefig(pdf_dir+"conductivity_sum_L"+str(bandsL)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
+        plt.clf()
+        plt.close()
 
     return conductivity
 # }}}
@@ -458,7 +526,8 @@ def spin_magnetic_conductivity_T(params, N):# spin magnetic conductivity T {{{
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
-    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
     readfile = data+'mu-dependence/spin-magnetic-conductivity'+str(N)+'_eps'+label_eps+'.csv'
     df = pd.read_csv(readfile,header=0)
     d = df.values
@@ -470,7 +539,11 @@ def spin_magnetic_conductivity_T(params, N):# spin magnetic conductivity T {{{
                 print(titles[key].strip(), val)
 
     if params['output']:
+        pdf_dir = pdf_base_dir + label_cutoff + "/"
+        os.makedirs(pdf_dir, exist_ok=True)
+
         window = []
+        window0 = [0, 0]
         for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
             tmp = [0, 0]
             for key in plot_list.keys():
@@ -478,6 +551,8 @@ def spin_magnetic_conductivity_T(params, N):# spin magnetic conductivity T {{{
                 tmp[1] = max(tmp[1], d[:,key].max())
             tmp = np.array(tmp) * 1.1e0
             window.append(tmp)
+            window0[0] = min(window0[0], tmp[0])
+            window0[1] = max(window0[1], tmp[1])
 
         col_num = 1
         row_num = 5
@@ -495,9 +570,18 @@ def spin_magnetic_conductivity_T(params, N):# spin magnetic conductivity T {{{
 
         for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
             i = 0
+            pdf_dir_tmp = pdf_dir + "individual/"
+            os.makedirs(pdf_dir_tmp, exist_ok=True)
+            fig_tmp, ax_tmp = set_1x1()
             for key, val in plot_list.items():
                 axes[j].set_ylim(window[j])
                 axes[j].scatter(d[:,0], d[:,key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=val)
+
+                ax_tmp.set_ylim(window0)
+                ax_tmp.scatter(d[:,0], d[:,key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=val)
+                ax_tmp.legend()
+                fig_tmp.savefig(pdf_dir_tmp+"spin_magnetic_conductivity"+str(N)+"-"+str(j)+"-"+"_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
+
                 i = i + 1
 
         ax_pos = axes[1].get_position()
@@ -508,16 +592,61 @@ def spin_magnetic_conductivity_T(params, N):# spin magnetic conductivity T {{{
         for ax in axes:
             ax.legend()
 
-        pdf_dir = pdf_base_dir + label_cutoff + "/"
-        os.makedirs(pdf_dir, exist_ok=True)
-
 #        plt.show()
         fig.tight_layout()
-        plt.savefig(pdf_dir+"spin_magnetic_conductivity"+str(N)+"_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
+        fig.savefig(pdf_dir+"spin_magnetic_conductivity"+str(N)+"_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
         #plt.show()
         plt.close()
 
     return d
+# }}}
+def spin_magnetic_conductivity_T_sum(params): # {{{
+    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_eps = "{:.6f}".format(params['eps'])
+    str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
+
+    flag = params['output']
+    params['output'] = False
+
+    sigma = np.array([spin_magnetic_conductivity_T(params, i) for i in [1,2]])
+    e = sigma[0][:,0]
+    sigma = sigma[0] + sigma[1]
+    sigma[:,0] = e
+
+    params['output'] = flag
+
+    if params['output']:
+        pdf_dir = pdf_base_dir + label_cutoff + "/"
+        os.makedirs(pdf_dir, exist_ok=True)
+
+        window = []
+        window0 = [0, 0]
+        for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
+            tmp = [0, 0]
+            for key in plot_list.keys():
+                tmp[0] = min(tmp[0], sigma[key].min())
+                tmp[1] = max(tmp[1], sigma[key].max())
+            tmp = np.array(tmp) * 1.1e0
+            window.append(tmp)
+            window0[0] = min(window0[0], tmp[0])
+            window0[1] = max(window0[1], tmp[1])
+
+        window[2] = window[2]*5e0
+        window[3] = window[3]*10e0
+        window[4] = window[4]*10e0
+
+        for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
+            i = 0
+            pdf_dir_tmp = pdf_dir + "individual/"
+            os.makedirs(pdf_dir_tmp, exist_ok=True)
+            fig_tmp, ax_tmp = set_1x1()
+            for key, val in plot_list.items():
+                ax_tmp.set_ylim(window0)
+                ax_tmp.scatter(sigma[:,0], sigma[:,key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=val)
+                ax_tmp.legend()
+                fig_tmp.savefig(pdf_dir_tmp+"spin_magnetic_conductivity_sum-"+str(j)+"-"+"_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
+                i = i + 1
+
 # }}}
 def spin_magnetic_conductivity_L(params, N):# spin magnetic conductivity L {{{
     label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
@@ -526,7 +655,8 @@ def spin_magnetic_conductivity_L(params, N):# spin magnetic conductivity L {{{
 
     conductivity = []
     for valley in np.arange(1,4):
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
         readfile = data+'mu-dependence/spin-magnetic-conductivity'+str(N)+'_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_lower = df.values
@@ -537,7 +667,8 @@ def spin_magnetic_conductivity_L(params, N):# spin magnetic conductivity L {{{
                 if titles[key].strip() != val:
                     print(titles[key].strip(), val)
 
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/cutoff'+str(params['cutoff'])+'eV/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
         readfile = data+'mu-dependence/spin-magnetic-conductivity'+str(N)+'_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_upper = df.values
@@ -612,6 +743,54 @@ def spin_magnetic_conductivity_L(params, N):# spin magnetic conductivity L {{{
 
     return conductivity
 # }}}
+def spin_magnetic_conductivity_L_sum(params): # {{{
+    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_eps = "{:.6f}".format(params['eps'])
+    str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
+
+    flag = params['output']
+    params['output'] = False
+
+    sigma = np.array([spin_magnetic_conductivity_L(params, i) for i in [1,2]])
+    e = sigma[0][:,0]
+    sigma = sigma[0] + sigma[1]
+    sigma[:,0] = e
+
+    params['output'] = flag
+
+    if params['output']:
+        pdf_dir = pdf_base_dir + label_cutoff + "/"
+        os.makedirs(pdf_dir, exist_ok=True)
+
+        window = []
+        window0 = [0, 0]
+        for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
+            tmp = [0, 0]
+            for key in plot_list.keys():
+                tmp[0] = min(tmp[0], sigma[key].min())
+                tmp[1] = max(tmp[1], sigma[key].max())
+            tmp = np.array(tmp) * 1.1e0
+            window.append(tmp)
+            window0[0] = min(window0[0], tmp[0])
+            window0[1] = max(window0[1], tmp[1])
+
+        window[2] = window[2]*5e0
+        window[3] = window[3]*10e0
+        window[4] = window[4]*10e0
+
+        for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
+            i = 0
+            pdf_dir_tmp = pdf_dir + "individual/"
+            os.makedirs(pdf_dir_tmp, exist_ok=True)
+            fig_tmp, ax_tmp = set_1x1()
+            for key, val in plot_list.items():
+                ax_tmp.set_ylim(window0)
+                ax_tmp.scatter(sigma[:,0], sigma[:,key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=val)
+                ax_tmp.legend()
+                fig_tmp.savefig(pdf_dir_tmp+"spin_magnetic_conductivity_sum-"+str(j)+"-"+"_L"+str(bandsL)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
+                i = i + 1
+
+# }}}
 def spin_magnetic_conductivity(params, N): # individual spin magnetic conductivity {{{
     label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
     label_eps = "{:.6f}".format(params['eps'])
@@ -620,7 +799,7 @@ def spin_magnetic_conductivity(params, N): # individual spin magnetic conductivi
     sigma_T = spin_magnetic_conductivity_T(params, N)
     sigma_L = spin_magnetic_conductivity_L(params, N)
 
-    n = 100
+    n = params['slice']
     e = np.linspace(-params['cutoff'], params['cutoff'], n+1)
     is_T = np.array([interpolate.interp1d(sigma_T[:,0], sigma_T[:,i])(e) for i in np.arange(1,28)])
     is_L = np.array([interpolate.interp1d(sigma_L[:,0], sigma_L[:,i])(e) for i in np.arange(1,28)])
@@ -633,6 +812,9 @@ def spin_magnetic_conductivity(params, N): # individual spin magnetic conductivi
     conductivity = np.array([is_T, is_L, conductivity_total])
 
     if params['output']:
+        pdf_dir = pdf_base_dir + label_cutoff + "/"
+        os.makedirs(pdf_dir, exist_ok=True)
+
         window = []
         for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
             tmp = [0, 0]
@@ -678,12 +860,9 @@ def spin_magnetic_conductivity(params, N): # individual spin magnetic conductivi
         axes[0][0].legend()
         axes[0][1].legend()
 
-        pdf_dir = pdf_base_dir + label_cutoff + "/"
-        os.makedirs(pdf_dir, exist_ok=True)
-
 #        plt.show()
         fig.tight_layout()
-        plt.savefig(pdf_dir+"spin_magnetic_conductivity"+str(N)+"_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
+        fig.savefig(pdf_dir+"spin_magnetic_conductivity"+str(N)+"_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
         plt.close()
 
     return conductivity
@@ -731,7 +910,7 @@ def total_spin_magnetic_conductivity(params): # total spin magnetic conductivity
                 ax.grid()
                 ax.set_xticks(xticks)
                 ax.set_xticklabels(xticklabels)
-        for ax in axes.T[3]:
+        for ax in axes.T[4]:
             ax.set_xlabel("$\mu~[\mathrm{eV}]$")
         for ax in axes[0]:
             ax.set_ylabel("spin conductivity$\mathrm{~[/\Omega \, m]}$")
@@ -755,7 +934,7 @@ def total_spin_magnetic_conductivity(params): # total spin magnetic conductivity
 
 #        plt.show()
         fig.tight_layout()
-        plt.savefig(pdf_dir+"spin_magnetic_conductivity_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
+        fig.savefig(pdf_dir+"spin_magnetic_conductivity_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
         plt.close()
 
     return conductivity
@@ -766,7 +945,8 @@ def spin_angular_conductivity_T(params, N):# spin magnetic conductivity T {{{
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
-    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
     readfile = data+'mu-dependence/spin-angular-conductivity'+str(N)+'_eps'+label_eps+'.csv'
     df = pd.read_csv(readfile,header=0)
     d = df.values
@@ -778,7 +958,11 @@ def spin_angular_conductivity_T(params, N):# spin magnetic conductivity T {{{
                 print(titles[key].strip(), val)
 
     if params['output']:
+        pdf_dir = pdf_base_dir + label_cutoff + "/"
+        os.makedirs(pdf_dir, exist_ok=True)
+
         window = []
+        window0 = [0, 0]
         for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
             tmp = [0, 0]
             for key in plot_list.keys():
@@ -786,6 +970,8 @@ def spin_angular_conductivity_T(params, N):# spin magnetic conductivity T {{{
                 tmp[1] = max(tmp[1], d[:,key].max())
             tmp = np.array(tmp) * 1.1e0
             window.append(tmp)
+            window0[0] = min(window0[0], tmp[0])
+            window0[1] = max(window0[1], tmp[1])
 
         col_num = 1
         row_num = 5
@@ -803,29 +989,82 @@ def spin_angular_conductivity_T(params, N):# spin magnetic conductivity T {{{
 
         for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
             i = 0
+            pdf_dir_tmp = pdf_dir + "individual/"
+            os.makedirs(pdf_dir_tmp, exist_ok=True)
+            fig_tmp, ax_tmp = set_1x1()
             for key, val in plot_list.items():
                 axes[j].set_ylim(window[j])
                 axes[j].scatter(d[:,0], d[:,key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=val)
+
+                ax_tmp.set_ylim(window0)
+                ax_tmp.scatter(d[:,0], d[:,key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=val)
+                ax_tmp.legend()
+                fig_tmp.savefig(pdf_dir_tmp+"spin_angular_conductivity"+str(N)+"-"+str(j)+"-"+"_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
+
                 i = i + 1
 
-        ax_pos = axes[1].get_position()
-        fig.text(ax_pos.x1 - 0.02, ax_pos.y1 + 0.1, str_damping)
+        ax_pos = axes[0].get_position()
+        fig.text(ax_pos.x1 - 0.1, ax_pos.y1 + 0.115, str_damping)
 
 #        axes[0].text(-cutoff*0.9, window[1]*0.93, "T", bbox=bbox, fontsize="large")
 
         for ax in axes:
             ax.legend()
 
-        pdf_dir = pdf_base_dir + label_cutoff + "/"
-        os.makedirs(pdf_dir, exist_ok=True)
-
 #        plt.show()
         fig.tight_layout()
-        plt.savefig(pdf_dir+"spin_angular_conductivity"+str(N)+"_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        #plt.show()
+        fig.savefig(pdf_dir+"spin_angular_conductivity"+str(N)+"_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
         plt.close()
 
     return d
+# }}}
+def spin_angular_conductivity_T_sum(params): # {{{
+    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_eps = "{:.6f}".format(params['eps'])
+    str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
+
+    flag = params['output']
+    params['output'] = False
+
+    sigma = np.array([spin_angular_conductivity_T(params, i) for i in [1,2]])
+    e = sigma[0][:,0]
+    sigma = sigma[0] + sigma[1]
+    sigma[:,0] = e
+
+    params['output'] = flag
+
+    if params['output']:
+        pdf_dir = pdf_base_dir + label_cutoff + "/"
+        os.makedirs(pdf_dir, exist_ok=True)
+
+        window = []
+        window0 = [0, 0]
+        for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
+            tmp = [0, 0]
+            for key in plot_list.keys():
+                tmp[0] = min(tmp[0], sigma[key].min())
+                tmp[1] = max(tmp[1], sigma[key].max())
+            tmp = np.array(tmp) * 1.1e0
+            window.append(tmp)
+            window0[0] = min(window0[0], tmp[0])
+            window0[1] = max(window0[1], tmp[1])
+
+        window[2] = window[2]*5e0
+        window[3] = window[3]*10e0
+        window[4] = window[4]*10e0
+
+        for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
+            i = 0
+            pdf_dir_tmp = pdf_dir + "individual/"
+            os.makedirs(pdf_dir_tmp, exist_ok=True)
+            fig_tmp, ax_tmp = set_1x1()
+            for key, val in plot_list.items():
+                ax_tmp.set_ylim(window0)
+                ax_tmp.scatter(sigma[:,0], sigma[:,key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=val)
+                ax_tmp.legend()
+                fig_tmp.savefig(pdf_dir_tmp+"spin_angular_conductivity_sum-"+str(j)+"-"+"_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
+                i = i + 1
+
 # }}}
 def spin_angular_conductivity_L(params, N):# spin magnetic conductivity L {{{
     label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
@@ -834,7 +1073,8 @@ def spin_angular_conductivity_L(params, N):# spin magnetic conductivity L {{{
 
     conductivity = []
     for valley in np.arange(1,4):
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
         readfile = data+'mu-dependence/spin-angular-conductivity'+str(N)+'_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_lower = df.values
@@ -845,7 +1085,8 @@ def spin_angular_conductivity_L(params, N):# spin magnetic conductivity L {{{
                 if titles[key].strip() != val:
                     print(titles[key].strip(), val)
 
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/cutoff'+str(params['cutoff'])+'eV/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
         readfile = data+'mu-dependence/spin-angular-conductivity'+str(N)+'_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_upper = df.values
@@ -920,15 +1161,63 @@ def spin_angular_conductivity_L(params, N):# spin magnetic conductivity L {{{
 
     return conductivity
 # }}}
+def spin_angular_conductivity_L_sum(params): # {{{
+    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_eps = "{:.6f}".format(params['eps'])
+    str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
+
+    flag = params['output']
+    params['output'] = False
+
+    sigma = np.array([spin_angular_conductivity_L(params, i) for i in [1,2]])
+    e = sigma[0][:,0]
+    sigma = sigma[0] + sigma[1]
+    sigma[:,0] = e
+
+    params['output'] = flag
+
+    if params['output']:
+        pdf_dir = pdf_base_dir + label_cutoff + "/"
+        os.makedirs(pdf_dir, exist_ok=True)
+
+        window = []
+        window0 = [0, 0]
+        for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
+            tmp = [0, 0]
+            for key in plot_list.keys():
+                tmp[0] = min(tmp[0], sigma[key].min())
+                tmp[1] = max(tmp[1], sigma[key].max())
+            tmp = np.array(tmp) * 1.1e0
+            window.append(tmp)
+            window0[0] = min(window0[0], tmp[0])
+            window0[1] = max(window0[1], tmp[1])
+
+        window[2] = window[2]*5e0
+        window[3] = window[3]*10e0
+        window[4] = window[4]*10e0
+
+        for j, plot_list in enumerate(plot_list_spin_magnetic_conductivity):
+            i = 0
+            pdf_dir_tmp = pdf_dir + "individual/"
+            os.makedirs(pdf_dir_tmp, exist_ok=True)
+            fig_tmp, ax_tmp = set_1x1()
+            for key, val in plot_list.items():
+                ax_tmp.set_ylim(window0)
+                ax_tmp.scatter(sigma[:,0], sigma[:,key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=val)
+                ax_tmp.legend()
+                fig_tmp.savefig(pdf_dir_tmp+"spin_angular_conductivity_sum-"+str(j)+"-"+"_L"+str(bandsL)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
+                i = i + 1
+
+# }}}
 def spin_angular_conductivity(params, N): # individual spin magnetic conductivity {{{
     label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
-    sigma_T = spin_magnetic_conductivity_T(params, N)
-    sigma_L = spin_magnetic_conductivity_L(params, N)
+    sigma_T = spin_angular_conductivity_T(params, N)
+    sigma_L = spin_angular_conductivity_L(params, N)
 
-    n = 100
+    n = params['slice']
     e = np.linspace(-params['cutoff'], params['cutoff'], n+1)
     is_T = np.array([interpolate.interp1d(sigma_T[:,0], sigma_T[:,i])(e) for i in np.arange(1,28)])
     is_L = np.array([interpolate.interp1d(sigma_L[:,0], sigma_L[:,i])(e) for i in np.arange(1,28)])
@@ -1002,8 +1291,8 @@ def total_spin_angular_conductivity(params): # total spin magnetic conductivity 
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
-    sigma1 = spin_magnetic_conductivity(params, 1)
-    sigma2 = spin_magnetic_conductivity(params, 2)
+    sigma1 = spin_angular_conductivity(params, 1)
+    sigma2 = spin_angular_conductivity(params, 2)
 
     n = params['slice']
     e = np.linspace(-params['cutoff'], params['cutoff'], n+1)
@@ -1123,12 +1412,14 @@ def cutoff_dependences(params): # {{{
     d = []
     sigma_e = []
     sigma_m = []
+    sigma_a = []
     for c in params['cutoffs']:
         params['cutoff'] = c
 
         d.append(dos(params))
         sigma_e.append(electric_conductivity(params))
         sigma_m.append(total_spin_magnetic_conductivity(params))
+        sigma_a.append(total_spin_angular_conductivity(params))
 
     sigma = [sigma_e, sigma_m]
 
@@ -1190,8 +1481,10 @@ if __name__ == "__main__":
     params['slice'] = 100
     params['cutoffs'] = [0.08, 0.09, 0.1]
     params['cutoffs'] = [0.08]
-#    cutoff_dependences(params)
+    cutoff_dependences(params)
 
     params['cutoff'] = 0.08
-    spin_angular_conductivity_T(params, 1)
-    spin_angular_conductivity_T(params, 2)
+    spin_magnetic_conductivity_T_sum(params)
+    spin_angular_conductivity_T_sum(params)
+    spin_magnetic_conductivity_L_sum(params)
+    spin_angular_conductivity_L_sum(params)
