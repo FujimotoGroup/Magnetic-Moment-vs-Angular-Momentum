@@ -55,7 +55,7 @@ const double g0 = 1.3861e0; // angstrom^-1
 
 const double cutoff = 2e-1*g0;
 double dk[3];
-const int mu_mesh_T = 10;
+const int mu_mesh_T = 160;
 const int mu_mesh_L = 160;
 const int fermi_surface_mesh_lim = 3000;
 

@@ -189,12 +189,9 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
             ofdos << std::scientific << mu << ", " << b_main.dos[i_ene] / (angstrom*angstrom*angstrom) << std::endl;
 // }}}
 
-//            int e_mesh = 47;
-//            double e_cut = 59e0*epsilon;
-//            double power = 9e-1;
-            int e_mesh = 15;
+            int e_mesh = 47;
             double e_cut = 59e0*epsilon;
-            double power = 7e-1;
+            double power = 9e-1;
 
             band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
 
