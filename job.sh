@@ -1,18 +1,17 @@
 #!/bin/bash
-now=$(date "+%Y-%m-%d_%H:%M:%S")
+now=$(date "+%Y-%m-%d_%H%M%S")
+dir="/home/jfujimoto/Work/c++/bismuth"
 cmake --build build -j8
 mv main main.$now
-cat << EOF > run.$now
+cat << EOF > run.$now.sh
 #!/bin/bash
-#SBATCH -p haku1
-#SBATCH -n 1
-#SBATCH -c 48
-#SBATCH -J L
-#SBATCH -o stdout.%J
-#SBATCH -e stderr.%J
+#PBS -j oe
+#PBS -o $now.log
+#PBS -l select=1:ncpus=32
 echo $now
+cd $dir
 ./main.$now
 RETCODE=\$?
 exit \${RETCODE}
 EOF
-sbatch run.$now
+qsub -N bismuth ./run.$now.sh
