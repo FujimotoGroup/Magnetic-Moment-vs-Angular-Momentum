@@ -121,6 +121,11 @@ void set_isotropic();
 matrixComplex set_T(double k[3]);
 matrixComplex set_L(int valley, double k[3]);
 vectorReal diagonalize_N(matrixComplex A);
+struct diag_set {
+    vectorReal values;
+    matrixComplex vectors;
+};
+diag_set diagonalize_V(matrixComplex A);
 
 extern "C" {
     void zheev_ ( const char& JOBZ, const char& UPLO,
@@ -160,6 +165,7 @@ struct triangles {
 };
 
 using Green_function = matrixComplex;
+using Self_energy = matrixComplex;
 using SHC = tensor2Complex;
 using Conductivity = matrixComplex;
 
@@ -169,8 +175,11 @@ velocity get_velocity_T(int band_index, chemical_potential mu, kpoint k);
 fermi_surface get_fermi_surace_L(int valley, int band_index, chemical_potential mu);
 velocity get_velocity_L(int band_index, chemical_potential mu, kpoint k);
 int fermi_surface_write(fermi_surface fs, std::string filename);
+int fermi_surface_write(fermi_surface fs, std::string filename, vectorReal value);
 int triangles_write_T(triangles tri, std::string filename);
+int triangles_write_T(triangles tri, std::string filename, vectorReal values);
 int triangles_write_L(triangles tri, std::string filename, int valley);
+int triangles_write_L(triangles tri, std::string filename, int valley, vectorReal values);
 triangles get_triangles_T(int band_index, chemical_potential mu);
 triangles get_triangles_L(int valley, int band_index, chemical_potential mu);
 
@@ -364,6 +373,13 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
 Green_function get_green_function_T(Complex ene, kpoint k);
 Green_function get_green_function_L(Complex ene, int valley, kpoint k);
 
+Self_energy get_self_energy_born_T(band b, Energy ene, chemical_potential mu, Energy epsilon);
+Self_energy get_self_energy_born_L(band b, Energy ene, int valley, chemical_potential mu, Energy epsilon);
+Green_function get_full_green_function_T(Energy ene, kpoint k, Self_energy se);
+Green_function get_full_green_function_L(Energy ene, int valley, kpoint k, Self_energy se);
+vectorReal get_lifetime_T(int band_index, Self_energy se, triangles tri);
+vectorReal get_lifetime_L(int band_index, Self_energy se, int valley, triangles tri);
+
 SHC get_SHC_T1(band b, Energy epsilon, chemical_potential mu);
 SHC get_SHC_T2(band b, Energy epsilon, chemical_potential mu);
 SHC get_SHC_L1(band b, Energy epsilon, chemical_potential mu, int valley);
@@ -379,4 +395,9 @@ Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, i
 
 void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int band_index);
 void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int valley, int band_index);
+
+Conductivity get_conductivity_at_fs_T(band b, Energy epsilon);
+Conductivity get_conductivity_at_fs_L(band b, Energy epsilon, int valley);
+void set_response_at_fs_T(int band_index);
+void set_response_at_fs_L(int valley, int band_index);
 #endif // PARAMETERS_HPP

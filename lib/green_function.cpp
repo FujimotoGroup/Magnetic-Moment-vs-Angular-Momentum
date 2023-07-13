@@ -81,3 +81,35 @@ Green_function get_green_function_L(Complex ene, int valley, kpoint k) { // {{{
     G = get_inverse(G);
     return G;
 }; // }}}
+
+Green_function get_full_green_function_T(Energy ene, kpoint k, Self_energy se) { // {{{
+    Green_function G(bandsT, vectorComplex(bandsT, 0e0));
+
+    G = set_T(k.vec);
+    for(int i=0; i<bandsT; i++) {
+        G[i][i] = ene - G[i][i] - se[i][i];
+        for(int j=i+1; j<bandsT; j++) {
+            G[i][j] = - G[i][j] - se[i][j];
+            G[j][i] = - G[j][i] - se[j][i];
+        }
+    }
+
+    G = get_inverse(G);
+    return G;
+}; // }}}
+
+Green_function get_full_green_function_L(Energy ene, int valley, kpoint k, Self_energy se) { // {{{
+    Green_function G(bandsL, vectorComplex(bandsL, 0e0));
+
+    G = set_L(valley, k.vec);
+    for(int i=0; i<bandsL; i++) {
+        G[i][i] = ene - G[i][i] - se[i][i];
+        for(int j=i+1; j<bandsL; j++) {
+            G[i][j] = - G[i][j] - se[i][j];
+            G[j][i] = - G[j][i] - se[j][i];
+        }
+    }
+
+    G = get_inverse(G);
+    return G;
+}; // }}}

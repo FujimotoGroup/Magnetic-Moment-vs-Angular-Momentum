@@ -76,16 +76,7 @@ vectorReal diagonalize_N(matrixComplex A) { // {{{
     Complex cwork[4*N];
     double  rwork[4*N];
 
-    zheev_( 'V', 'L', N, (Complex**)U, N, E, cwork, 4*N, rwork, info, 1, 1 );
-
-    for(int i=0; i<N; i++ ){
-        for(int j=i+1; j<N; j++ ){
-            Complex temp;
-            temp = U[i][j];
-            U[i][j] = U[j][i];
-            U[j][i] = temp;
-        }
-    }
+    zheev_( 'N', 'L', N, (Complex**)U, N, E, cwork, 4*N, rwork, info, 1, 1 );
 
     vectorReal res(N);
     for(int i=0; i<N; i++ ){
@@ -93,4 +84,44 @@ vectorReal diagonalize_N(matrixComplex A) { // {{{
     }
 
     return res;
+}; // }}}
+
+diag_set diagonalize_V(matrixComplex A) { // {{{
+    const int N = A.size();
+    Complex H[N][N];
+    Complex U[N][N];
+
+    for(int i=0; i<N; i++ ){
+        for(int j=0; j<N; j++ ){
+            H[i][j] = A[i][j];
+            U[i][j] = A[j][i];
+        }
+    }
+
+    double E[N];
+
+    int info;
+    Complex cwork[4*N];
+    double  rwork[4*N];
+
+    zheev_( 'V', 'L', N, (Complex**)U, N, E, cwork, 4*N, rwork, info, 1, 1 );
+
+    diag_set eigen;
+    eigen.values.resize(N);
+    eigen.vectors.resize(N);
+    for(int i=0; i<N; i++){
+        eigen.vectors[i].resize(N);
+    }
+
+    for(int i=0; i<N; i++){
+        eigen.values[i] = E[i];
+
+        eigen.vectors[i][i] = U[i][i];
+        for(int j=i+1; j<N; j++){
+            eigen.vectors[i][j] = U[j][i];
+            eigen.vectors[j][i] = U[i][j];
+        }
+    }
+
+    return eigen;
 }; // }}}

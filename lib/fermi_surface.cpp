@@ -379,6 +379,79 @@ int triangles_write_T(triangles tri, std::string name) { // {{{
 
     return 0;
 }; // }}}
+
+int triangles_write_T(triangles tri, std::string name, vectorReal values) { // {{{
+    int size = tri.vertexes.size();
+    std::string vertex_name = name+"_vertex.csv";
+    if (size > 0) {
+        std::ofstream ofs(vertex_name);
+        if (!ofs) {
+            std::cout << vertex_name << " cannot be opened." << std::endl;
+            return 1;
+        }
+
+        for (int i=0; i<size; i++) {
+            ofs << std::scientific
+                << kT[0]+tri.vertexes[i].vec[0] << ", "
+                << kT[1]+tri.vertexes[i].vec[1] << ", "
+                << kT[2]+tri.vertexes[i].vec[2] << ", "
+                << tri.normals[i].vec[0] << ", " << tri.normals[i].vec[1] << ", " << tri.normals[i].vec[2] << ", "
+                << values[i]
+                << std::endl;
+        }
+    }
+
+    size = tri.faces.size();
+    std::string face_name = name+"_face.csv";
+    if (size > 0) {
+        std::ofstream ofs(face_name);
+        if (!ofs) {
+            std::cout << face_name << " cannot be opened." << std::endl;
+            return 1;
+        }
+
+        for (int i=0; i<size; i++) {
+            int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+
+//            double norm = 0e0;
+//            for(int axis=0; axis<space_dim; axis++) {
+//                norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
+//            }
+//            norm = NRsqrt(norm);
+
+            ofs << std::scientific
+                << kT[0]+tri.vertexes[v[0]].vec[0] << ", "
+                << kT[1]+tri.vertexes[v[0]].vec[1] << ", "
+                << kT[2]+tri.vertexes[v[0]].vec[2]
+                << std::endl;
+            ofs << std::scientific
+                << kT[0]+tri.vertexes[v[1]].vec[0] << ", "
+                << kT[1]+tri.vertexes[v[1]].vec[1] << ", "
+                << kT[2]+tri.vertexes[v[1]].vec[2]
+                << std::endl;
+            ofs << std::scientific
+                << kT[0]+tri.vertexes[v[2]].vec[0] << ", "
+                << kT[1]+tri.vertexes[v[2]].vec[1] << ", "
+                << kT[2]+tri.vertexes[v[2]].vec[2]
+                << std::endl;
+            ofs << std::scientific
+                << kT[0]+tri.vertexes[v[0]].vec[0] << ", "
+                << kT[1]+tri.vertexes[v[0]].vec[1] << ", "
+                << kT[2]+tri.vertexes[v[0]].vec[2]
+                << std::endl;
+            ofs << ",," << std::endl;
+
+        }
+
+    }
+//    std::string check_name = name+"_check.csv";
+//    std::ofstream oft(check_name);
+//    for (int i=0; i<size; i++) {
+//        oft << std::scientific << i << ", " << tri.faces[i].dS << std::endl;
+//    }
+
+    return 0;
+}; // }}}
 // }}}
 
 // for L points {{{
@@ -701,6 +774,32 @@ int triangles_write(triangles tri, std::string filename) { // {{{
                 << tri.vertexes[v[0]].vec[0] << ", " << tri.vertexes[v[0]].vec[1] << ", " << tri.vertexes[v[0]].vec[2]
                 << std::endl;
             ofs << std::endl;
+        }
+    }
+
+    return 0;
+}; // }}}
+
+int fermi_surface_write(fermi_surface fs, std::string filename, vectorReal value) { // {{{
+    int size = fs.kset.size();
+    if (size != value.size()) {
+        std::cout << value.size() << " does not match " << size << std::endl;
+    }
+
+    if (size > 0) {
+        std::ofstream ofs(filename);
+        if (!ofs) {
+            std::cout << filename << " cannot be opened." << std::endl;
+            return 1;
+        }
+
+        for (int i=0; i<size; i++) {
+            ofs << std::scientific
+                << fs.kset[i].vec[0] << ", " << fs.kset[i].vec[1] << ", " << fs.kset[i].vec[2] << ", "
+                << fs.vset[i].vec[0] << ", " << fs.vset[i].vec[1] << ", " << fs.vset[i].vec[2] << ", "
+                << fs.e
+                << ", " << value[i]
+                << std::endl;
         }
     }
 
