@@ -86,6 +86,9 @@ std::vector<std::vector<matrixComplex>> sigma_L;
 std::vector<std::vector<matrixComplex>> v_sigma_T;
 std::vector<std::vector<std::vector<matrixComplex>>> v_sigma_L;
 
+matrixComplex impurityV1_T, impurityV2_T;
+std::vector<matrixComplex> impurityV1_L, impurityV2_L;
+
 std::mutex mtx;
 
 void initialize() {
@@ -203,9 +206,52 @@ void initialize() {
                 mu_s_T[spin][i-l][j-l] = v[i][j] / muB * muBeV;
             }
         }
-
     }
 // }}}
+    { // impurity potential 1 {{{
+    matrixComplex v(bands, vectorComplex(bands, 0e0));
+    string file_name = "./lib/izaki_Bi_SPH_I8/check_I81_T.dat";
+//    cout << file_name << endl;
+    ifstream file(file_name);
+    string line;
+    while ( getline(file,line) ) {
+        istringstream stream(line);
+        int i1, i2;
+        Complex c;
+        stream >> i1 >> i2 >> c;
+//        std::cout << i1 << ", " << i2 << ", " << c << std::endl;
+        v[i1-1][i2-1] = c;
+    }
+    impurityV1_T.resize(bandsT);
+    for(int i=l; i<n; i++) {
+        impurityV1_T[i-l].resize(bandsT);
+        for(int j=l; j<n; j++) {
+            impurityV1_T[i-l][j-l] = v[i][j];
+        }
+    }
+    } // }}}
+    { // impurity potential 2 {{{
+    matrixComplex v(bands, vectorComplex(bands, 0e0));
+    string file_name = "./lib/izaki_Bi_SPH_I8/check_I82_T.dat";
+//    cout << file_name << endl;
+    ifstream file(file_name);
+    string line;
+    while ( getline(file,line) ) {
+        istringstream stream(line);
+        int i1, i2;
+        Complex c;
+        stream >> i1 >> i2 >> c;
+//        std::cout << i1 << ", " << i2 << ", " << c << std::endl;
+        v[i1-1][i2-1] = c;
+    }
+    impurityV2_T.resize(bandsT);
+    for(int i=l; i<n; i++) {
+        impurityV2_T[i-l].resize(bandsT);
+        for(int j=l; j<n; j++) {
+            impurityV2_T[i-l][j-l] = v[i][j];
+        }
+    }
+    } // }}}
     // }}}
     // L points {{{
     l = lowest_band_L - 1;
@@ -307,6 +353,56 @@ void initialize() {
         }
     }
 // }}}
+    impurityV1_L.resize(valleys);
+    { // impurity potential 1 {{{
+    for (int valley=0; valley<valleys; valley++) {
+        matrixComplex v(bands, vectorComplex(bands, 0e0));
+        string file_name = "./lib/izaki_Bi_SPH_I8/check_I81_L-"+to_string(valley+1)+".dat";
+//        cout << file_name << endl;
+        ifstream file(file_name);
+        string line;
+        while ( getline(file,line) ) {
+            istringstream stream(line);
+            int i1, i2;
+            Complex c;
+            stream >> i1 >> i2 >> c;
+//            std::cout << i1 << ", " << i2 << ", " << c << std::endl;
+            v[i1-1][i2-1] = c;
+        }
+        impurityV1_L[valley].resize(bandsL);
+        for(int i=l; i<n; i++) {
+            impurityV1_L[valley][i-l].resize(bandsL);
+            for(int j=l; j<n; j++) {
+                impurityV1_L[valley][i-l][j-l] = v[i][j];
+            }
+        }
+    }
+    } // }}}
+    impurityV2_L.resize(valleys);
+    { // impurity potential 2 {{{
+    for (int valley=0; valley<valleys; valley++) {
+        matrixComplex v(bands, vectorComplex(bands, 0e0));
+        string file_name = "./lib/izaki_Bi_SPH_I8/check_I82_L-"+to_string(valley+1)+".dat";
+//        cout << file_name << endl;
+        ifstream file(file_name);
+        string line;
+        while ( getline(file,line) ) {
+            istringstream stream(line);
+            int i1, i2;
+            Complex c;
+            stream >> i1 >> i2 >> c;
+//            std::cout << i1 << ", " << i2 << ", " << c << std::endl;
+            v[i1-1][i2-1] = c;
+        }
+        impurityV2_L[valley].resize(bandsL);
+        for(int i=l; i<n; i++) {
+            impurityV2_L[valley][i-l].resize(bandsL);
+            for(int j=l; j<n; j++) {
+                impurityV2_L[valley][i-l][j-l] = v[i][j];
+            }
+        }
+    }
+    } // }}}
     // }}}
     // }}}
     // v_s_T[axis][spin] {{{

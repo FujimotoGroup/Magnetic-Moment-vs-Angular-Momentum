@@ -115,6 +115,11 @@ extern std::vector<std::vector<matrixComplex>> sigma_L;
 extern std::vector<std::vector<matrixComplex>> v_sigma_T;
 extern std::vector<std::vector<std::vector<matrixComplex>>> v_sigma_L;
 
+extern matrixComplex impurityV1_T;
+extern matrixComplex impurityV2_T;
+extern std::vector<matrixComplex> impurityV1_L;
+extern std::vector<matrixComplex> impurityV2_L;
+
 extern matrixComplex Hamiltonian;
 void initialize();
 void set_isotropic();
