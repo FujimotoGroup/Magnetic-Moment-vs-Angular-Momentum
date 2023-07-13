@@ -1,0 +1,19 @@
+check_*_**.dat
+(*：I81 or I82, **：計算した対称点)
+I81：2.6式のV1, I82：2.6式のV2
+
+=== 出力方法 ====
+kp基底に変換後の行列I81(1:16,1:16)に対して，
+open(84,file='check_I81_**.dat',status='unknown')
+open(85,file='check_I82_**.dat',status='unknown')
+
+do i=1,no
+do j=1,no
+   write(84,*) i,j, I81(i,j)
+   write(85,*) i,j, I82(i,j)
+end do
+end do
+
+=== 確認内容 ===
+１．変換後のI81とI82の和をとると単位行列になる
+
