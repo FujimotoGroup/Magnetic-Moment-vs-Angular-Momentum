@@ -750,9 +750,9 @@ int triangles_write_L(triangles tri, std::string name, int valley, vectorReal va
 
         for (int i=0; i<size; i++) {
             ofs << std::scientific
-                << kT[0]+tri.vertexes[i].vec[0] << ", "
-                << kT[1]+tri.vertexes[i].vec[1] << ", "
-                << kT[2]+tri.vertexes[i].vec[2] << ", "
+                << kL[valley][0]+tri.vertexes[i].vec[0] << ", "
+                << kL[valley][1]+tri.vertexes[i].vec[1] << ", "
+                << kL[valley][2]+tri.vertexes[i].vec[2] << ", "
                 << tri.normals[i].vec[0] << ", " << tri.normals[i].vec[1] << ", " << tri.normals[i].vec[2] << ", "
                 << values[i]
                 << std::endl;
@@ -778,24 +778,24 @@ int triangles_write_L(triangles tri, std::string name, int valley, vectorReal va
 //            norm = NRsqrt(norm);
 
             ofs << std::scientific
-                << kT[0]+tri.vertexes[v[0]].vec[0] << ", "
-                << kT[1]+tri.vertexes[v[0]].vec[1] << ", "
-                << kT[2]+tri.vertexes[v[0]].vec[2]
+                << kL[valley][0]+tri.vertexes[v[0]].vec[0] << ", "
+                << kL[valley][1]+tri.vertexes[v[0]].vec[1] << ", "
+                << kL[valley][2]+tri.vertexes[v[0]].vec[2]
                 << std::endl;
             ofs << std::scientific
-                << kT[0]+tri.vertexes[v[1]].vec[0] << ", "
-                << kT[1]+tri.vertexes[v[1]].vec[1] << ", "
-                << kT[2]+tri.vertexes[v[1]].vec[2]
+                << kL[valley][0]+tri.vertexes[v[1]].vec[0] << ", "
+                << kL[valley][1]+tri.vertexes[v[1]].vec[1] << ", "
+                << kL[valley][2]+tri.vertexes[v[1]].vec[2]
                 << std::endl;
             ofs << std::scientific
-                << kT[0]+tri.vertexes[v[2]].vec[0] << ", "
-                << kT[1]+tri.vertexes[v[2]].vec[1] << ", "
-                << kT[2]+tri.vertexes[v[2]].vec[2]
+                << kL[valley][0]+tri.vertexes[v[2]].vec[0] << ", "
+                << kL[valley][1]+tri.vertexes[v[2]].vec[1] << ", "
+                << kL[valley][2]+tri.vertexes[v[2]].vec[2]
                 << std::endl;
             ofs << std::scientific
-                << kT[0]+tri.vertexes[v[0]].vec[0] << ", "
-                << kT[1]+tri.vertexes[v[0]].vec[1] << ", "
-                << kT[2]+tri.vertexes[v[0]].vec[2]
+                << kL[valley][0]+tri.vertexes[v[0]].vec[0] << ", "
+                << kL[valley][1]+tri.vertexes[v[0]].vec[1] << ", "
+                << kL[valley][2]+tri.vertexes[v[0]].vec[2]
                 << std::endl;
             ofs << ",," << std::endl;
 

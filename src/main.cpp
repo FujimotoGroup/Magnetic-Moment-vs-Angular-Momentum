@@ -282,24 +282,24 @@ int main(){
 //// }}}
 //   }
 //// }}}
-
-// T point {{{
-    int band_index = 4;
-    Energy epsilon = 1e-5; // [eV]
-    chemical_potential mu = 0e0;
-    int e_mesh = 47;
-    double e_cut = 59e0*epsilon;
-    double power = 9e-1;
-
-    band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
-    Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon);
-    se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
-
-    vectorReal lifetime = get_lifetime_T(band_index, se, bT.tri[e_mesh]);
-    std::string name = "./dat/lifetime_T-mu0e0";
-    triangles_write_T(bT.tri[e_mesh], name, lifetime);
-// }}}
-
+//
+//// T point {{{
+//    int band_index = 4;
+//    Energy epsilon = 1e-5; // [eV]
+//    chemical_potential mu = 0e0;
+//    int e_mesh = 47;
+//    double e_cut = 59e0*epsilon;
+//    double power = 9e-1;
+//
+//    band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
+//    Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon);
+//    se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
+//
+//    vectorReal lifetime = get_lifetime_T(band_index, se, bT.tri[e_mesh]);
+//    std::string name = "./dat/lifetime_T-mu0e0";
+//    triangles_write_T(bT.tri[e_mesh], name, lifetime);
+//// }}}
+//
 // L points {{{
     int num_band[2];
     if (bandsL == 4) { // for 4bands
@@ -325,7 +325,8 @@ int main(){
         int band_index = num_band[1];
         band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
         Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon);
-        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
+//        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
+        se = product(impurityV1_L[valley], product(se, impurityV1_L[valley]));
 
         vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
         std::string name = "./dat/lifetime_L"+std::to_string(valley+1)+"-mu0e0";
