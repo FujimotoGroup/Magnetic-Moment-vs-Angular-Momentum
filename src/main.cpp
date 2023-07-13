@@ -4,6 +4,7 @@ int main(){
     auto calc_start_time = std::chrono::system_clock::now();
     initialize();
 
+
 //  output config.ini {{{
     {
     std::string file_name = "./config.ini";
@@ -330,7 +331,7 @@ int main(){
 
         vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
         std::string name = "./dat/lifetime_L"+std::to_string(valley+1)+"-mu0e0";
-        triangles_write_T(bL.tri[e_mesh], name, lifetime);
+        triangles_write_L(bL.tri[e_mesh], name, valley, lifetime);
    }
 // }}}
 
