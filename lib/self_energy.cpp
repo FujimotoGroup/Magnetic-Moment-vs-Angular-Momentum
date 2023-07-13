@@ -67,9 +67,8 @@ vectorReal get_lifetime_T(int band_index, Self_energy se, triangles tri) { // {{
                 tau = tau + std::conj(U[j])*se[j][l]*U[l];
             }
         }
-        std::cout << tau << std::endl;
 
-        lifetime[i] = tau.real();
+        lifetime[i] = - tau.imag();
     }
 
     return lifetime;

@@ -444,6 +444,23 @@ int triangles_write_T(triangles tri, std::string name, vectorReal values) { // {
         }
 
     }
+
+    size = tri.faces.size();
+    std::string tri_name = name+"_tri.csv";
+    if (size > 0) {
+        std::ofstream ofs(tri_name);
+        if (!ofs) {
+            std::cout << tri_name << " cannot be opened." << std::endl;
+            return 1;
+        }
+
+        for (int i=0; i<size; i++) {
+            int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
+
+            ofs << v[0] << ", " << v[1] << ", " << v[2] << std::endl;
+        }
+
+    }
 //    std::string check_name = name+"_check.csv";
 //    std::ofstream oft(check_name);
 //    for (int i=0; i<size; i++) {

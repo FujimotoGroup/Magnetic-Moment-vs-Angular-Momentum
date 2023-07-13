@@ -228,10 +228,10 @@ int main(){
 
     Energy epsilon = 1e-4; // [eV]
     chemical_potential mu = 0e0;
-//    int e_mesh = 47;
-//    double e_cut = 59e0*epsilon;
-    int e_mesh = 3;
-    double e_cut = 10e0*epsilon;
+    int e_mesh = 47;
+    double e_cut = 59e0*epsilon;
+//    int e_mesh = 3;
+//    double e_cut = 10e0*epsilon;
     double power = 9e-1;
 
     band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
