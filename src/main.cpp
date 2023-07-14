@@ -283,73 +283,73 @@ int main(){
 //// }}}
 //   }
 //// }}}
-
-// T point {{{
-    int band_index = 4;
-    Energy epsilon = 1e-5; // [eV]
-    chemical_potential mu = 0e0;
-    int e_mesh = 47;
-    double e_cut = 59e0*epsilon;
-    double power = 9e-1;
-
-    band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
-    Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon);
-    se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
-
-    vectorReal lifetime = get_lifetime_T(band_index, se, bT.tri[e_mesh]);
-    std::string name = "./dat/lifetime_T-mu0e0";
-    triangles_write_T(bT.tri[e_mesh], name, lifetime);
-// }}}
 //
-//// L points {{{
-//    int num_band[2];
-//    if (bandsL == 4) { // for 4bands
-//        num_band[0] = 0;
-//        num_band[1] = 2;
-//    } else if (bandsL == 8) { // for 8bands
-//        num_band[0] = 4;
-//        num_band[1] = 6;
-//    } else if (bandsL == 12) { // for 12bands
-//        num_band[0] = 4;
-//        num_band[1] = 6;
-//    } else {
-//        std::cerr << "'bandsL' should be 4, 8, 12" << std::endl;
-//        exit(0);
-//    }
-//    for(int valley=0; valley<valleys; valley++) {
-////        for (auto v: impurityV1_L[valley]) {
-////            for (auto c: v) {
-////                std::cout << std::fixed << std::setw(7) << c << ", ";
-////            }
-////            std::cout << std::endl;
-////        }
-////
-////            std::cout << std::endl;
-////
-////        for (auto v: impurityV2_L[valley]) {
-////            for (auto c: v) {
-////                std::cout << c << ", ";
-////            }
-////            std::cout << std::endl;
-////        }
+//// T point {{{
+//    int band_index = 4;
+//    Energy epsilon = 1e-5; // [eV]
+//    chemical_potential mu = 0e0;
+//    int e_mesh = 47;
+//    double e_cut = 59e0*epsilon;
+//    double power = 9e-1;
 //
-//        Energy epsilon = 1e-5; // [eV]
-//        chemical_potential mu = 0e0;
-//        int e_mesh = 47;
-//        double e_cut = 59e0*epsilon;
-//        double power = 9e-1;
+//    band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
+//    Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon);
+//    se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
 //
-//        int band_index = num_band[1];
-//        band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
-//        Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon);
-//        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
-//
-//        vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
-//        std::string name = "./dat/lifetime_L"+std::to_string(valley+1)+"-mu0e0";
-//        triangles_write_L(bL.tri[e_mesh], name, valley, lifetime);
-//   }
+//    vectorReal lifetime = get_lifetime_T(band_index, se, bT.tri[e_mesh]);
+//    std::string name = "./dat/lifetime_T-mu0e0";
+//    triangles_write_T(bT.tri[e_mesh], name, lifetime);
 //// }}}
 //
+// L points {{{
+    int num_band[2];
+    if (bandsL == 4) { // for 4bands
+        num_band[0] = 0;
+        num_band[1] = 2;
+    } else if (bandsL == 8) { // for 8bands
+        num_band[0] = 4;
+        num_band[1] = 6;
+    } else if (bandsL == 12) { // for 12bands
+        num_band[0] = 4;
+        num_band[1] = 6;
+    } else {
+        std::cerr << "'bandsL' should be 4, 8, 12" << std::endl;
+        exit(0);
+    }
+    for(int valley=0; valley<valleys; valley++) {
+//        for (auto v: impurityV1_L[valley]) {
+//            for (auto c: v) {
+//                std::cout << std::fixed << std::setw(7) << c << ", ";
+//            }
+//            std::cout << std::endl;
+//        }
+//
+//            std::cout << std::endl;
+//
+//        for (auto v: impurityV2_L[valley]) {
+//            for (auto c: v) {
+//                std::cout << c << ", ";
+//            }
+//            std::cout << std::endl;
+//        }
+
+        Energy epsilon = 1e-5; // [eV]
+        chemical_potential mu = 0e0;
+        int e_mesh = 47;
+        double e_cut = 59e0*epsilon;
+        double power = 9e-1;
+
+        int band_index = num_band[1];
+        band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
+        Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon);
+        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
+
+        vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
+        std::string name = "./dat/lifetime_L"+std::to_string(valley+1)+"-mu0e0";
+        triangles_write_L(bL.tri[e_mesh], name, valley, lifetime);
+   }
+// }}}
+
     auto calc_end_time = std::chrono::system_clock::now();
     auto dur = calc_end_time - calc_start_time;
     auto calc_h = std::chrono::duration_cast<std::chrono::hours>(dur);
