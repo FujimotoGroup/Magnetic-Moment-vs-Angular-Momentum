@@ -267,8 +267,8 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
                 for(int axis=0; axis<space_dim; axis++) {
                     norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
                 }
-                norm = std::sqrt(norm);
-                double dS = tri.faces[i].dS / norm;
+                norm = std::sqrt(1e0/norm);
+                double dS = tri.faces[i].dS * norm;
                 N c = times(fn(valley, band_index, mu, center), dS);
                 part = add(part, c);
             }
