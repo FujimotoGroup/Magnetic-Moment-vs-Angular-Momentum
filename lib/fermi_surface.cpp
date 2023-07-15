@@ -680,9 +680,9 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         double epsilon = 1e-12;
         for(int i=0; i<2; i++) {
             double p = double(2*i-1);
-            kpoint kp = {0e0, 0e0, 0e0};
+            kpoint kp;
             for(int axis=0; axis<space_dim; axis++) {
-                kp.vec[axis] += vec_n.vec[axis]*epsilon*p;
+                kp.vec[axis] = center.vec[axis] + vec_n.vec[axis]*epsilon*p;
             }
             double ene = get_E_L(valley, band_index, kp);
             tri.gradient[i] += ene*p;
