@@ -167,6 +167,7 @@ struct triangles {
     std::vector<vector3> vertexes;
     std::vector<vector3> normals;
     std::vector<face> faces;
+    vectorReal gradient;
 };
 
 using Green_function = matrixComplex;
@@ -264,10 +265,11 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
             for(int i=i_thread; i<size; i=i+thread_num) {
                 kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
                 double norm = 0e0;
-                for(int axis=0; axis<space_dim; axis++) {
-                    norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
-                }
-                norm = std::sqrt(1e0/norm);
+//                for(int axis=0; axis<space_dim; axis++) {
+//                    norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
+//                }
+//                norm = std::sqrt(1e0/norm);
+                norm = 1e0 / tri.gradient[i];
                 double dS = tri.faces[i].dS * norm;
                 N c = times(fn(valley, band_index, mu, center), dS);
                 part = add(part, c);

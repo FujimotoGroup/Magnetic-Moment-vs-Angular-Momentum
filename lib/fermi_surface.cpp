@@ -638,6 +638,8 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
     }
 
     size = tri.faces.size();
+
+    tri.gradient.resize(size);
     for (int i=0; i<size; i++) {
         int v[3] = {tri.faces[i].face[0], tri.faces[i].face[1], tri.faces[i].face[2]};
         vector3 k1 = tri.vertexes[v[0]];
@@ -654,6 +656,38 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
             tri.faces[i].normal[axis] = normal.vec[axis];
         }
         tri.faces[i].dS = get_dS(k1, k2, k3);
+
+        vector3 k_a, k_b;
+        for(int axis=0; axis<space_dim; axis++) {
+            k_a.vec[axis] = k2.vec[axis] - center.vec[axis];
+            k_b.vec[axis] = k3.vec[axis] - center.vec[axis];
+        }
+        vector3 vec_n;
+        vec_n.vec[0] = k_a.vec[1] * k_b.vec[2] - k_a.vec[2] * k_b.vec[1];
+        vec_n.vec[1] = k_a.vec[2] * k_b.vec[0] - k_a.vec[0] * k_b.vec[2];
+        vec_n.vec[2] = k_a.vec[0] * k_b.vec[1] - k_a.vec[1] * k_b.vec[0];
+
+        double norm = 0e0;
+        for(int axis=0; axis<space_dim; axis++) {
+            norm += vec_n.vec[axis] * vec_n.vec[axis];
+        }
+        norm = std::sqrt(norm);
+        for(int axis=0; axis<space_dim; axis++) {
+            vec_n.vec[axis] = vec_n.vec[axis] / norm;
+        }
+
+        tri.gradient[i] = 0e0;
+        double epsilon = 1e-12;
+        for(int i=0; i<2; i++) {
+            double p = double(2*i-1);
+            kpoint kp = {0e0, 0e0, 0e0};
+            for(int axis=0; axis<space_dim; axis++) {
+                kp.vec[axis] += vec_n.vec[axis]*epsilon*p;
+            }
+            double ene = get_E_L(valley, band_index, kp);
+            tri.gradient[i] += ene*p;
+        }
+        tri.gradient[i] = tri.gradient[i] / (2e0*epsilon);
     }
 
     return tri;
