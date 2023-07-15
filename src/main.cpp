@@ -316,7 +316,8 @@ int main(){
         std::cerr << "'bandsL' should be 4, 8, 12" << std::endl;
         exit(0);
     }
-    for(int valley=0; valley<valleys; valley++) {
+//    for(int valley=0; valley<valleys; valley++) {
+    for(int valley=0; valley<1; valley++) {
 //        for (auto v: impurityV1_L[valley]) {
 //            for (auto c: v) {
 //                std::cout << std::fixed << std::setw(7) << c << ", ";
@@ -333,7 +334,7 @@ int main(){
 //            std::cout << std::endl;
 //        }
 
-        Energy epsilon = 1e-5; // [eV]
+        Energy epsilon = 1e-4; // [eV]
         chemical_potential mu = 0e0;
         int e_mesh = 47;
         double e_cut = 59e0*epsilon;
