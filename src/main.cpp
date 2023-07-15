@@ -335,9 +335,9 @@ int main(){
 
         Energy epsilon = 5e-4; // [eV]
         chemical_potential mu = 0e0;
-        int e_mesh = 47;
+        int e_mesh = 27;
         double e_cut = 59e0*epsilon;
-        double power = 9e-1;
+        double power = 8e-1;
 
         int band_index = num_band[1];
         band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
