@@ -554,16 +554,15 @@ kpoint bisec_L(int valley, int band_index, chemical_potential mu, double ene, kp
 
 velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoint k) { // {{{
     velocity v = {0e0, 0e0, 0e0};
-    double epsilon = 1e-12;
     for(int axis=0; axis<space_dim; axis++) {
         for(int i=0; i<2; i++) {
             double p = double(2*i-1);
             kpoint kp = k;
-            kp.vec[axis] += epsilon*p;
+            kp.vec[axis] += eps_phys*p;
             double ene = get_E_L(valley, band_index, kp);
             v.vec[axis] += ene*p;
         }
-        v.vec[axis] = v.vec[axis] / (2e0*epsilon);
+        v.vec[axis] = v.vec[axis] / (2e0*eps_phys);
     }
     return v;
 }; // }}}
