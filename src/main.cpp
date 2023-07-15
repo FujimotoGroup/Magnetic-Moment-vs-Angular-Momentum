@@ -333,7 +333,7 @@ int main(){
 //            std::cout << std::endl;
 //        }
 
-        Energy epsilon = 1e-4; // [eV]
+        Energy epsilon = 5e-4; // [eV]
         chemical_potential mu = 0e0;
         int e_mesh = 47;
         double e_cut = 59e0*epsilon;
