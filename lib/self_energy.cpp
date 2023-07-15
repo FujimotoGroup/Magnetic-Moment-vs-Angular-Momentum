@@ -34,10 +34,10 @@ Self_energy get_self_energy_born_L(band b, Energy ene, int valley, chemical_pote
         Self_energy se(bandsL, vectorComplex(bandsL, 0e0));
 
         for(int i=0; i<bandsL; i++) {
-            se[i][i] = GR[i][i].imag();
+            se[i][i] = zi * GR[i][i].imag();
             for(int j=i+1; j<bandsL; j++) {
-                se[i][j] = GR[i][j].imag();
-                se[j][i] = GR[j][i].imag();
+                se[i][j] = zi * GR[i][j].imag();
+                se[j][i] = zi * GR[j][i].imag();
             }
 //            se[i][i] = GR[i][i];
 //            for(int j=i+1; j<bandsL; j++) {
@@ -153,3 +153,14 @@ Self_energy get_self_energy_born_k_L(band b, Energy ene, int valley, chemical_po
 
 } // }}}
 
+void write_res(Self_energy sigma, chemical_potential mu, std::string filename) { // {{{
+     std::ofstream ofs(filename, std::ios::app);
+     ofs << std::scientific << mu;
+     for( auto s : sigma ) {
+         for( auto v : s ) {
+             ofs << std::scientific << ", " << v.imag();
+         }
+     }
+     ofs << std::endl;
+
+}; // }}}
