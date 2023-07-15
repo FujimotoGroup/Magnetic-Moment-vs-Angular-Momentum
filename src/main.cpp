@@ -344,7 +344,7 @@ int main(){
         Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon);
         se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
 
-        std::string dos_name = "./dat/dos_L"+std::to_string(valley+1)+"-mu0e0";
+        std::string dos_name = "./dat/dos_L"+std::to_string(valley+1)+"-mu0e0.csv";
         std::ofstream o_dos(dos_name);
         for (int i=0; i<bL.mesh; i++) {
             o_dos << bL.ene[i] << ", " << bL.dos[i] << std::endl;

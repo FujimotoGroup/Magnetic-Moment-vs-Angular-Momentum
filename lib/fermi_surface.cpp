@@ -554,15 +554,16 @@ kpoint bisec_L(int valley, int band_index, chemical_potential mu, double ene, kp
 
 velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoint k) { // {{{
     velocity v = {0e0, 0e0, 0e0};
+    double epsilon = 1e-12;
     for(int axis=0; axis<space_dim; axis++) {
         for(int i=0; i<2; i++) {
             double p = double(2*i-1);
             kpoint kp = k;
-            kp.vec[axis] += eps_phys*p;
+            kp.vec[axis] += epsilon*p;
             double ene = get_E_L(valley, band_index, kp);
             v.vec[axis] += ene*p;
         }
-        v.vec[axis] = v.vec[axis] / (2e0*eps_phys);
+        v.vec[axis] = v.vec[axis] / (2e0*epsilon);
     }
     return v;
 }; // }}}
@@ -598,7 +599,7 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
         kpoint k = {sm.point(vd).x(), sm.point(vd).y(), sm.point(vd).z()};
         double e = get_E_L(valley, band_index, k) - mu;
         if (std::abs(e) > 1e-8)
-            std::cout << vd << ", " << e  << std::endl;
+            std::cout << vd << ", " << e << std::endl;
         }
     }
 
@@ -626,7 +627,7 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         size = mesh.number_of_vertices();
     } while (size < fermi_surface_mesh_lim);
     size = mesh.number_of_faces();
-    std::cout << "mu = " << mu << "; final fs face# " << size << " and vertex# " << mesh.number_of_vertices() << std::endl;
+    std::cout << "ene = " << mu << "; final fs face# " << size << " and vertex# " << mesh.number_of_vertices() << ", c = " << c << std::endl;
 
     tri = set_triangles(mu, mesh);
 
