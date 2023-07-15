@@ -347,7 +347,13 @@ int main(){
         std::string dos_name = "./dat/dos_L"+std::to_string(valley+1)+"-mu0e0.csv";
         std::ofstream o_dos(dos_name);
         for (int i=0; i<bL.mesh; i++) {
-            o_dos << bL.ene[i] << ", " << bL.dos[i] << std::endl;
+            double dS = 0e0;
+            for (int j=0; j<bL.tri[i].faces.size(); j++) {
+                dS += bL.tri[i].faces[j].dS;
+            }
+            o_dos << bL.ene[i] << ", " << bL.dos[i]
+                  << ", " << dS
+                  << std::endl;
         }
 
         vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
