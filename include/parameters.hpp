@@ -125,6 +125,7 @@ void initialize();
 void set_isotropic();
 matrixComplex set_T(double k[3]);
 matrixComplex set_L(int valley, double k[3]);
+matrixComplex set_L(int valley, chemical_potential mu, double k[3]);
 vectorReal diagonalize_N(matrixComplex A);
 struct diag_set {
     vectorReal values;
@@ -265,11 +266,11 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
             for(int i=i_thread; i<size; i=i+thread_num) {
                 kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
                 double norm = 0e0;
-//                for(int axis=0; axis<space_dim; axis++) {
-//                    norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
-//                }
-//                norm = std::sqrt(1e0/norm);
-                norm = 1e0 / tri.gradient[i];
+                for(int axis=0; axis<space_dim; axis++) {
+                    norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
+                }
+                norm = std::sqrt(1e0/norm);
+//                norm = 1e0 / tri.gradient[i];
                 double dS = tri.faces[i].dS * norm;
                 N c = times(fn(valley, band_index, mu, center), dS);
                 part = add(part, c);
@@ -290,7 +291,7 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
 }; // }}}
 
 double get_E_T(int band_index, kpoint k);
-double get_E_L(int valley, int band_index, kpoint k);
+double get_E_L(int valley, int band_index, chemical_potential mu, kpoint k);
 
 double get_DOS_T(triangles tri, int band_index, chemical_potential mu);
 double get_DOS_L(triangles tri, int valley, int band_index, chemical_potential mu);
