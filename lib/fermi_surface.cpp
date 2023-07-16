@@ -677,7 +677,7 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         }
 
         tri.gradient[i] = 0e0;
-        double epsilon = 1e-8;
+        double epsilon = 1e-12;
         for(int j=0; j<2; j++) {
             double p = double(2*j-1);
             kpoint kp;
