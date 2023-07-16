@@ -472,6 +472,12 @@ int triangles_write_T(triangles tri, std::string name, vectorReal values) { // {
 // }}}
 
 // for L points {{{
+double get_E_L(int valley, int band_index, kpoint k) { // {{{
+    matrixComplex H_L = set_L(valley, k.vec);
+    vectorReal E_L = diagonalize_N(H_L);
+    return E_L[band_index];
+}; // }}}
+
 double get_E_L(int valley, int band_index, chemical_potential mu, kpoint k) { // {{{
     matrixComplex H_L = set_L(valley, mu, k.vec);
     vectorReal E_L = diagonalize_N(H_L);

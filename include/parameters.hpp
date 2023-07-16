@@ -291,6 +291,7 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
 }; // }}}
 
 double get_E_T(int band_index, kpoint k);
+double get_E_L(int valley, int band_index, kpoint k);
 double get_E_L(int valley, int band_index, chemical_potential mu, kpoint k);
 
 double get_DOS_T(triangles tri, int band_index, chemical_potential mu);
