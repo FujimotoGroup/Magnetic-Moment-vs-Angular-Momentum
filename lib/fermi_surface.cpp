@@ -663,6 +663,9 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         tri.faces[i].dS = get_dS(k1, k2, k3);
     }
 
+    std::string name = "./triangles_L"+std::to_string(valley+1)+"-mu"+std::to_string(mu)+".csv";
+    triangles_write_L(tri, name, valley);
+
     return tri;
 }; // }}}
 
