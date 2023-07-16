@@ -93,7 +93,7 @@ vectorReal get_lifetime_L(int band_index, Self_energy se, int valley, triangles 
         Complex tau = 0e0;
         for (int j=0; j<U.size(); j++) {
             for (int l=0; l<U.size(); l++) {
-                tau = tau + std::conj(U[j])*se[j][l]*U[l];
+                tau += std::conj(U[j])*se[j][l]*U[l];
             }
         }
 

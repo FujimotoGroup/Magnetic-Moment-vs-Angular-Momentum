@@ -642,6 +642,7 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
     for (int i=0; i<size; i++) {
 //        tri.normals[i] = {0e0, 0e0, 0e0};
         tri.normals[i] = get_velocity_L(valley, band_index, mu, tri.vertexes[i]);
+
     }
 
     size = tri.faces.size();
@@ -661,6 +662,21 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
             tri.faces[i].normal[axis] = normal.vec[axis];
         }
         tri.faces[i].dS = get_dS(k1, k2, k3);
+
+//        double c_a = 0e0;
+//        double c_b = 0e0;
+//        vector3 k_a, k_b;
+//        for(int axis=0; axis<space_dim; axis++) {
+//            k_a.vec[axis] = k2.vec[axis] - k1.vec[axis];
+//            k_b.vec[axis] = k3.vec[axis] - k1.vec[axis];
+//
+//            c_a += k_a.vec[axis]*tri.normals[v[0]].vec[axis];
+//            c_b += k_b.vec[axis]*tri.normals[v[0]].vec[axis];
+//        }
+//        if (std::abs(c_a) < 1e-5) {
+//            std::cout << c_a << std::endl;
+//        }
+
     }
 
 //    std::string name = "./triangles_L"+std::to_string(valley+1)+"-mu"+std::to_string(mu);
