@@ -677,9 +677,9 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         }
 
         tri.gradient[i] = 0e0;
-        double epsilon = 1e-12;
-        for(int i=0; i<2; i++) {
-            double p = double(2*i-1);
+        double epsilon = 1e-8;
+        for(int j=0; j<2; j++) {
+            double p = double(2*j-1);
             kpoint kp;
             for(int axis=0; axis<space_dim; axis++) {
                 kp.vec[axis] = center.vec[axis] + vec_n.vec[axis]*epsilon*p;
