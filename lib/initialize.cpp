@@ -58,7 +58,8 @@ const double cutoff = 2e-1*g0;
 double dk[3];
 const int mu_mesh_T = 160;
 const int mu_mesh_L = 160;
-const int fermi_surface_mesh_lim = 3000;
+const int fermi_surface_mesh_lim_T = 3000;
+const int fermi_surface_mesh_lim_L = 5000;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };

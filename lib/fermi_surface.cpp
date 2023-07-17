@@ -266,7 +266,7 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
         c *= 5e-1;
         mesh = get_triangles_cgal_T(band_index, mu, c);
         size = mesh.number_of_vertices();
-    } while (size < fermi_surface_mesh_lim);
+    } while (size < fermi_surface_mesh_lim_T);
     size = mesh.number_of_faces();
     std::cout << "mu = " << mu << "; final fs face# " << size << " and vertex# " << mesh.number_of_vertices() << std::endl;
 
@@ -661,7 +661,7 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         c *= 5e-1;
         mesh = get_triangles_cgal_L(valley, band_index, mu, c);
         size = mesh.number_of_vertices();
-    } while (size < fermi_surface_mesh_lim);
+    } while (size < fermi_surface_mesh_lim_L);
     size = mesh.number_of_faces();
     std::cout << "ene = " << mu << "; final fs face# " << size << " and vertex# " << mesh.number_of_vertices() << ", c = " << c << std::endl;
 
