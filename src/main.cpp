@@ -284,41 +284,36 @@ int main(){
 //// }}}
 //   }
 //// }}}
-
-// T point {{{
-    int band_index = 4;
-    Energy epsilon = 1e-5; // [eV]
-    chemical_potential mu = 0e0;
+//
+//// T point {{{
+//    int band_index = 4;
+//    Energy epsilon = 1e-5; // [eV]
+//    chemical_potential mu = 0e0;
 //    int e_mesh = 47;
 //    double e_cut = 59e0*epsilon;
 //    double power = 9e-1;
-    int e_mesh = 27;
-    double e_cut = 59e0*epsilon;
-    double power = 8.5e-1;
-
-    band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
-    Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon);
-    se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
-
-    std::string dos_name = "./dat/dos_T-mu0e0.csv";
-    std::ofstream o_dos(dos_name);
-    for (int i=0; i<bT.mesh; i++) {
-        double dS = 0e0;
-        for (int j=0; j<bT.tri[i].faces.size(); j++) {
-            dS += bT.tri[i].faces[j].dS;
-        }
-        o_dos << bT.ene[i] << ", " << bT.dos[i]
-              << ", " << dS
-              << std::endl;
-    }
-
-    vectorReal lifetime = get_lifetime_T(band_index, se, bT.tri[e_mesh]);
-    std::string name = "./dat/lifetime_T-mu0e0";
-    triangles_write_T(bT.tri[e_mesh], name, lifetime);
-// }}}
-
-    exit(0);
-
+//
+//    band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
+//    Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon);
+//    se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
+//
+//    std::string dos_name = "./dat/dos_T-mu0e0.csv";
+//    std::ofstream o_dos(dos_name);
+//    for (int i=0; i<bT.mesh; i++) {
+//        double dS = 0e0;
+//        for (int j=0; j<bT.tri[i].faces.size(); j++) {
+//            dS += bT.tri[i].faces[j].dS;
+//        }
+//        o_dos << bT.ene[i] << ", " << bT.dos[i]
+//              << ", " << dS
+//              << std::endl;
+//    }
+//
+//    vectorReal lifetime = get_lifetime_T(band_index, se, bT.tri[e_mesh]);
+//    std::string name = "./dat/lifetime_T-mu0e0";
+//    triangles_write_T(bT.tri[e_mesh], name, lifetime);
+//// }}}
+//
 // L points {{{
     int num_band[2];
     if (bandsL == 4) { // for 4bands

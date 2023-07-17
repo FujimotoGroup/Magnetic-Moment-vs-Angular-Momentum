@@ -572,28 +572,29 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
         v.vec[axis] = v.vec[axis] / (2e0*epsilon);
     }
 
+//    velocity v = {0e0, 0e0, 0e0};
 //    velocity v_old = {0e0, 0e0, 0e0};
-//    for (int j=7; j<=8; j++) {
+//    for (int j=8; j<=15; j++) {
 //        v = {0e0, 0e0, 0e0};
 //        double epsilon = std::pow(1e-1,j);
 //        for(int axis=0; axis<space_dim; axis++) {
-//            std::cout << epsilon << ": ";
+////            std::cout << epsilon << ": ";
 //            for(int i=0; i<2; i++) {
 //                double p = std::pow(-1e0, i);
 //                kpoint kp = k;
 //                kp.vec[axis] += epsilon*p;
 //                double ene = get_E_L(valley, band_index, mu, kp);
-//                std::cout << ene*p << ", ";
+////                std::cout << ene*p << ", ";
 //                v.vec[axis] += ene*p;
 //            }
-//            std::cout << v.vec[axis] << std::endl;
+////            std::cout << v.vec[axis] << std::endl;
 //            v.vec[axis] = v.vec[axis] / (2e0*epsilon);
 //        }
 //
-//        if (j >= 8) {
+//        if (j >= 9) {
 //            for(int axis=0; axis<space_dim; axis++) {
 //                double c = std::abs(v_old.vec[axis] - v.vec[axis]);
-//                if (c > 1e-9) {
+//                if (c < 1e-12) {
 //                    std::cout << "error: " << epsilon << ", " << axis << ", " << c << ", v = " << v.vec[axis] << ", v_old = " << v_old.vec[axis] << std::endl;
 //                }
 //            }
@@ -601,6 +602,7 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
 //
 //        v_old = v;
 //    }
+
     return v;
 }; // }}}
 
