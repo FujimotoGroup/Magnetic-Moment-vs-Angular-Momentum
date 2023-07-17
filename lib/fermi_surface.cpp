@@ -697,6 +697,34 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
 
     }
 
+    size = tri.faces.size();
+    for (int i=0; i<size; i++) {
+        double norm = 0e0;
+        for(int axis=0; axis<space_dim; axis++) {
+            norm += tri.faces[i].center[axis] * tri.faces[i].center[axis];
+        }
+        norm = std::sqrt(norm);
+
+        double epsilon = 1e-8;
+
+        double value = 0e0;
+        for(int i=0; i<2; i++) {
+            double p = std::pow(-1e0, i);
+            kpoint kp = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
+            for(int axis=0; axis<space_dim; axis++) {
+                kp.vec[axis] += p*epsilon*tri.normals[i].vec[axis]/norm;
+            }
+            double ene = get_E_L(valley, band_index, mu, kp);
+            value += ene*p;
+        }
+        tri.faces[i].grad = value / (2e0*epsilon);
+
+        double q = std::abs(std::abs(tri.faces[i].grad) - norm);
+        if (q < 1e-8) {
+            std::cout << q << std::endl;
+        }
+    }
+
 //    std::string name = "./triangles_L"+std::to_string(valley+1)+"-mu"+std::to_string(mu);
 //    triangles_write_L(tri, name, valley);
 

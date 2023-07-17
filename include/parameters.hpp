@@ -162,6 +162,7 @@ struct face {
     double dS;
     double center[3];
     double normal[3];
+    double grad;
 };
 
 struct triangles {
@@ -169,7 +170,6 @@ struct triangles {
     std::vector<vector3> vertexes;
     std::vector<vector3> normals;
     std::vector<face> faces;
-    vectorReal gradient;
 };
 
 using Green_function = matrixComplex;
@@ -234,7 +234,8 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
                     norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
                 }
                 norm = std::sqrt(norm);
-                double dS = tri.faces[i].dS / norm;
+//                double dS = tri.faces[i].dS / norm;
+                double dS = tri.faces[i].dS / tri.faces[i].grad;
                 N c = times(fn(band_index, mu, center), dS);
                 part = add(part, c);
             }
