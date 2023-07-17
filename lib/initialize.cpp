@@ -2,6 +2,7 @@
 #include <algorithm>
 
 int thread_num = std::thread::hardware_concurrency();
+//int thread_num = 1;
 
 const double angstrom = 1e-10; // [m]
 const double hbar     = 6.582119569e-16; // [eV s]
@@ -109,7 +110,7 @@ void initialize() {
     };
 /// }}}
     // load data by Dr. Izaki {{{
-    // T point {{{
+    { // T point {{{
     int l = lowest_band_T - 1;
     int n = lowest_band_T + bandsT - 1;
 //  velocity {{{
@@ -252,10 +253,10 @@ void initialize() {
         }
     }
     } // }}}
-    // }}}
-    // L points {{{
-    l = lowest_band_L - 1;
-    n = lowest_band_L + bandsL - 1;
+    } // }}}
+    { // L points {{{
+    int l = lowest_band_L - 1;
+    int n = lowest_band_L + bandsL - 1;
     vL.resize(valleys);
 // velocity {{{
     mu_s_L.resize(valleys);
@@ -268,8 +269,8 @@ void initialize() {
             string line;
             while ( getline(file,line) ) {
                 istringstream stream(line);
-                complex<double> c;
-                vector<complex<double>> row;
+                Complex c;
+                vectorComplex row;
                 while ( stream >> c ) {
                     row.push_back(c);
                 }
@@ -403,7 +404,7 @@ void initialize() {
         }
     }
     } // }}}
-    // }}}
+    } // }}}
     // }}}
     // v_s_T[axis][spin] {{{
     v_s_T.resize(space_dim);
@@ -502,8 +503,8 @@ void initialize() {
     // set band_edge T {{{
     band_edge_T.resize(bandsT);
     band_edge_T_sign.resize(bandsT);
-    l = lowest_band_T - 1;
-    n = lowest_band_T + bandsT - 1;
+    int l = lowest_band_T - 1;
+    int n = lowest_band_T + bandsT - 1;
     for(int i=l; i<n; i++) {
         band_edge_T[i-l] = ET[i-l];
         band_edge_T_sign[i-l] = band_edge_T_sign0[i];

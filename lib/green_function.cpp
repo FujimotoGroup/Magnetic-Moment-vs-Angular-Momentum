@@ -18,8 +18,14 @@ matrixComplex get_inverse(matrixComplex A) { // {{{
     }
 
     zgetrf_(N, N, AT, lda, ipiv, info);
+    if (info != 0) {
+        std::cout << info << std::endl;
+    }
 
     zgetri_(N, AT, lda, ipiv, work, lwork, info);
+    if (info != 0) {
+        std::cout << info << std::endl;
+    }
 
     matrixComplex A_inv(N, vectorComplex(N, 0e0));
 
