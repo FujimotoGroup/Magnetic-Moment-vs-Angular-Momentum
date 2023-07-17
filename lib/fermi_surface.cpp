@@ -560,7 +560,7 @@ kpoint bisec_L(int valley, int band_index, chemical_potential mu, double ene, kp
 
 velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoint k) { // {{{
     velocity v = {0e0, 0e0, 0e0};
-    double epsilon = 1e-10;
+    double epsilon = 1e-8;
     for(int axis=0; axis<space_dim; axis++) {
         for(int i=0; i<2; i++) {
             double p = double(2*i-1);
@@ -662,20 +662,6 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
             tri.faces[i].normal[axis] = normal.vec[axis];
         }
         tri.faces[i].dS = get_dS(k1, k2, k3);
-
-//        double c_a = 0e0;
-//        double c_b = 0e0;
-//        vector3 k_a, k_b;
-//        for(int axis=0; axis<space_dim; axis++) {
-//            k_a.vec[axis] = k2.vec[axis] - k1.vec[axis];
-//            k_b.vec[axis] = k3.vec[axis] - k1.vec[axis];
-//
-//            c_a += k_a.vec[axis]*tri.normals[v[0]].vec[axis];
-//            c_b += k_b.vec[axis]*tri.normals[v[0]].vec[axis];
-//        }
-//        if (std::abs(c_a) < 1e-5) {
-//            std::cout << c_a << std::endl;
-//        }
 
     }
 
