@@ -620,7 +620,7 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
 
 double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { // {{{
     double v = 0e0;
-    double epsilon = 1e-3;
+    double epsilon = 1e-4;
     vectorReal index = {-2e0, -1e0, 1e0, 2e0};
     vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
     for (int i=0; i<index.size(); i++) {
@@ -645,12 +645,12 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
         k.vec[0] = double(p.x());
         k.vec[1] = double(p.y());
         k.vec[2] = double(p.z());
-        const FT e = FT(get_E_L(valley, band_index, k)) - mu;
+        const FT e = FT(get_E_L(valley, band_index, mu, k));
 //        std::cout << p.x() << ", " << p.y() << ", " << p.z() << ", " << e << std::endl;
         return e;
     };
     Surface_3 surface(dispersionL,             // pointer to function
-                      Sphere_3(CGAL::ORIGIN, c), 5e-9);  // bounding sphere
+                      Sphere_3(CGAL::ORIGIN, c), 5e-12);  // bounding sphere
 
     CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
                                                        bounce,  // radius bound
@@ -664,7 +664,7 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
         for(Surface_mesh::Vertex_index vd : vertices_around_face(sm.halfedge(fd), sm)) {
         kpoint k = {sm.point(vd).x(), sm.point(vd).y(), sm.point(vd).z()};
         double e = get_E_L(valley, band_index, mu, k);
-        if (std::abs(e) > 1e-8)
+        if (std::abs(e) > 1e-11)
             std::cout << vd << ", " << e << std::endl;
         }
     }
