@@ -234,8 +234,8 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
                     norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
                 }
                 norm = std::sqrt(norm);
-//                double dS = tri.faces[i].dS / norm;
-                double dS = tri.faces[i].dS / tri.faces[i].grad;
+                double dS = tri.faces[i].dS / norm;
+//                double dS = tri.faces[i].dS / tri.faces[i].grad;
                 N c = times(fn(band_index, mu, center), dS);
                 part = add(part, c);
             }
@@ -267,12 +267,13 @@ template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles 
             int size = tri.faces.size();
             for(int i=i_thread; i<size; i=i+thread_num) {
                 kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
-                long double norm = 0e0;
+                double norm = 0e0;
                 for(int axis=0; axis<space_dim; axis++) {
                     norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
                 }
                 norm = std::sqrt(norm);
-                double dS = tri.faces[i].dS / norm;
+//                double dS = tri.faces[i].dS / norm;
+                double dS = tri.faces[i].dS / tri.faces[i].grad;
                 N c = times(fn(valley, band_index, mu, center), dS);
                 part = add(part, c);
             }

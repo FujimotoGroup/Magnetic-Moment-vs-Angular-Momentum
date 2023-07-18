@@ -618,6 +618,22 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
     return v;
 }; // }}}
 
+double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { // {{{
+    double v = 0e0;
+    double epsilon = 1e-5;
+    vectorReal index = {-2e0, -1e0, 1e0, 2e0};
+    vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
+    for (int i=0; i<index.size(); i++) {
+        for(int axis=0; axis<space_dim; axis++) {
+            kpoint kp = k;
+            kp.vec[axis] += epsilon*normal.vec[axis]*index[i];
+            v += get_E_L(valley, band_index, kp)*coeff[i];
+        }
+    }
+
+    return v / (12e0*epsilon);
+}; // }}}
+
 Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential mu, double bounce) { // {{{
     double c = cutoff;
     Tr tr;            // 3D-Delaunay triangulation
@@ -706,6 +722,27 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
             tri.faces[i].normal[axis] = normal.vec[axis];
         }
         tri.faces[i].dS = get_dS(k1, k2, k3);
+
+        vector3 ka, kb;
+        for(int axis=0; axis<space_dim; axis++) {
+            ka.vec[axis] = k2.vec[axis] - k1.vec[axis];
+            kb.vec[axis] = k3.vec[axis] - k1.vec[axis];
+        }
+        normal.vec[0] = ka.vec[1]*kb.vec[2] - ka.vec[2]*kb.vec[1];
+        normal.vec[1] = ka.vec[2]*kb.vec[0] - ka.vec[0]*kb.vec[2];
+        normal.vec[2] = ka.vec[0]*kb.vec[1] - ka.vec[1]*kb.vec[0];
+        double norm = 0e0;
+        for(int axis=0; axis<space_dim; axis++) {
+            norm += normal.vec[axis] * normal.vec[axis];
+        }
+        norm = std::sqrt(norm);
+        for(int axis=0; axis<space_dim; axis++) {
+            normal.vec[axis] = normal.vec[axis] / norm;
+        }
+        for(int axis=0; axis<space_dim; axis++) {
+            center.vec[axis] = (ka.vec[axis] + kb.vec[axis])/2e0;
+        }
+        tri.faces[i].grad = get_velocity_L(valley, band_index, center, normal);
 
     }
 
