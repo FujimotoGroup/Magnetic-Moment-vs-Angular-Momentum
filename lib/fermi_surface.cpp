@@ -620,7 +620,7 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
 
 double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { // {{{
     double v = 0e0;
-    double epsilon = 1e-3;
+    double epsilon = 1e-4;
     vectorReal index = {-2e0, -1e0, 1e0, 2e0};
     vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
     for (int i=0; i<index.size(); i++) {
@@ -650,7 +650,7 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
         return e;
     };
     Surface_3 surface(dispersionL,             // pointer to function
-                      Sphere_3(CGAL::ORIGIN, c), 1e-12);  // bounding sphere
+                      Sphere_3(CGAL::ORIGIN, c), 5e-12);  // bounding sphere
 
     CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
                                                        bounce,  // radius bound
