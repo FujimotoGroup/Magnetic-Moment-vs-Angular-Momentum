@@ -620,7 +620,7 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
 
 double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { // {{{
     double v = 0e0;
-    double epsilon = 1e-4;
+    double epsilon = 1e-7;
     vectorReal index = {-2e0, -1e0, 1e0, 2e0};
     vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
     for (int i=0; i<index.size(); i++) {
@@ -630,8 +630,34 @@ double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { //
             v += get_E_L(valley, band_index, kp)*coeff[i];
         }
     }
+    v = v / (12e0*epsilon);
+//    double v = 0e0;
+//    double v_old = 0e0;
+//    for (int j=5; j<=7; j++) {
+//        double epsilon = std::pow(1e-1,j);
+//        vectorReal index = {-2e0, -1e0, 1e0, 2e0};
+//        vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
+//        double v = 0e0;
+//        for (int i=0; i<index.size(); i++) {
+//            for(int axis=0; axis<space_dim; axis++) {
+//                kpoint kp = k;
+//                kp.vec[axis] += epsilon*normal.vec[axis]*index[i];
+//                v += get_E_L(valley, band_index, kp)*coeff[i];
+//            }
+//        }
+//        v = v / (12e0*epsilon);
+//
+//        if (j >= 6) {
+//            double c = std::abs(v_old - v);
+//            if (c > 1e-9) {
+//                std::cout << "error: " << epsilon << ", " << c << ", v = " << v << ", v_old = " << v_old << std::endl;
+//            }
+//        }
+//
+//        v_old = v;
+//    }
 
-    return v / (12e0*epsilon);
+    return v;
 }; // }}}
 
 Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential mu, double bounce) { // {{{
