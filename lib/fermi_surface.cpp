@@ -620,7 +620,7 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
 
 double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { // {{{
     double v = 0e0;
-    double epsilon = 1e-4;
+    double epsilon = 1e-3;
     vectorReal index = {-2e0, -1e0, 1e0, 2e0};
     vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
     for (int i=0; i<index.size(); i++) {
@@ -663,7 +663,7 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
     for(Surface_mesh::Face_index fd : sm.faces()) {
         for(Surface_mesh::Vertex_index vd : vertices_around_face(sm.halfedge(fd), sm)) {
         kpoint k = {sm.point(vd).x(), sm.point(vd).y(), sm.point(vd).z()};
-        double e = get_E_L(valley, band_index, k) - mu;
+        double e = get_E_L(valley, band_index, mu, k);
         if (std::abs(e) > 1e-8)
             std::cout << vd << ", " << e << std::endl;
         }
