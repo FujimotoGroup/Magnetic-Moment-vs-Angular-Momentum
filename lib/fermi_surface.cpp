@@ -620,9 +620,9 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
 
 double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { // {{{
     double v = 0e0;
-    double epsilon = 1e-4;
-    vectorReal index = {-2e0, -1e0, 1e0, 2e0};
-    vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
+    double epsilon = 5e-4;
+    vectorReal index = {-2e0, 2e0, -1e0, 1e0};
+    vectorReal coeff = { 1e0,-1e0, -8e0, 8e0};
     for (int i=0; i<index.size(); i++) {
         for(int axis=0; axis<space_dim; axis++) {
             kpoint kp = k;
