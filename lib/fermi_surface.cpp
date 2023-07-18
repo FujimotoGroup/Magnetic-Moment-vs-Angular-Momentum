@@ -740,7 +740,7 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
             normal.vec[axis] = normal.vec[axis] / norm;
         }
         for(int axis=0; axis<space_dim; axis++) {
-            center.vec[axis] = (ka.vec[axis] + kb.vec[axis])/2e0;
+            center.vec[axis] = center.vec[axis] + (ka.vec[axis] + kb.vec[axis])/2e0;
         }
         tri.faces[i].grad = get_velocity_L(valley, band_index, center, normal);
 
