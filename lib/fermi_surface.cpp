@@ -650,7 +650,7 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
         return e;
     };
     Surface_3 surface(dispersionL,             // pointer to function
-                      Sphere_3(CGAL::ORIGIN, c), 1e-14);  // bounding sphere
+                      Sphere_3(CGAL::ORIGIN, c), 1e-12);  // bounding sphere
 
     CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
                                                        bounce,  // radius bound
@@ -664,7 +664,7 @@ Surface_mesh get_triangles_cgal_L(int valley, int band_index, chemical_potential
         for(Surface_mesh::Vertex_index vd : vertices_around_face(sm.halfedge(fd), sm)) {
         kpoint k = {sm.point(vd).x(), sm.point(vd).y(), sm.point(vd).z()};
         double e = get_E_L(valley, band_index, mu, k);
-        if (std::abs(e) > 1e-13)
+        if (std::abs(e) > 1e-11)
             std::cout << vd << ", " << e << std::endl;
         }
     }
