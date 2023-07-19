@@ -620,7 +620,7 @@ velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoin
 
 double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { // {{{
     double v = 0e0;
-    double epsilon = 1e-8;
+    double epsilon = 1e-7;
     vectorReal index = {-2e0, -1e0, 1e0, 2e0};
     vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
     for (int i=0; i<index.size(); i++) {
@@ -631,9 +631,12 @@ double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { //
         }
     }
     v = v / (12e0*epsilon);
+
+//// {{{
+//    int n_start = 6;
 //    double v = 0e0;
 //    double v_old = 0e0;
-//    for (int j=5; j<=7; j++) {
+//    for (int j=n_start; j<=n_start+1; j++) {
 //        double epsilon = std::pow(1e-1,j);
 //        vectorReal index = {-2e0, -1e0, 1e0, 2e0};
 //        vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
@@ -647,7 +650,7 @@ double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { //
 //        }
 //        v = v / (12e0*epsilon);
 //
-//        if (j >= 6) {
+//        if (j > n_start) {
 //            double c = std::abs(v_old - v);
 //            if (c > 1e-9) {
 //                std::cout << "error: " << epsilon << ", " << c << ", v = " << v << ", v_old = " << v_old << std::endl;
@@ -656,6 +659,7 @@ double get_velocity_L(int valley, int band_index, kpoint k, vector3 normal) { //
 //
 //        v_old = v;
 //    }
+//// }}}
 
     return v;
 }; // }}}
