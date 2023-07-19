@@ -1,8 +1,8 @@
 #include "parameters.hpp"
 #include <algorithm>
 
-int thread_num = std::thread::hardware_concurrency();
-//int thread_num = 1;
+//int thread_num = std::thread::hardware_concurrency();
+int thread_num = 1;
 
 const double angstrom = 1e-10; // [m]
 const double hbar     = 6.582119569e-16; // [eV s]
@@ -36,8 +36,8 @@ double mu_cutoff_L;
 int mu_cutoff_mesh_T;
 int mu_cutoff_mesh_L;
 
-//const int bandsL = 4; const int lowest_band_L = 9;
-const int bandsL = 12; const int lowest_band_L = 5;
+const int bandsL = 4; const int lowest_band_L = 9;
+//const int bandsL = 12; const int lowest_band_L = 5;
 
 matrixReal band_edge_L;
 matrixReal band_edge_L_sign0 = { {-1e0,-1e0, 1e0, 1e0,-1e0,-1e0,-1e0,-1e0,-1e0,-1e0, 1e0, 1e0, -1e0,-1e0, 1e0, 1e0},
