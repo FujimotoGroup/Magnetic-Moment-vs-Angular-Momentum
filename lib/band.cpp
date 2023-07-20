@@ -86,47 +86,23 @@ band set_band_2n_T(int band_index, Energy ene_center, Energy delta, int n, doubl
 void set_band_kpoints_L(band& bL, int valley) { // {{{
     std::cout << "L point; valley#" << valley << ", band#" << bL.index << " search start" << std::endl;
 
-    std::vector<std::vector<int>> indexes(thread_num);
-    std::vector<vectorReal> enes(thread_num);
-    std::vector<std::vector<triangles>> tri(thread_num);
-    std::vector<vectorReal> dos(thread_num);
-    for (int i_thread=0; i_thread<thread_num; i_thread++) {
-        for (int i_mu=i_thread; i_mu<bL.mesh; i_mu=i_mu+thread_num) {
-            indexes[i_thread].push_back(i_mu);
-            enes[i_thread].push_back(bL.ene[i_mu]);
-        }
-    }
-
     std::vector<std::thread> threads;
     threads.resize(thread_num);
     for (int i_thread=0; i_thread<thread_num; i_thread++) {
-        auto func =[&](int i_thread, int mesh, int valley, int band_index) {
-            std::vector<int> j(thread_num, 0);
-            for(int i_mu=i_thread; i_mu<mesh; i_mu=i_mu+thread_num) {
-//                mtx.lock();
+        auto func =[](int i_thread, band& b, int valley, int band_index) {
+            for(int i_mu=i_thread; i_mu<b.mesh; i_mu=i_mu+thread_num) {
+                mtx.lock();
 //                std::cout << "mu = " << b.ene[i_mu] << std::endl;
-//                mtx.unlock();
-                triangles triangle;
-                triangle = get_triangles_L(valley, band_index, enes[i_thread][j[i_thread]]);
-                tri[i_thread].push_back(triangle);
-                dos[i_thread].push_back(get_DOS_L(triangle, valley, band_index, enes[i_thread][j[i_thread]]));
-                j[i_thread]++;
+                mtx.unlock();
+                b.tri[i_mu] = get_triangles_L(band_index, valley, b.ene[i_mu]);
+                b.dos[i_mu] = get_DOS_L(b.tri[i_mu], band_index, valley, b.ene[i_mu]);
             }
         };
-        threads[i_thread] = std::thread(func, i_thread, bL.mesh, valley, bL.index);
+        threads[i_thread] = std::thread(func, i_thread, std::ref(bL), valley, bL.index);
     }
 
     for(auto& thread : threads){
         thread.join();
-    }
-
-    for (int i_thread=0; i_thread<thread_num; i_thread++) {
-        int j = 0;
-        for (auto i : indexes[i_thread]) {
-            bL.tri[i] = tri[i_thread][j];
-            bL.dos[i] = dos[i_thread][j];
-            j++;
-        }
     }
 
     std::cout << "L point; valley#" << valley << ", band#" << bL.index << " search end" << std::endl;
