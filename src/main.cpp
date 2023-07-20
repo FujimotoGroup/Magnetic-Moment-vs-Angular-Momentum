@@ -348,9 +348,6 @@ int main(){
 
         Energy epsilon = 5e-4; // [eV]
         chemical_potential mu = 0e0;
-//        int e_mesh = 27;
-//        double e_cut = 59e0*epsilon;
-//        double power = 8.5e-1;
         int e_mesh = 47;
         double e_cut = 59e0*epsilon;
         double power = 9e-1;
