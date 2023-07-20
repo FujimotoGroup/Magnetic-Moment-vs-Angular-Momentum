@@ -105,12 +105,12 @@ void set_band_kpoints_L(band& bL, int valley) { // {{{
             for(int i_mu=i_thread; i_mu<mesh; i_mu=i_mu+thread_num) {
                 mtx.lock();
 //                std::cout << "mu = " << b.ene[i_mu] << std::endl;
-                mtx.unlock();
                 triangles triangle;
                 triangle = get_triangles_L(valley, band_index, enes[i_thread][j[i_thread]]);
                 tri[i_thread].push_back(triangle);
                 dos[i_thread].push_back(get_DOS_L(triangle, valley, band_index, enes[i_thread][j[i_thread]]));
                 j[i_thread]++;
+                mtx.unlock();
             }
         };
         threads[i_thread] = std::thread(func, i_thread, bL.mesh, valley, bL.index);
