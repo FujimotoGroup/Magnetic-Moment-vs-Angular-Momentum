@@ -1,8 +1,8 @@
 #include "parameters.hpp"
 #include <algorithm>
 
-//int thread_num = std::thread::hardware_concurrency();
-int thread_num = 1;
+int thread_num = std::thread::hardware_concurrency();
+//int thread_num = 1;
 
 const double angstrom = 1e-10; // [m]
 const double hbar     = 6.582119569e-16; // [eV s]
