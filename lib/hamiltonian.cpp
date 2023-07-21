@@ -23,6 +23,29 @@ matrixComplex set_T(double k[3]) { // {{{
     return value;
 }; // }}}
 
+matrixComplex set_T(chemical_potential mu, double k[3]) { // {{{
+    matrixComplex value(bandsT, vectorComplex(bandsT, 0e0));
+    if ( (std::abs(k[0]) > cutoff) | (std::abs(k[1]) > cutoff) | (std::abs(k[2]) > cutoff) ) {
+        for(int i=0; i<bandsT; i++) {
+            value[i][i] = -10e0;
+        }
+        return value;
+    }
+    double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];
+    ene = ene * (charge*hbar*hbar/angstrom/angstrom/mass*5e-1);
+    ene = 0e0;
+    for(int i=0; i<bandsT; i++) {
+        value[i][i] = ET[i] + ene - mu;
+        for(int j=i+1; j<bandsT; j++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                value[i][j] += hbar/angstrom*v0*k[axis]*vT[axis][i][j];
+                value[j][i] += hbar/angstrom*v0*k[axis]*vT[axis][j][i];
+            }
+        }
+    }
+    return value;
+}; // }}}
+
 matrixComplex set_L(int valley, double k[3]) { // {{{
     matrixComplex value(bandsL, vectorComplex(bandsL, 0e0));
     double ene = k[0]*k[0] + k[1]*k[1] + k[2]*k[2];

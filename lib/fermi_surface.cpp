@@ -120,6 +120,12 @@ double get_E_T(int band_index, kpoint k) { // {{{
     return E_T[band_index];
 }; // }}}
 
+double get_E_T(int band_index, chemical_potential mu, kpoint k) { // {{{
+    matrixComplex H_T = set_T(mu, k.vec);
+    vectorReal E_T = diagonalize_N(H_T);
+    return E_T[band_index];
+}; // }}}
+
 kpoint bisec_T2points(int band_index, chemical_potential mu, double ene1, double ene2, kpoint k1, kpoint k2) { // {{{
     bool flag = false;
     kpoint p, p1, p2;
@@ -209,6 +215,22 @@ velocity get_velocity_T(int band_index, chemical_potential mu, kpoint k) { // {{
     return v;
 }; // }}}
 
+double get_velocity_T(int band_index, kpoint k, vector3 normal) { // {{{
+    double v = 0e0;
+    double epsilon = 1e-7;
+    vectorReal index = {-2e0, -1e0, 1e0, 2e0};
+    vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
+    for (int i=0; i<index.size(); i++) {
+        for(int axis=0; axis<space_dim; axis++) {
+            kpoint kp = k;
+            kp.vec[axis] += epsilon*normal.vec[axis]*index[i];
+            v += get_E_T(band_index, kp)*coeff[i];
+        }
+    }
+    v = v / (12e0*epsilon);
+    return v;
+}; // }}}
+
 Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double bounce) { // {{{
     double c = cutoff;
     Tr tr;            // 3D-Delaunay triangulation
@@ -225,7 +247,7 @@ Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double 
         return e;
     };
     Surface_3 surface(dispersionT,             // pointer to function
-                      Sphere_3(CGAL::ORIGIN, c), 5e-9);  // bounding sphere
+                      Sphere_3(CGAL::ORIGIN, c), 5e-12);  // bounding sphere
 
     CGAL::Surface_mesh_default_criteria_3<Tr> criteria(30.,  // angular bound
                                                        bounce,  // radius bound
@@ -239,7 +261,7 @@ Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double 
         for(Surface_mesh::Vertex_index vd : vertices_around_face(sm.halfedge(fd), sm)) {
         kpoint k = {sm.point(vd).x(), sm.point(vd).y(), sm.point(vd).z()};
         double e = get_E_T(band_index, k) - mu;
-        if (std::abs(e) > 1e-8)
+        if (std::abs(e) > 1e-11)
             std::cout << vd << ", " << e  << std::endl;
         }
     }
@@ -268,7 +290,12 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
         size = mesh.number_of_vertices();
     } while (size < fermi_surface_mesh_lim_T);
     size = mesh.number_of_faces();
-    std::cout << "mu = " << mu << "; final fs face# " << size << " and vertex# " << mesh.number_of_vertices() << std::endl;
+    std::cout << std::fixed << std::setprecision(9)
+              << "ene = " << mu
+              << "; final fs face# " << size
+              << " and vertex# " << mesh.number_of_vertices()
+              << ", c = " << c
+              << std::endl;
 
     tri = set_triangles(mu, mesh);
 
@@ -295,6 +322,27 @@ triangles get_triangles_T(int band_index, chemical_potential mu) { // {{{
             tri.faces[i].normal[axis] = normal.vec[axis];
         }
         tri.faces[i].dS = get_dS(k1, k2, k3);
+
+        vector3 ka, kb;
+        for(int axis=0; axis<space_dim; axis++) {
+            ka.vec[axis] = k2.vec[axis] - k1.vec[axis];
+            kb.vec[axis] = k3.vec[axis] - k1.vec[axis];
+        }
+        normal.vec[0] = ka.vec[1]*kb.vec[2] - ka.vec[2]*kb.vec[1];
+        normal.vec[1] = ka.vec[2]*kb.vec[0] - ka.vec[0]*kb.vec[2];
+        normal.vec[2] = ka.vec[0]*kb.vec[1] - ka.vec[1]*kb.vec[0];
+        double norm = 0e0;
+        for(int axis=0; axis<space_dim; axis++) {
+            norm += normal.vec[axis] * normal.vec[axis];
+        }
+        norm = std::sqrt(norm);
+        for(int axis=0; axis<space_dim; axis++) {
+            normal.vec[axis] = normal.vec[axis] / norm;
+        }
+        for(int axis=0; axis<space_dim; axis++) {
+            center.vec[axis] = center.vec[axis] + (ka.vec[axis] + kb.vec[axis])/2e0;
+        }
+        tri.faces[i].grad = get_velocity_T(band_index, center, normal);
     }
 
     return tri;
