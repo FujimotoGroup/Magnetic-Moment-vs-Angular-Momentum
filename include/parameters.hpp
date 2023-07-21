@@ -323,23 +323,23 @@ void write_res(Conductivity sigma, chemical_potential mu,  std::string filename)
 void write_res(SHC sigma, chemical_potential mu,  std::string filename);
 
 template<class Fn, class N> void integrate_band_T(Fn fn, N& res, band b, chemical_potential mu) { // {{{
-    std::string filename = "self_energy_T-band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
-    std::ofstream ofs(filename);
-    ofs.close();
+//    std::string filename = "self_energy_T-band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
+//    std::ofstream ofs(filename);
+//    ofs.close();
     N sigma;
     Energy dmu;
     int i_mu = 0;
         init(sigma, res);
         integrate_triangles_T(fn, sigma, b.tri[i_mu], b.index, mu);
         dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
-        write_res(sigma, b.ene[i_mu]-mu, filename);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
     for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
         init(sigma, res);
         integrate_triangles_T(fn, sigma, b.tri[i_mu], b.index, mu);
         dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
-        write_res(sigma, b.ene[i_mu]-mu, filename);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
     }
@@ -347,7 +347,7 @@ template<class Fn, class N> void integrate_band_T(Fn fn, N& res, band b, chemica
         init(sigma, res);
         integrate_triangles_T(fn, sigma, b.tri[i_mu], b.index, mu);
         dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
-        write_res(sigma, b.ene[i_mu]-mu, filename);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
 }; // }}}

@@ -295,7 +295,7 @@ int main(){
 
     band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
     Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon);
-//    se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
+    se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
 
     std::string dos_name = "./dat/dos_T-mu0e0.csv";
     std::ofstream o_dos(dos_name);
