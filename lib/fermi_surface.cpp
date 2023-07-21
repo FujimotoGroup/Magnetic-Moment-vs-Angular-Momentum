@@ -242,7 +242,7 @@ Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double 
         k.vec[0] = double(p.x());
         k.vec[1] = double(p.y());
         k.vec[2] = double(p.z());
-        const FT e = FT(get_E_T(band_index, k)) - mu;
+        const FT e = FT(get_E_T(band_index, mu, k));
 //        std::cout << p.x() << ", " << p.y() << ", " << p.z() << ", " << e << std::endl;
         return e;
     };
@@ -260,7 +260,7 @@ Surface_mesh get_triangles_cgal_T(int band_index, chemical_potential mu, double 
     for(Surface_mesh::Face_index fd : sm.faces()) {
         for(Surface_mesh::Vertex_index vd : vertices_around_face(sm.halfedge(fd), sm)) {
         kpoint k = {sm.point(vd).x(), sm.point(vd).y(), sm.point(vd).z()};
-        double e = get_E_T(band_index, k) - mu;
+        double e = get_E_T(band_index, mu, k);
         if (std::abs(e) > 1e-11)
             std::cout << vd << ", " << e  << std::endl;
         }
