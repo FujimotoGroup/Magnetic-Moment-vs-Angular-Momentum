@@ -227,7 +227,7 @@ double get_velocity_T(int band_index, kpoint k, vector3 normal) { // {{{
             v += get_E_T(band_index, kp)*coeff[i];
         }
     }
-    v = v / (12e0*epsilon);
+    v = std::abs(v) / (12e0*epsilon);
     return v;
 }; // }}}
 
