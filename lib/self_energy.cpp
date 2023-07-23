@@ -199,7 +199,7 @@ vectorReal get_lifetime_Gaussian_L(band b, int valley, chemical_potential mu, tr
     vectorReal lifetime(size, 0e0);
 
     for (int i=0; i<size; i++) {
-        std::cout << i << std::endl;
+        if (i%10 == 0) std::cout << i << std::endl;
         kpoint k = tri.vertexes[i];
         matrixComplex H = set_L(valley, k.vec);
         diag_set eigen = diagonalize_V(H);
@@ -214,7 +214,8 @@ vectorReal get_lifetime_Gaussian_L(band b, int valley, chemical_potential mu, tr
             }
         }
 
-        lifetime[i] = - hbar / (2e0*gamma.imag());
+//        lifetime[i] = - hbar / (2e0*gamma.imag());
+        lifetime[i] = - gamma.imag();
     }
 
     return lifetime;
