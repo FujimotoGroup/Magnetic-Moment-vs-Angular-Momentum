@@ -205,6 +205,7 @@ vectorReal get_lifetime_Gaussian_L(band b, int valley, chemical_potential mu, tr
         diag_set eigen = diagonalize_V(H);
 
         Self_energy se = get_self_energy_born_k_L(b, 0e0, valley, k, mu, epsilon);
+        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
 
         vectorComplex U = eigen.vectors[b.index];
         Complex gamma = 0e0;
