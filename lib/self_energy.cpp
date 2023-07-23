@@ -73,7 +73,7 @@ vectorReal get_lifetime_T(int band_index, Self_energy se, triangles tri) { // {{
             }
         }
 
-        lifetime[i] = - tau.imag();
+        lifetime[i] = - hbar / (2e0*tau.imag());
     }
 
     return lifetime;
@@ -97,7 +97,7 @@ vectorReal get_lifetime_L(int band_index, Self_energy se, int valley, triangles 
             }
         }
 
-        lifetime[i] = - tau.imag();
+        lifetime[i] = - hbar / (2e0*tau.imag());
     }
 
     return lifetime;
@@ -111,11 +111,18 @@ Self_energy get_self_energy_born_k_T(band b, Energy ene, kpoint kp, chemical_pot
 
         Self_energy se(bandsT, vectorComplex(bandsT, 0e0));
 
-        for(int i=0; i<bandsT; i++) {
-            se[i][i] = zi*GR[i][i].imag();
-            for(int j=i+1; j<bandsT; j++) {
-                se[i][j] = zi * GR[i][j].imag();
-                se[j][i] = zi * GR[j][i].imag();
+        double coeff = 0e0;
+        for (int axis=0; axis<space_dim; axis++) {
+            double c = kp.vec[axis]-k.vec[axis];
+            coeff += c*c;
+        }
+        coeff = std::exp(- coeff * sigma_imp*sigma_imp);
+
+        for(int i=0; i<bandsL; i++) {
+            se[i][i] = zi*coeff*GR[i][i].imag();
+            for(int j=i+1; j<bandsL; j++) {
+                se[i][j] = zi * coeff * GR[i][j].imag();
+                se[j][i] = zi * coeff * GR[j][i].imag();
             }
         }
 
@@ -128,7 +135,7 @@ Self_energy get_self_energy_born_k_T(band b, Energy ene, kpoint kp, chemical_pot
 
 } // }}}
 
-Self_energy get_self_energy_born_k_L(band b, Energy ene, int valley, chemical_potential mu, Energy epsilon) { // {{{
+Self_energy get_self_energy_born_k_L(band b, Energy ene, int valley, kpoint kp, chemical_potential mu, Energy epsilon) { // {{{
     Self_energy self_ene(bandsL, vectorComplex(bandsL, 0e0));
 
     auto fn = [=](int valley, int band_index, chemical_potential e, kpoint k) {
@@ -136,11 +143,18 @@ Self_energy get_self_energy_born_k_L(band b, Energy ene, int valley, chemical_po
 
         Self_energy se(bandsL, vectorComplex(bandsL, 0e0));
 
+        double coeff = 0e0;
+        for (int axis=0; axis<space_dim; axis++) {
+            double c = kp.vec[axis]-k.vec[axis];
+            coeff += c*c;
+        }
+        coeff = std::exp(- coeff * sigma_imp*sigma_imp);
+
         for(int i=0; i<bandsL; i++) {
-            se[i][i] = zi*GR[i][i].imag();
+            se[i][i] = zi*coeff*GR[i][i].imag();
             for(int j=i+1; j<bandsL; j++) {
-                se[i][j] = zi * GR[i][j].imag();
-                se[j][i] = zi * GR[j][i].imag();
+                se[i][j] = zi * coeff * GR[i][j].imag();
+                se[j][i] = zi * coeff * GR[j][i].imag();
             }
         }
 
@@ -151,6 +165,59 @@ Self_energy get_self_energy_born_k_L(band b, Energy ene, int valley, chemical_po
 
     return self_ene;
 
+} // }}}
+
+vectorReal get_lifetime_Gaussian_T(band b, chemical_potential mu, triangles tri, Energy epsilon) { // {{{
+    int size = tri.vertexes.size();
+
+    vectorReal lifetime(size, 0e0);
+
+    for (int i=0; i<size; i++) {
+        kpoint k = tri.vertexes[i];
+        matrixComplex H = set_T(k.vec);
+        diag_set eigen = diagonalize_V(H);
+
+        Self_energy se = get_self_energy_born_k_T(b, 0e0, k, mu, epsilon);
+
+        vectorComplex U = eigen.vectors[b.index];
+        Complex gamma = 0e0;
+        for (int j=0; j<U.size(); j++) {
+            for (int l=0; l<U.size(); l++) {
+                gamma += std::conj(U[j])*se[j][l]*U[l];
+            }
+        }
+
+        lifetime[i] = - hbar / (2e0*gamma.imag());
+    }
+
+    return lifetime;
+} // }}}
+
+vectorReal get_lifetime_Gaussian_L(band b, int valley, chemical_potential mu, triangles tri, Energy epsilon) { // {{{
+    int size = tri.vertexes.size();
+
+    vectorReal lifetime(size, 0e0);
+
+    for (int i=0; i<size; i++) {
+        std::cout << i << std::endl;
+        kpoint k = tri.vertexes[i];
+        matrixComplex H = set_L(valley, k.vec);
+        diag_set eigen = diagonalize_V(H);
+
+        Self_energy se = get_self_energy_born_k_L(b, 0e0, valley, k, mu, epsilon);
+
+        vectorComplex U = eigen.vectors[b.index];
+        Complex gamma = 0e0;
+        for (int j=0; j<U.size(); j++) {
+            for (int l=0; l<U.size(); l++) {
+                gamma += std::conj(U[j])*se[j][l]*U[l];
+            }
+        }
+
+        lifetime[i] = - hbar / (2e0*gamma.imag());
+    }
+
+    return lifetime;
 } // }}}
 
 void write_res(Self_energy sigma, chemical_potential mu, std::string filename) { // {{{

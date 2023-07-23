@@ -116,6 +116,7 @@ extern std::vector<std::vector<matrixComplex>> sigma_L;
 extern std::vector<std::vector<matrixComplex>> v_sigma_T;
 extern std::vector<std::vector<std::vector<matrixComplex>>> v_sigma_L;
 
+extern const double sigma_imp;
 extern matrixComplex impurityV1_T;
 extern matrixComplex impurityV2_T;
 extern std::vector<matrixComplex> impurityV1_L;
@@ -353,23 +354,23 @@ template<class Fn, class N> void integrate_band_T(Fn fn, N& res, band b, chemica
 }; // }}}
 
 template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
-    std::string filename = "self_energy_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
-    std::ofstream ofs(filename);
-    ofs.close();
+//    std::string filename = "self_energy_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
+//    std::ofstream ofs(filename);
+//    ofs.close();
     N sigma;
     Energy dmu;
     int i_mu = 0;
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
         dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
-        write_res(sigma, b.ene[i_mu]-mu, filename);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
     for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
         dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
-        write_res(sigma, b.ene[i_mu]-mu, filename);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
     }
@@ -377,7 +378,7 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
         dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
-        write_res(sigma, b.ene[i_mu]-mu, filename);
+//        write_res(sigma, b.ene[i_mu]-mu, filename);
         sigma = times(sigma, dmu);
         res = add(res, sigma);
 }; // }}}
@@ -387,10 +388,14 @@ Green_function get_green_function_L(Complex ene, int valley, kpoint k);
 
 Self_energy get_self_energy_born_T(band b, Energy ene, chemical_potential mu, Energy epsilon);
 Self_energy get_self_energy_born_L(band b, Energy ene, int valley, chemical_potential mu, Energy epsilon);
+Self_energy get_self_energy_born_k_T(band b, Energy ene, kpoint kp, chemical_potential mu, Energy epsilon);
+Self_energy get_self_energy_born_k_L(band b, Energy ene, int valley, kpoint kp, chemical_potential mu, Energy epsilon);
 Green_function get_full_green_function_T(Energy ene, kpoint k, Self_energy se);
 Green_function get_full_green_function_L(Energy ene, int valley, kpoint k, Self_energy se);
 vectorReal get_lifetime_T(int band_index, Self_energy se, triangles tri);
+vectorReal get_lifetime_Gaussian_T(band b, chemical_potential mu, triangles tri, Energy epsilon);
 vectorReal get_lifetime_L(int band_index, Self_energy se, int valley, triangles tri);
+vectorReal get_lifetime_Gaussian_L(band b, int valley, chemical_potential mu, triangles tri, Energy epsilon);
 
 SHC get_SHC_T1(band b, Energy epsilon, chemical_potential mu);
 SHC get_SHC_T2(band b, Energy epsilon, chemical_potential mu);
