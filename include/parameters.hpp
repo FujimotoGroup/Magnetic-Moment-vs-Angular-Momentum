@@ -363,29 +363,23 @@ template<class Fn, class N> void integrate_band_T(Fn fn, N& res, band b, chemica
 //    std::ofstream ofs(filename);
 //    ofs.close();
     N sigma;
-    Energy dmu;
-    int i_mu = 0;
+    vectorReal de(b.mesh);
+    {
+    int i = 0;
+        de[i] = (b.ene[i+1] - b.ene[i])*5e-1;
+    for (i=1; i<b.mesh-1; i++) {
+        de[i] = (b.ene[i+1] - b.ene[i-1])*5e-1;
+    }
+    i = b.mesh-1;
+        de[i] = (b.ene[i] - b.ene[i-1])*5e-1;
+    }
+    for (int i=0; i<b.mesh; i++) {
         init(sigma, res);
-        integrate_triangles_T(fn, sigma, b.tri[i_mu], b.index, mu);
-        dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
-        sigma = times(sigma, dmu);
-        res = add(res, sigma);
-    for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
-        init(sigma, res);
-        integrate_triangles_T(fn, sigma, b.tri[i_mu], b.index, mu);
-        dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
-        sigma = times(sigma, dmu);
+        integrate_triangles_T(fn, sigma, b.tri[i], b.index, mu);
+//        write_res(sigma, b.ene[i]-mu, filename);
+        sigma = times(sigma, de[i]);
         res = add(res, sigma);
     }
-    i_mu = b.mesh-1;
-        init(sigma, res);
-        integrate_triangles_T(fn, sigma, b.tri[i_mu], b.index, mu);
-        dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
-        sigma = times(sigma, dmu);
-        res = add(res, sigma);
 }; // }}}
 
 template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
@@ -407,9 +401,9 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i], valley, b.index, mu);
 //        write_res(sigma, b.ene[i]-mu, filename);
+        sigma = times(sigma, de[i]);
         res = add(res, sigma);
     }
-
 }; // }}}
 
 template<class Fn, class N> void integrate_band_para_T(Fn fn, N& res, band b, chemical_potential mu) { // {{{
