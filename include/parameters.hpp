@@ -255,6 +255,44 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
     double coef = 1e0 / ((2e0*pi)*(2e0*pi)*(2e0*pi));
     res = times(res, coef);
 }; // }}}
+//
+//template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
+//    init(res, res);
+//
+//    std::vector<std::thread> threads;
+//    threads.resize(thread_num);
+//    std::vector<N> part;
+//    part.resize(thread_num);
+//    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+//        init(part[i_thread], res);
+//        auto func = [](int i_thread, triangles tri, Fn& fn, N& part, int valley, int band_index, chemical_potential mu) {
+//            int size = tri.faces.size();
+//            for(int i=i_thread; i<size; i=i+thread_num) {
+//                kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
+////                double norm = 0e0;
+////                for(int axis=0; axis<space_dim; axis++) {
+////                    norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
+////                }
+////                norm = std::sqrt(norm);
+////                double dS = tri.faces[i].dS / norm;
+//                double dS = tri.faces[i].dS / tri.faces[i].grad;
+//                N c = times(fn(valley, band_index, mu, center), dS);
+//                part = add(part, c);
+//            }
+//        };
+//        threads[i_thread] = std::thread(func, i_thread, tri, std::ref(fn), std::ref(part[i_thread]), valley, band_index, mu);
+//    }
+//
+//    for(auto& thread : threads){
+//        thread.join();
+//    }
+//
+//    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+//        res = add(res, part[i_thread]);
+//    }
+//    double coef = 1e0 / ((2e0*pi)*(2e0*pi)*(2e0*pi));
+//    res = times(res, coef);
+//}; // }}}
 
 template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
     init(res, res);
