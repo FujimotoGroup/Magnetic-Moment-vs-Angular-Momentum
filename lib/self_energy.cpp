@@ -49,7 +49,7 @@ Self_energy get_self_energy_born_L(band b, Energy ene, int valley, chemical_pote
         return se;
     };
 
-    integrate_band_L(fn, self_ene, b, valley, ene + mu);
+    integrate_band_para_L(fn, self_ene, b, valley, ene + mu);
 
     return self_ene;
 
@@ -73,7 +73,8 @@ vectorReal get_lifetime_T(int band_index, Self_energy se, triangles tri) { // {{
             }
         }
 
-        lifetime[i] = - hbar / (2e0*tau.imag());
+//        lifetime[i] = - hbar / (2e0*tau.imag());
+        lifetime[i] = - tau.imag();
     }
 
     return lifetime;
