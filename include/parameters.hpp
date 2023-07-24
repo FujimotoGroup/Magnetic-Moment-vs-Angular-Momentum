@@ -383,9 +383,11 @@ template<class Fn, class N> void integrate_band_T(Fn fn, N& res, band b, chemica
 }; // }}}
 
 template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
-//    std::string filename = "self_energy_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
-//    std::ofstream ofs(filename);
-//    ofs.close();
+    std::string filename = "self_energy_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
+    std::ofstream ofs(filename);
+    ofs.close();
+    init(res, res);
+
     N sigma;
     vectorReal de(b.mesh);
     {
@@ -400,7 +402,7 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
     for (int i=0; i<b.mesh; i++) {
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i], valley, b.index, mu);
-//        write_res(sigma, b.ene[i]-mu, filename);
+        write_res(sigma, b.ene[i]-mu, filename);
         sigma = times(sigma, de[i]);
         res = add(res, sigma);
     }
