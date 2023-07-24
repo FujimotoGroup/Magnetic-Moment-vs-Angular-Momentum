@@ -391,12 +391,12 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
     N sigma;
     vectorReal de(b.mesh);
     int i = 0;
-        de[i] = (b.ene[i+1] - b.ene[i])*5e-1;
-    for (i=1; i<b.mesh-1; i++) {
+    de[i] = (b.ene[i+1] - b.ene[i])*5e-1;
+    for (int i=1; i<b.mesh-1; i++) {
         de[i] = (b.ene[i+1] - b.ene[i-1])*5e-1;
-    i = b.mesh-1;
-        de[i] = (b.ene[i] - b.ene[i-1])*5e-1;
     }
+    i = b.mesh-1;
+    de[i] = (b.ene[i] - b.ene[i-1])*5e-1;
     for (int i=0; i<b.mesh; i++) {
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i], valley, b.index, mu);
