@@ -97,7 +97,8 @@ vectorReal get_lifetime_L(int band_index, Self_energy se, int valley, triangles 
             }
         }
 
-        lifetime[i] = - hbar / (2e0*tau.imag());
+//        lifetime[i] = - hbar / (2e0*tau.imag());
+        lifetime[i] = - tau.imag();
     }
 
     return lifetime;
