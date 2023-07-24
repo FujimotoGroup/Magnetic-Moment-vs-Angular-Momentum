@@ -433,12 +433,15 @@ template<class Fn, class N> void integrate_band_para_T(Fn fn, N& res, band b, ch
     for (int i_thread=0; i_thread<thread_num; i_thread++) {
         init(part[i_thread], res);
         auto func = [](band b, int i_thread, Fn& fn, N& part, chemical_potential mu, vectorReal de) {
+            N sigma;
+            init(sigma, part);
             for(int i=i_thread; i<b.mesh; i=i+thread_num) {
-                integrate_triangles_T(fn, part, b.tri[i], b.index, mu);
+                integrate_triangles_T(fn, sigma, b.tri[i], b.index, mu);
 //                mtx.lock();
-//                write_res(part, b.ene[i]-mu, filename);
+//                write_res(sigma, b.ene[i]-mu, filename);
 //                mtx.unlock();
-                part = times(part, de[i]);
+                sigma = times(sigma, de[i]);
+                part = add(part, sigma);
             }
         };
         threads[i_thread] = std::thread(func, b, i_thread, std::ref(fn), std::ref(part[i_thread]), mu, de);
