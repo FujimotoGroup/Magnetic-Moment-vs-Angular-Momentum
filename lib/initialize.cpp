@@ -71,7 +71,7 @@ vectorReal kL[3];
 const std::string axises[] = {"x", "y", "z"};
 const int valleys = 3;
 
-const double sigma_imp = 3e0; // angstrom
+const double sigma_imp = 5e0; // angstrom
 
 std::vector<matrixComplex> vT;
 std::vector<std::vector<matrixComplex>> vL;
