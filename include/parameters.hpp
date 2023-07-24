@@ -475,7 +475,7 @@ template<class Fn, class N> void integrate_band_para_L(Fn fn, N& res, band b, in
 
     for (int i_thread=0; i_thread<thread_num; i_thread++) {
         init(part[i_thread], res);
-        auto func = [=](band b, int i_thread, Fn& fn, N& part, int valley, chemical_potential mu, vectorReal de) {
+        auto func = [](band b, int i_thread, Fn& fn, N& part, int valley, chemical_potential mu, vectorReal de) {
             for(int i=i_thread; i<b.mesh; i=i+thread_num) {
                 integrate_triangles_L(fn, part, b.tri[i], valley, b.index, mu);
 //                mtx.lock();
