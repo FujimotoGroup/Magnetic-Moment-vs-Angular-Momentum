@@ -780,7 +780,7 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
         size = mesh.number_of_vertices();
     } while (size < fermi_surface_mesh_lim_L);
     size = mesh.number_of_faces();
-    std::cout << std::fixed
+    std::cout << std::fixed << std::setw(9)
               << "ene = " << mu
               << "; final fs face# " << size
               << " and vertex# " << mesh.number_of_vertices()
