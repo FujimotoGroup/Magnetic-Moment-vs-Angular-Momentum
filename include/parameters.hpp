@@ -476,12 +476,15 @@ template<class Fn, class N> void integrate_band_para_L(Fn fn, N& res, band b, in
     for (int i_thread=0; i_thread<thread_num; i_thread++) {
         init(part[i_thread], res);
         auto func = [](band b, int i_thread, Fn& fn, N& part, int valley, chemical_potential mu, vectorReal de) {
+            N sigma;
+            init(sigma, part);
             for(int i=i_thread; i<b.mesh; i=i+thread_num) {
-                integrate_triangles_L(fn, part, b.tri[i], valley, b.index, mu);
+                integrate_triangles_L(fn, sigma, b.tri[i], valley, b.index, mu);
 //                mtx.lock();
-//                write_res(part, b.ene[i]-mu, filename);
+//                write_res(sigma, b.ene[i]-mu, filename);
 //                mtx.unlock();
-                part = times(part, de[i]);
+                sigma = times(sigma, de[i]);
+                part = add(part, sigma);
             }
         };
         threads[i_thread] = std::thread(func, b, i_thread, std::ref(fn), std::ref(part[i_thread]), valley, mu, de);
