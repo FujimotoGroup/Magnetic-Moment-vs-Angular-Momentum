@@ -214,7 +214,7 @@ vectorReal get_lifetime_Gaussian_L(band b, int valley, chemical_potential mu, tr
             for(int i=0; i<indexes[i_thread].size(); i++) {
                 mtx.lock();
 //                if (i%10 == 0) std::cout << i << std::endl;
-                std::cout << i << std::endl;
+                std::cout << i << ": " << indexes[i_thread][i] << std::endl;
                 mtx.unlock();
                 kpoint k = tri.vertexes[indexes[i_thread][i]];
                 matrixComplex H = set_L(valley, k.vec);
