@@ -59,7 +59,7 @@ double dk[3];
 const int mu_mesh_T = 160;
 const int mu_mesh_L = 160;
 const int fermi_surface_mesh_lim_T = 3000;
-const int fermi_surface_mesh_lim_L = 1000;
+const int fermi_surface_mesh_lim_L = 3000;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
@@ -72,7 +72,7 @@ const std::string axises[] = {"x", "y", "z"};
 const int valleys = 3;
 
 const double sigma_imp = 8e0; // angstrom
-double damping_constant = 5e-4; // eV
+const vectorReal damping = {1e-5, 2e-5, 3e-5, 5e-5, 7e-5, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4}; // eV
 double nu_F_T;
 double nu_F_L[3];
 

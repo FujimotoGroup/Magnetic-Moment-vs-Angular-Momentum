@@ -552,6 +552,91 @@ Conductivity get_conductivity_T(band b, Energy epsilon, chemical_potential mu) {
     return response;
 }; // }}}
 
+void set_conductivity_damping_dependence_at_Fermi_level_T(int band_index) { // {{{
+    std::vector<Conductivity> sigma(damping.size());
+
+    for (int i=0; i<damping.size(); i++) {
+        double damping_constant = damping[i];
+        Energy epsilon = damping_constant;
+        chemical_potential mu = 0e0;
+        int e_mesh = 47;
+        double e_cut = 59e0*epsilon;
+        double power = 9e-1;
+
+        band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
+
+        nu_F_T = bT.dos[e_mesh];
+        double coef = damping_constant / nu_F_T;
+        Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon, coef);
+        sigma[i] = get_conductivity_with_self_energy_T(bT, 0e0, mu, se);
+    }
+// init Sigma file {{{
+    std::string dir = "T"+std::to_string(bandsT)+"bands/damping-dependence";
+    set_output_directory(dir);
+    std::string filename = "dat/"+dir+"/conductivity_T.csv";
+    std::ofstream ofsigma(filename);
+    ofsigma << "damping";
+    for(int external=0; external<space_dim; external++) {
+        for(int axis=0; axis<space_dim; axis++) {
+            ofsigma << ", " << axises[external]+axises[axis];
+        }
+    }
+    ofsigma << std::endl;
+
+    for (int i=0; i<damping.size(); i++) {
+        ofsigma << std::scientific << damping[i];
+        Conductivity s = sigma[i];
+        for( auto v : s ) {
+            for( auto r : v ) {
+                ofsigma << std::scientific << ", " << r.real();
+            }
+        }
+        ofsigma << std::endl;
+    }
+// }}}
+}; // }}}
+
+Conductivity get_conductivity_with_self_energy_T(band b, Energy epsilon, chemical_potential mu, Self_energy se) { // {{{
+    Conductivity response(space_dim, vectorComplex(space_dim, 0e0));
+
+    Self_energy SigmaR = se;
+    Self_energy SigmaA(bandsT, vectorComplex(bandsT));
+    for(int i=0; i<bandsT; i++) {
+        SigmaA[i][i] = std::conj(SigmaR[i][i]);
+        for(int j=i+1; j<bandsT; j++) {
+            SigmaA[i][j] = std::conj(SigmaR[i][j]);
+            SigmaA[j][i] = std::conj(SigmaR[j][i]);
+        }
+    }
+
+    auto fn = [=](int band_index, chemical_potential e, kpoint k) {
+        Green_function GR = get_full_green_function_T(e + eps_phys*zi, k, SigmaR);
+        Green_function GA = get_full_green_function_T(e - eps_phys*zi, k, SigmaA);
+
+        matrixComplex res(space_dim, vectorComplex(space_dim, 0e0));
+
+        for(int external=0; external<space_dim; external++) {
+            matrixComplex vGRe = product(vT[external], GR);
+            matrixComplex vGAe = product(vT[external], GA);
+            for(int axis=0; axis<space_dim; axis++) {
+                matrixComplex vGRa = product(vT[axis], GR);
+                matrixComplex vGAa = product(vT[axis], GA);
+
+                res[external][axis] = tr(product(vGRa, vGAe)) - 5e-1*(tr(product(vGRa, vGRe)) + tr(product(vGAa, vGAe)));
+            }
+        }
+
+        return res;
+    };
+
+    integrate_band_T(fn, response, b, mu);
+
+    double coef = (charge*v0)*(charge*v0) * hbar / (4e0*pi) / (angstrom*angstrom*angstrom) / charge;
+    response = times(response, coef);
+
+    return response;
+}; // }}}
+
 SHC get_SHC_T1(band b, Energy epsilon, chemical_potential mu) { // {{{
     SHC response(space_dim, matrixComplex(space_dim, vectorComplex(spin_dim, 0e0)));
 
@@ -1233,27 +1318,19 @@ Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, i
     return response;
 }; // }}}
 
-void set_conductivity_damping_dependence_at_Fermi_level(valley) { // {{{
-    vectorReal damping = {1e-5, 2e-5, 3e-5, 5e-5, 7e-5, 1e-4, 2e-4, 3e-4};
+void set_conductivity_damping_dependence_at_Fermi_level_L(int valley, int band_index) { // {{{
+    vectorReal damping = {1e-5, 2e-5, 3e-5, 5e-5, 7e-5, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4};
 
     std::vector<Conductivity> sigma(damping.size());
     for (int i=0; i<damping.size(); i++) {
-        damping_constant = damping[i];
+        double damping_constant = damping[i];
         Energy epsilon = damping_constant;
         chemical_potential mu = 0e0;
         int e_mesh = 47;
         double e_cut = 59e0*epsilon;
         double power = 9e-1;
 
-        int band_index = num_band[1];
         band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
-
-//        Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon, coef);
-//        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
-//        vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
-////        vectorReal lifetime = get_lifetime_Gaussian_L(bL, valley, bL.ene[e_mesh], bL.tri[e_mesh], epsilon, coef);
-//        std::string name = "./dat/lifetime_L"+std::to_string(valley+1)+"-mu0e0";
-//        triangles_write_L(bL.tri[e_mesh], name, valley, lifetime);
 
         nu_F_L[valley] = bL.dos[e_mesh];
         double coef = damping_constant / nu_F_L[valley];
@@ -1283,6 +1360,7 @@ void set_conductivity_damping_dependence_at_Fermi_level(valley) { // {{{
         }
         ofsigma << std::endl;
     }
+// }}}
 }; // }}}
 
 Conductivity get_conductivity_with_self_energy_L(band b, Energy epsilon, chemical_potential mu, int valley, Self_energy se) { // {{{

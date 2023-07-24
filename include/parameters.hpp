@@ -118,7 +118,7 @@ extern std::vector<std::vector<matrixComplex>> v_sigma_T;
 extern std::vector<std::vector<std::vector<matrixComplex>>> v_sigma_L;
 
 extern const double sigma_imp;
-extern double damping_constant; // eV
+extern const vectorReal damping;
 extern double nu_F_T;
 extern double nu_F_L[3];
 extern matrixComplex impurityV1_T;
@@ -589,6 +589,9 @@ Conductivity get_conductivity_with_self_energy_L(band b, Energy epsilon, chemica
 
 void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int band_index);
 void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int valley, int band_index);
+
+void set_conductivity_damping_dependence_at_Fermi_level_T(int band_index);
+void set_conductivity_damping_dependence_at_Fermi_level_L(int valley, int band_index);
 
 void set_output_directory(std::string dir);
 #endif // PARAMETERS_HPP
