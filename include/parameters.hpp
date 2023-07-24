@@ -401,7 +401,7 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
         init(sigma, res);
         integrate_triangles_L(fn, sigma, b.tri[i], valley, b.index, mu);
         write_res(sigma, b.ene[i]-mu, filename);
-        std::cout << de[i] << std::endl;
+        std::cout << std::scientific << de[i] << std::endl;
         sigma = times(sigma, de[i]);
         res = add(res, sigma);
     }
