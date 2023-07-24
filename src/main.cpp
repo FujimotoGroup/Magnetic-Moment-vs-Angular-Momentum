@@ -218,7 +218,7 @@ int main(){
 //    }
 //// }}}
 
-//// T point {{{
+//// T point chemical potential dependence {{{
 //    int band_index = 4;
 //    mu_cutoff_T = -0.11e0;
 //    mu_cutoff_mesh_T = 20;
@@ -229,7 +229,7 @@ int main(){
 //    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
 //// }}}
 
-//// L points {{{
+//// L points chemical potential dependence {{{
 //    int num_band[2];
 //    if (bandsL == 4) { // for 4bands
 //        num_band[0] = 0;
@@ -285,7 +285,7 @@ int main(){
 //   }
 //// }}}
 //
-//// T point {{{
+//// T point @ Fermi level {{{
 //    int band_index = 4;
 //    Energy epsilon = 5e-4; // [eV]
 //    chemical_potential mu = 0e0;
@@ -314,7 +314,7 @@ int main(){
 //    triangles_write_T(bT.tri[e_mesh], name, lifetime);
 //// }}}
 //
-// L points {{{
+// L points @ Fermi level {{{
     int num_band[2];
     if (bandsL == 4) { // for 4bands
         num_band[0] = 0;
@@ -329,52 +329,61 @@ int main(){
         std::cerr << "'bandsL' should be 4, 8, 12" << std::endl;
         exit(0);
     }
-    for(int valley=0; valley<valleys; valley++) {
-//        for (auto v: impurityV1_L[valley]) {
-//            for (auto c: v) {
-//                std::cout << std::fixed << std::setw(7) << c << ", ";
-//            }
-//            std::cout << std::endl;
-//        }
-//
-//            std::cout << std::endl;
-//
-//        for (auto v: impurityV2_L[valley]) {
-//            for (auto c: v) {
-//                std::cout << c << ", ";
-//            }
-//            std::cout << std::endl;
-//        }
 
-        Energy epsilon = 5e-4; // [eV]
-        chemical_potential mu = 0e0;
-        int e_mesh = 47;
-        double e_cut = 59e0*epsilon;
-        double power = 9e-1;
+    vectorReal damping = {1e-5, 2e-5, 3e-5, 5e-5, 7e-5, 1e-4, 2e-4, 3e-4};
 
-        int band_index = num_band[1];
-        band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
+    std::vector<Conductivity> sigma(damping.size());
+    for (int i=0; i<damping.size(); i++) {
+        damping_constant = damping[i];
+        for(int valley=0; valley<valleys; valley++) {
+            Energy epsilon = damping_constant;
+            chemical_potential mu = 0e0;
+            int e_mesh = 47;
+            double e_cut = 59e0*epsilon;
+            double power = 9e-1;
 
-        Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon);
-        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
-        vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
-//        vectorReal lifetime = get_lifetime_Gaussian_L(bL, valley, bL.ene[e_mesh], bL.tri[e_mesh], epsilon);
+            int band_index = num_band[1];
+            band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
 
-        std::string dos_name = "./dat/dos_L"+std::to_string(valley+1)+"-mu0e0.csv";
-        std::ofstream o_dos(dos_name);
-        for (int i=0; i<bL.mesh; i++) {
-            double dS = 0e0;
-            for (int j=0; j<bL.tri[i].faces.size(); j++) {
-                dS += bL.tri[i].faces[j].dS;
-            }
-            o_dos << bL.ene[i] << ", " << bL.dos[i]
-                  << ", " << dS
-                  << std::endl;
+//            Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon, coef);
+//            se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
+//            vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
+////            vectorReal lifetime = get_lifetime_Gaussian_L(bL, valley, bL.ene[e_mesh], bL.tri[e_mesh], epsilon, coef);
+//            std::string name = "./dat/lifetime_L"+std::to_string(valley+1)+"-mu0e0";
+//            triangles_write_L(bL.tri[e_mesh], name, valley, lifetime);
+
+            nu_F_L[valley] = bL.dos[e_mesh];
+            double coef = damping_constant / nu_F_L[valley];
+            Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon, coef);
+            sigma[i] = get_conductivity_with_self_energy_L(bL, 0e0, mu, valley, se);
         }
+    }
+// init Sigma file {{{
+    std::string dir = "L"+std::to_string(bandsL)+"bands/damping-dependence";
+    set_output_directory(dir);
+    for(int valley=0; valley<valleys; valley++) {
+        std::string filename = "dat/"+dir+"/conductivity_L"+std::to_string(valley+1)+".csv";
+        std::ofstream ofsigma(filename);
+        ofsigma << "damping";
+        for(int external=0; external<space_dim; external++) {
+            for(int axis=0; axis<space_dim; axis++) {
+                ofsigma << ", " << axises[external]+axises[axis];
+            }
+        }
+        ofsigma << std::endl;
 
-        std::string name = "./dat/lifetime_L"+std::to_string(valley+1)+"-mu0e0";
-        triangles_write_L(bL.tri[e_mesh], name, valley, lifetime);
-   }
+        for (int i=0; i<damping.size(); i++) {
+            ofsigma << std::scientific << damping[i];
+            Conductivity s = sigma[i];
+            for( auto v : s ) {
+                for( auto r : v ) {
+                    ofsigma << std::scientific << ", " << r.real();
+                }
+            }
+            ofsigma << std::endl;
+        }
+    }
+// }}}
 // }}}
 
     auto calc_end_time = std::chrono::system_clock::now();

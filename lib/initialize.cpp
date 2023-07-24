@@ -59,7 +59,7 @@ double dk[3];
 const int mu_mesh_T = 160;
 const int mu_mesh_L = 160;
 const int fermi_surface_mesh_lim_T = 3000;
-const int fermi_surface_mesh_lim_L = 6000;
+const int fermi_surface_mesh_lim_L = 1000;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
@@ -72,6 +72,9 @@ const std::string axises[] = {"x", "y", "z"};
 const int valleys = 3;
 
 const double sigma_imp = 8e0; // angstrom
+double damping_constant = 5e-4; // eV
+double nu_F_T;
+double nu_F_L[3];
 
 std::vector<matrixComplex> vT;
 std::vector<std::vector<matrixComplex>> vL;
@@ -528,6 +531,43 @@ void initialize() {
     }
     // }}}
 };
+
+void show_impurity_potentials() { // {{{
+    for(int valley=0; valley<valleys; valley++) {
+        for (auto v: impurityV1_L[valley]) {
+            for (auto c: v) {
+                std::cout << std::right << std::fixed << std::setprecision(6)
+                          << std::setw(10) << c.real()
+                          << ", ";
+            }
+            std::cout << std::left << std::setw(5) << "" << std::left << std::setw(5) << "|";
+            for (auto c: v) {
+                std::cout << std::right << std::fixed << std::setprecision(6)
+                          << std::setw(10) << c.imag()
+                          << ", ";
+            }
+            std::cout << std::endl;
+        }
+
+        std::cout << std::endl;
+
+        for (auto v: impurityV2_L[valley]) {
+            for (auto c: v) {
+                std::cout << std::right << std::fixed << std::setprecision(6)
+                          << std::setw(10) << c.real()
+                          << ", ";
+            }
+            std::cout << std::left << std::setw(5) << "" << std::left << std::setw(5) << "|";
+            for (auto c: v) {
+                std::cout << std::right << std::fixed << std::setprecision(6)
+                          << std::setw(10) << c.imag()
+                          << ", ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+}; // }}}
 
 void set_isotropic() { // {{{
     const matrixComplex sigma_x = { {0e0, 1e0}, {1e0, 0e0} };

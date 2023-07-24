@@ -20,6 +20,7 @@
 #include <CGAL/Surface_mesh.h>
 #include <fstream>
 #include <chrono>
+#include <filesystem>
 typedef CGAL::Surface_mesh_default_triangulation_3 Tr;
 // c2t3
 typedef CGAL::Complex_2_in_triangulation_3<Tr> C2t3;
@@ -117,6 +118,9 @@ extern std::vector<std::vector<matrixComplex>> v_sigma_T;
 extern std::vector<std::vector<std::vector<matrixComplex>>> v_sigma_L;
 
 extern const double sigma_imp;
+extern double damping_constant; // eV
+extern double nu_F_T;
+extern double nu_F_L[3];
 extern matrixComplex impurityV1_T;
 extern matrixComplex impurityV2_T;
 extern std::vector<matrixComplex> impurityV1_L;
@@ -358,7 +362,7 @@ band combine_band_2n(band b_global, band b_local);
 void write_res(Conductivity sigma, chemical_potential mu,  std::string filename);
 void write_res(SHC sigma, chemical_potential mu,  std::string filename);
 
-template<class Fn, class N> void integrate_band_T(Fn fn, N& res, band b, chemical_potential mu) { // {{{
+template<class Fn, class N> void integrate_band_no_para_T(Fn fn, N& res, band b, chemical_potential mu) { // {{{
 //    std::string filename = "self_energy_T-band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
 //    std::ofstream ofs(filename);
 //    ofs.close();
@@ -384,7 +388,7 @@ template<class Fn, class N> void integrate_band_T(Fn fn, N& res, band b, chemica
     }
 }; // }}}
 
-template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
+template<class Fn, class N> void integrate_band_no_para_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
 //    std::string filename = "self_energy_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
 //    std::ofstream ofs(filename);
 //    ofs.close();
@@ -404,6 +408,58 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
 
     for (int i=0; i<b.mesh; i++) {
         integrate_triangles_L(fn, sigma, b.tri[i], valley, b.index, mu);
+//        write_res(sigma, b.ene[i]-mu, filename);
+        sigma = times(sigma, de[i]);
+        res = add(res, sigma);
+    }
+}; // }}}
+
+template<class Fn, class N> void integrate_band_T(Fn fn, N& res, band b, chemical_potential mu) { // {{{
+//    std::string filename = "self_energy_T-band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
+//    std::ofstream ofs(filename);
+//    ofs.close();
+    init(res, res);
+
+    N sigma;
+    init(sigma, res);
+
+    vectorReal de(b.mesh);
+    int i = 0;
+    de[i] = (b.ene[i+1] - b.ene[i])*5e-1;
+    for (int i=1; i<b.mesh-1; i++) {
+        de[i] = (b.ene[i+1] - b.ene[i-1])*5e-1;
+    }
+    i = b.mesh-1;
+    de[i] = (b.ene[i] - b.ene[i-1])*5e-1;
+
+    for (int i=0; i<b.mesh; i++) {
+        integrate_triangles_para_T(fn, sigma, b.tri[i], b.index, mu);
+//        write_res(sigma, b.ene[i]-mu, filename);
+        sigma = times(sigma, de[i]);
+        res = add(res, sigma);
+    }
+}; // }}}
+
+template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
+//    std::string filename = "self_energy_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
+//    std::ofstream ofs(filename);
+//    ofs.close();
+    init(res, res);
+
+    N sigma;
+    init(sigma, res);
+
+    vectorReal de(b.mesh);
+    int i = 0;
+    de[i] = (b.ene[i+1] - b.ene[i])*5e-1;
+    for (int i=1; i<b.mesh-1; i++) {
+        de[i] = (b.ene[i+1] - b.ene[i-1])*5e-1;
+    }
+    i = b.mesh-1;
+    de[i] = (b.ene[i] - b.ene[i-1])*5e-1;
+
+    for (int i=0; i<b.mesh; i++) {
+        integrate_triangles_para_L(fn, sigma, b.tri[i], valley, b.index, mu);
 //        write_res(sigma, b.ene[i]-mu, filename);
         sigma = times(sigma, de[i]);
         res = add(res, sigma);
@@ -505,12 +561,12 @@ template<class Fn, class N> void integrate_band_para_L(Fn fn, N& res, band b, in
 Green_function get_green_function_T(Complex ene, kpoint k);
 Green_function get_green_function_L(Complex ene, int valley, kpoint k);
 
-Self_energy get_self_energy_born_T(band b, Energy ene, chemical_potential mu, Energy epsilon);
-Self_energy get_self_energy_born_L(band b, Energy ene, int valley, chemical_potential mu, Energy epsilon);
-Self_energy get_self_energy_born_k_T(band b, Energy ene, kpoint kp, chemical_potential mu, Energy epsilon);
-Self_energy get_self_energy_born_k_L(band b, Energy ene, int valley, kpoint kp, chemical_potential mu, Energy epsilon);
-Green_function get_full_green_function_T(Energy ene, kpoint k, Self_energy se);
-Green_function get_full_green_function_L(Energy ene, int valley, kpoint k, Self_energy se);
+Self_energy get_self_energy_born_T(band b, Energy ene, chemical_potential mu, Energy epsilon, double coef);
+Self_energy get_self_energy_born_L(band b, Energy ene, int valley, chemical_potential mu, Energy epsilon, double coef);
+Self_energy get_self_energy_born_k_T(band b, Energy ene, kpoint kp, chemical_potential mu, Energy epsilon, double coef);
+Self_energy get_self_energy_born_k_L(band b, Energy ene, int valley, kpoint kp, chemical_potential mu, Energy epsilon, double coef);
+Green_function get_full_green_function_T(Complex ene, kpoint k, Self_energy se);
+Green_function get_full_green_function_L(Complex ene, int valley, kpoint k, Self_energy se);
 vectorReal get_lifetime_T(int band_index, Self_energy se, triangles tri);
 vectorReal get_lifetime_Gaussian_T(band b, chemical_potential mu, triangles tri, Energy epsilon);
 vectorReal get_lifetime_L(int band_index, Self_energy se, int valley, triangles tri);
@@ -528,12 +584,11 @@ SHC get_angular_SHC_L2(band b, Energy epsilon, chemical_potential mu, int valley
 
 Conductivity get_conductivity_T(band b, Energy epsilon, chemical_potential mu);
 Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, int valley);
+Conductivity get_conductivity_with_self_energy_T(band b, Energy epsilon, chemical_potential mu, Self_energy se);
+Conductivity get_conductivity_with_self_energy_L(band b, Energy epsilon, chemical_potential mu, int valley, Self_energy se);
 
 void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int band_index);
 void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int ene_mesh, int valley, int band_index);
 
-Conductivity get_conductivity_at_fs_T(band b, Energy epsilon);
-Conductivity get_conductivity_at_fs_L(band b, Energy epsilon, int valley);
-void set_response_at_fs_T(int band_index);
-void set_response_at_fs_L(int valley, int band_index);
+void set_output_directory(std::string dir);
 #endif // PARAMETERS_HPP
