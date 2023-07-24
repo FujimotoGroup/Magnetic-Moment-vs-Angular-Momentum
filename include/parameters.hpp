@@ -399,9 +399,8 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
     de[i] = (b.ene[i] - b.ene[i-1])*5e-1;
     for (int i=0; i<b.mesh; i++) {
         init(sigma, res);
-        integrate_triangles_L(fn, sigma, b.tri[i], valley, b.index, mu);
+        integrate_triangles_para_L(fn, sigma, b.tri[i], valley, b.index, mu);
         write_res(sigma, b.ene[i]-mu, filename);
-        std::cout << std::scientific << de[i] << std::endl;
         sigma = times(sigma, de[i]);
         res = add(res, sigma);
     }
