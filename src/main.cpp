@@ -329,7 +329,8 @@ int main(){
         std::cerr << "'bandsL' should be 4, 8, 12" << std::endl;
         exit(0);
     }
-    for(int valley=0; valley<valleys; valley++) {
+//    for(int valley=0; valley<valleys; valley++) {
+    for(int valley=0; valley<1; valley++) {
 //        for (auto v: impurityV1_L[valley]) {
 //            for (auto c: v) {
 //                std::cout << std::fixed << std::setw(7) << c << ", ";

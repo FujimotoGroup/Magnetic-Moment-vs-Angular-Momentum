@@ -450,9 +450,9 @@ template<class Fn, class N> void integrate_band_para_T(Fn fn, N& res, band b, ch
 }; // }}}
 
 template<class Fn, class N> void integrate_band_para_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
-//    std::string filename = "self_energy_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
-//    std::ofstream ofs(filename);
-//    ofs.close();
+    std::string filename = "self_energy_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
+    std::ofstream ofs(filename);
+    ofs.close();
 
     std::vector<std::thread> threads;
     threads.resize(thread_num);
@@ -472,13 +472,12 @@ template<class Fn, class N> void integrate_band_para_L(Fn fn, N& res, band b, in
 
     for (int i_thread=0; i_thread<thread_num; i_thread++) {
         init(part[i_thread], res);
-        auto func = [](band b, int i_thread, Fn& fn, N& part, int valley, chemical_potential mu, vectorReal de) {
+        auto func = [=](band b, int i_thread, Fn& fn, N& part, int valley, chemical_potential mu, vectorReal de) {
             for(int i=i_thread; i<b.mesh; i=i+thread_num) {
                 integrate_triangles_L(fn, part, b.tri[i], valley, b.index, mu);
-//                mtx.lock();
-//                std::cout << "hoge: " << i << std::endl;
-//                write_res(part, b.ene[i]-mu, filename);
-//                mtx.unlock();
+                mtx.lock();
+                write_res(part, b.ene[i]-mu, filename);
+                mtx.unlock();
                 part = times(part, de[i]);
             }
         };
