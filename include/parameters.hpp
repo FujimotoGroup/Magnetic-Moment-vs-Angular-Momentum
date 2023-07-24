@@ -221,6 +221,41 @@ Complex tr(matrixComplex A);
 template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles tri, int band_index, chemical_potential mu) { // {{{
     init(res, res);
 
+    N part;
+    init(part, res);
+
+    int size = tri.faces.size();
+    for(int i=0; i<size; i++) {
+        kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
+        double dS = tri.faces[i].dS / tri.faces[i].grad;
+        N c = times(fn(band_index, mu, center), dS);
+        part = add(part, c);
+    }
+
+    double coef = 1e0 / ((2e0*pi)*(2e0*pi)*(2e0*pi));
+    res = times(part, coef);
+}; // }}}
+
+template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
+    init(res, res);
+
+    N part;
+    init(part, res);
+
+    int size = tri.faces.size();
+    for(int i=0; i<size; i++) {
+        kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
+        double dS = tri.faces[i].dS / tri.faces[i].grad;
+        N c = times(fn(valley, band_index, mu, center), dS);
+        part = add(part, c);
+    }
+    double coef = 1e0 / ((2e0*pi)*(2e0*pi)*(2e0*pi));
+    res = times(part, coef);
+}; // }}}
+
+template<class Fn, class N> void integrate_triangles_para_T(Fn fn, N& res, triangles tri, int band_index, chemical_potential mu) { // {{{
+    init(res, res);
+
     std::vector<std::thread> threads;
     threads.resize(thread_num);
     std::vector<N> part;
@@ -255,46 +290,8 @@ template<class Fn, class N> void integrate_triangles_T(Fn fn, N& res, triangles 
     double coef = 1e0 / ((2e0*pi)*(2e0*pi)*(2e0*pi));
     res = times(res, coef);
 }; // }}}
-//
-//template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
-//    init(res, res);
-//
-//    std::vector<std::thread> threads;
-//    threads.resize(thread_num);
-//    std::vector<N> part;
-//    part.resize(thread_num);
-//    for (int i_thread=0; i_thread<thread_num; i_thread++) {
-//        init(part[i_thread], res);
-//        auto func = [](int i_thread, triangles tri, Fn& fn, N& part, int valley, int band_index, chemical_potential mu) {
-//            int size = tri.faces.size();
-//            for(int i=i_thread; i<size; i=i+thread_num) {
-//                kpoint center = {tri.faces[i].center[0], tri.faces[i].center[1], tri.faces[i].center[2]};
-////                double norm = 0e0;
-////                for(int axis=0; axis<space_dim; axis++) {
-////                    norm += tri.faces[i].normal[axis] * tri.faces[i].normal[axis];
-////                }
-////                norm = std::sqrt(norm);
-////                double dS = tri.faces[i].dS / norm;
-//                double dS = tri.faces[i].dS / tri.faces[i].grad;
-//                N c = times(fn(valley, band_index, mu, center), dS);
-//                part = add(part, c);
-//            }
-//        };
-//        threads[i_thread] = std::thread(func, i_thread, tri, std::ref(fn), std::ref(part[i_thread]), valley, band_index, mu);
-//    }
-//
-//    for(auto& thread : threads){
-//        thread.join();
-//    }
-//
-//    for (int i_thread=0; i_thread<thread_num; i_thread++) {
-//        res = add(res, part[i_thread]);
-//    }
-//    double coef = 1e0 / ((2e0*pi)*(2e0*pi)*(2e0*pi));
-//    res = times(res, coef);
-//}; // }}}
 
-template<class Fn, class N> void integrate_triangles_L(Fn fn, N& res, triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
+template<class Fn, class N> void integrate_triangles_para_L(Fn fn, N& res, triangles tri, int valley, int band_index, chemical_potential mu) { // {{{
     init(res, res);
 
     std::vector<std::thread> threads;
@@ -396,29 +393,109 @@ template<class Fn, class N> void integrate_band_L(Fn fn, N& res, band b, int val
 //    std::ofstream ofs(filename);
 //    ofs.close();
     N sigma;
-    Energy dmu;
-    int i_mu = 0;
+    vectorReal de(b.mesh);
+    {
+    int i = 0;
+        de[i] = (b.ene[i+1] - b.ene[i])*5e-1;
+    for (i=1; i<b.mesh-1; i++) {
+        de[i] = (b.ene[i+1] - b.ene[i-1])*5e-1;
+    }
+    i = b.mesh-1;
+        de[i] = (b.ene[i] - b.ene[i-1])*5e-1;
+    }
+    for (int i=0; i<b.mesh; i++) {
         init(sigma, res);
-        integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-        dmu = (b.ene[i_mu+1] - b.ene[i_mu])*5e-1;
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
-        sigma = times(sigma, dmu);
-        res = add(res, sigma);
-    for(i_mu=1; i_mu<b.mesh-1; i_mu++) {
-        init(sigma, res);
-        integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-        dmu = (b.ene[i_mu+1] - b.ene[i_mu-1])*5e-1;
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
-        sigma = times(sigma, dmu);
+        integrate_triangles_L(fn, sigma, b.tri[i], valley, b.index, mu);
+//        write_res(sigma, b.ene[i]-mu, filename);
         res = add(res, sigma);
     }
-    i_mu = b.mesh-1;
-        init(sigma, res);
-        integrate_triangles_L(fn, sigma, b.tri[i_mu], valley, b.index, mu);
-        dmu = (b.ene[i_mu] - b.ene[i_mu-1])*5e-1;
-//        write_res(sigma, b.ene[i_mu]-mu, filename);
-        sigma = times(sigma, dmu);
-        res = add(res, sigma);
+
+}; // }}}
+
+template<class Fn, class N> void integrate_band_para_T(Fn fn, N& res, band b, chemical_potential mu) { // {{{
+    std::vector<std::thread> threads;
+    threads.resize(thread_num);
+    std::vector<N> part;
+    part.resize(thread_num);
+
+    vectorReal de(b.mesh);
+    {
+    int i = 0;
+        de[i] = (b.ene[i+1] - b.ene[i])*5e-1;
+    for (i=1; i<b.mesh-1; i++) {
+        de[i] = (b.ene[i+1] - b.ene[i-1])*5e-1;
+    }
+    i = b.mesh-1;
+        de[i] = (b.ene[i] - b.ene[i-1])*5e-1;
+    }
+
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        init(part[i_thread], res);
+        auto func = [](band b, int i_thread, Fn& fn, N& part, chemical_potential mu, vectorReal de) {
+            for(int i=i_thread; i<b.mesh; i=i+thread_num) {
+                integrate_triangles_T(fn, part, b.tri[i], b.index, mu);
+                mtx.lock();
+                std::cout << "hoge: " << i << std::endl;
+//                write_res(part, b.ene[i]-mu, filename);
+                mtx.unlock();
+                part = times(part, de[i]);
+            }
+        };
+        threads[i_thread] = std::thread(func, b, i_thread, std::ref(fn), std::ref(part[i_thread]), mu, de);
+    }
+
+    for(auto& thread : threads){
+        thread.join();
+    }
+
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        res = add(res, part[i_thread]);
+    }
+}; // }}}
+
+template<class Fn, class N> void integrate_band_para_L(Fn fn, N& res, band b, int valley, chemical_potential mu) { // {{{
+//    std::string filename = "self_energy_L"+std::to_string(valley+1)+"band_index"+std::to_string(b.index)+"_mu"+std::to_string(mu)+".csv";
+//    std::ofstream ofs(filename);
+//    ofs.close();
+
+    std::vector<std::thread> threads;
+    threads.resize(thread_num);
+    std::vector<N> part;
+    part.resize(thread_num);
+
+    vectorReal de(b.mesh);
+    {
+    int i = 0;
+        de[i] = (b.ene[i+1] - b.ene[i])*5e-1;
+    for (i=1; i<b.mesh-1; i++) {
+        de[i] = (b.ene[i+1] - b.ene[i-1])*5e-1;
+    }
+    i = b.mesh-1;
+        de[i] = (b.ene[i] - b.ene[i-1])*5e-1;
+    }
+
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        init(part[i_thread], res);
+        auto func = [](band b, int i_thread, Fn& fn, N& part, int valley, chemical_potential mu, vectorReal de) {
+            for(int i=i_thread; i<b.mesh; i=i+thread_num) {
+                integrate_triangles_L(fn, part, b.tri[i], valley, b.index, mu);
+//                mtx.lock();
+//                std::cout << "hoge: " << i << std::endl;
+//                write_res(part, b.ene[i]-mu, filename);
+//                mtx.unlock();
+                part = times(part, de[i]);
+            }
+        };
+        threads[i_thread] = std::thread(func, b, i_thread, std::ref(fn), std::ref(part[i_thread]), valley, mu, de);
+    }
+
+    for(auto& thread : threads){
+        thread.join();
+    }
+
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        res = add(res, part[i_thread]);
+    }
 }; // }}}
 
 Green_function get_green_function_T(Complex ene, kpoint k);

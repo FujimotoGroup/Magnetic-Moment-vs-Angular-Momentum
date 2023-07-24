@@ -167,7 +167,7 @@ Self_energy get_self_energy_born_k_L(band b, Energy ene, int valley, kpoint kp, 
 
 } // }}}
 
-vectorReal get_lifetime_Gaussian_T(band b, chemical_potential mu, triangles tri, Energy epsilon) { // {{{
+vectorReal get_lifetime_Gaussian_T(band b, chemical_potential mu, triangles tri, Energy epsilon) { // {{{ int size = tri.vertexes.size();
     int size = tri.vertexes.size();
 
     vectorReal lifetime(size, 0e0);
@@ -198,25 +198,57 @@ vectorReal get_lifetime_Gaussian_L(band b, int valley, chemical_potential mu, tr
 
     vectorReal lifetime(size, 0e0);
 
-    for (int i=0; i<size; i++) {
-        if (i%10 == 0) std::cout << i << std::endl;
-        kpoint k = tri.vertexes[i];
-        matrixComplex H = set_L(valley, k.vec);
-        diag_set eigen = diagonalize_V(H);
-
-        Self_energy se = get_self_energy_born_k_L(b, 0e0, valley, k, mu, epsilon);
-        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
-
-        vectorComplex U = eigen.vectors[b.index];
-        Complex gamma = 0e0;
-        for (int j=0; j<U.size(); j++) {
-            for (int l=0; l<U.size(); l++) {
-                gamma += std::conj(U[j])*se[j][l]*U[l];
-            }
+    std::vector<std::vector<int>> indexes(thread_num);
+    std::vector<std::thread> threads;
+    threads.resize(thread_num);
+    std::vector<vectorReal> part;
+    part.resize(thread_num);
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        for (int i=i_thread; i<size; i=i+thread_num) {
+            indexes[i_thread].push_back(i);
         }
+    }
 
-//        lifetime[i] = - hbar / (2e0*gamma.imag());
-        lifetime[i] = - gamma.imag();
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        auto func =[&](band b, int i_thread, int valley) {
+            for(int i=0; i<indexes[i_thread].size(); i++) {
+                mtx.lock();
+//                if (i%10 == 0) std::cout << i << std::endl;
+                std::cout << i << std::endl;
+                mtx.unlock();
+                kpoint k = tri.vertexes[indexes[i_thread][i]];
+                matrixComplex H = set_L(valley, k.vec);
+                diag_set eigen = diagonalize_V(H);
+
+                Self_energy se = get_self_energy_born_k_L(b, 0e0, valley, k, mu, epsilon);
+                se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
+
+                vectorComplex U = eigen.vectors[b.index];
+                Complex gamma = 0e0;
+                for (int j=0; j<U.size(); j++) {
+                    for (int l=0; l<U.size(); l++) {
+                        gamma += std::conj(U[j])*se[j][l]*U[l];
+                    }
+                }
+//                double tau = - hbar / (2e0*gamma.imag());
+                double tau = - gamma.imag();
+
+                part[i_thread].push_back(tau);
+            }
+        };
+        threads[i_thread] = std::thread(func, b, i_thread, valley);
+    }
+
+    for(auto& thread : threads){
+        thread.join();
+    }
+
+    for (int i_thread=0; i_thread<thread_num; i_thread++) {
+        int j = 0;
+        for (auto i : indexes[i_thread]) {
+            lifetime[i] = part[i_thread][j];
+            j++;
+        }
     }
 
     return lifetime;
