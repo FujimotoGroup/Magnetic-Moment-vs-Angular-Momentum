@@ -196,7 +196,7 @@ vectorReal get_lifetime_Gaussian_T(band b, chemical_potential mu, triangles tri,
 vectorReal get_lifetime_Gaussian_L(band b, int valley, chemical_potential mu, triangles tri, Energy epsilon) { // {{{
     int size = tri.vertexes.size();
 
-    vectorReal lifetime(size, 0e0);
+    vectorReal lifetime(size);
 
     std::vector<std::vector<int>> indexes(thread_num);
     std::vector<std::thread> threads;
