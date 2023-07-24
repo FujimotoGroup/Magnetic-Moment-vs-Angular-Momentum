@@ -782,8 +782,8 @@ triangles get_triangles_L(int valley, int band_index, chemical_potential mu) { /
     size = mesh.number_of_faces();
     std::cout << std::fixed << std::setprecision(9)
               << "ene = " << std::right << std::setw(12) << mu
-              << "; final fs face# " << size
-              << " and vertex# " << mesh.number_of_vertices()
+              << "; final fs face# " << std::right << std::setw(6) << size
+              << " and vertex# " << std::right << std::setw(6) << mesh.number_of_vertices()
               << ", c = " << c
               << std::endl;
 
