@@ -568,6 +568,7 @@ void set_conductivity_damping_dependence_at_Fermi_level_T(int band_index) { // {
         nu_F_T = bT.dos[e_mesh];
         double coef = damping_constant / nu_F_T;
         Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon, coef);
+        se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
         sigma[i] = get_conductivity_with_self_energy_T(bT, 0e0, mu, se);
     }
 // init Sigma file {{{
@@ -1335,6 +1336,7 @@ void set_conductivity_damping_dependence_at_Fermi_level_L(int valley, int band_i
         nu_F_L[valley] = bL.dos[e_mesh];
         double coef = damping_constant / nu_F_L[valley];
         Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon, coef);
+        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
         sigma[i] = get_conductivity_with_self_energy_L(bL, 0e0, mu, valley, se);
     }
 // init Sigma file {{{
