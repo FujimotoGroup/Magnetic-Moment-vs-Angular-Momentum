@@ -284,20 +284,20 @@ int main(){
 //// }}}
 //   }
 //// }}}
+
+// T point @ Fermi level {{{
+    int band_index = 4;
+    set_conductivity_damping_dependence_at_Fermi_level_T(band_index);
+
+//    band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
+//    Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon);
+//    se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
 //
-//// T point @ Fermi level {{{
-//    int band_index = 4;
-//    set_conductivity_damping_dependence_at_Fermi_level_T(band_index);
-//
-////    band bT = set_band_2n_T(band_index, mu, e_cut, e_mesh, power);
-////    Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon);
-////    se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
-////
-////    vectorReal lifetime = get_lifetime_T(band_index, se, bT.tri[e_mesh]);
-////    std::string name = "./dat/lifetime_T-mu0e0";
-////    triangles_write_T(bT.tri[e_mesh], name, lifetime);
-//// }}}
-//
+//    vectorReal lifetime = get_lifetime_T(band_index, se, bT.tri[e_mesh]);
+//    std::string name = "./dat/lifetime_T-mu0e0";
+//    triangles_write_T(bT.tri[e_mesh], name, lifetime);
+// }}}
+
 // L points @ Fermi level {{{
     int num_band[2];
     if (bandsL == 4) { // for 4bands
@@ -333,8 +333,7 @@ int main(){
 //        triangles_write_L(bL.tri[e_mesh], name, valley, lifetime);
 //    }
 
-    for(int valley=2; valley<valleys; valley++) {
-//    for(int valley=0; valley<valleys; valley++) {
+    for(int valley=0; valley<valleys; valley++) {
         int band_index = num_band[1];
         set_conductivity_damping_dependence_at_Fermi_level_L(valley, band_index);
     }

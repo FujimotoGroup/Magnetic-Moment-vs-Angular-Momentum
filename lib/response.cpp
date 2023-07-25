@@ -554,10 +554,11 @@ Conductivity get_conductivity_T(band b, Energy epsilon, chemical_potential mu) {
 
 void set_conductivity_damping_dependence_at_Fermi_level_T(int band_index) { // {{{
     std::vector<Conductivity> sigma(damping.size());
+    std::vector<Conductivity> sigma0(damping.size());
 
     for (int i=0; i<damping.size(); i++) {
         double damping_constant = damping[i];
-        std::cout << "damping constant = " << damping_constant << "[" << i << "]" <<std::endl;
+        std::cout << "damping constant = " << damping_constant << " [" << i << "]" <<std::endl;
         Energy epsilon = damping_constant;
         chemical_potential mu = 0e0;
         int e_mesh = 47;
@@ -571,8 +572,11 @@ void set_conductivity_damping_dependence_at_Fermi_level_T(int band_index) { // {
         Self_energy se = get_self_energy_born_T(bT, 0e0, mu, epsilon, coef);
         se = add(product(impurityV1_T, product(se, impurityV1_T)), product(impurityV2_T, product(se, impurityV2_T)));
         sigma[i] = get_conductivity_with_self_energy_T(bT, 0e0, mu, se);
+
+        sigma0[i] = get_conductivity_T(bT, damping_constant, mu);
     }
-// init Sigma file {{{
+// sigma output {{{
+    {
     std::string dir = "T"+std::to_string(bandsT)+"bands/damping-dependence";
     set_output_directory(dir);
     std::string filename = "dat/"+dir+"/conductivity_T.csv";
@@ -594,6 +598,33 @@ void set_conductivity_damping_dependence_at_Fermi_level_T(int band_index) { // {
             }
         }
         ofsigma << std::endl;
+    }
+    }
+// }}}
+// sigma0 output {{{
+    {
+    std::string dir = "T"+std::to_string(bandsT)+"bands/damping-dependence";
+    set_output_directory(dir);
+    std::string filename = "dat/"+dir+"/conductivity_constant-gamma_T.csv";
+    std::ofstream ofsigma(filename);
+    ofsigma << "damping";
+    for(int external=0; external<space_dim; external++) {
+        for(int axis=0; axis<space_dim; axis++) {
+            ofsigma << ", " << axises[external]+axises[axis];
+        }
+    }
+    ofsigma << std::endl;
+
+    for (int i=0; i<damping.size(); i++) {
+        ofsigma << std::scientific << damping[i];
+        Conductivity s = sigma0[i];
+        for( auto v : s ) {
+            for( auto r : v ) {
+                ofsigma << std::scientific << ", " << r.real();
+            }
+        }
+        ofsigma << std::endl;
+    }
     }
 // }}}
 }; // }}}
@@ -1321,11 +1352,11 @@ Conductivity get_conductivity_L(band b, Energy epsilon, chemical_potential mu, i
 }; // }}}
 
 void set_conductivity_damping_dependence_at_Fermi_level_L(int valley, int band_index) { // {{{
-    vectorReal damping = {1e-5, 2e-5, 3e-5, 5e-5, 7e-5, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4};
-
     std::vector<Conductivity> sigma(damping.size());
+    std::vector<Conductivity> sigma0(damping.size());
     for (int i=0; i<damping.size(); i++) {
         double damping_constant = damping[i];
+        std::cout << "damping constant = " << damping_constant << " [" << i << "]" <<std::endl;
         Energy epsilon = damping_constant;
         chemical_potential mu = 0e0;
         int e_mesh = 47;
@@ -1339,8 +1370,11 @@ void set_conductivity_damping_dependence_at_Fermi_level_L(int valley, int band_i
         Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon, coef);
         se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
         sigma[i] = get_conductivity_with_self_energy_L(bL, 0e0, mu, valley, se);
+
+        sigma0[i] = get_conductivity_L(bL, damping_constant, mu, valley);
     }
-// init Sigma file {{{
+// output sigma {{{
+    {
     std::string dir = "L"+std::to_string(bandsL)+"bands/damping-dependence";
     set_output_directory(dir);
     std::string filename = "dat/"+dir+"/conductivity_L"+std::to_string(valley+1)+".csv";
@@ -1362,6 +1396,33 @@ void set_conductivity_damping_dependence_at_Fermi_level_L(int valley, int band_i
             }
         }
         ofsigma << std::endl;
+    }
+    }
+// }}}
+// output sigma0 {{{
+    {
+    std::string dir = "L"+std::to_string(bandsL)+"bands/damping-dependence";
+    set_output_directory(dir);
+    std::string filename = "dat/"+dir+"/conductivity_constant-gamma_L"+std::to_string(valley+1)+".csv";
+    std::ofstream ofsigma(filename);
+    ofsigma << "damping";
+    for(int external=0; external<space_dim; external++) {
+        for(int axis=0; axis<space_dim; axis++) {
+            ofsigma << ", " << axises[external]+axises[axis];
+        }
+    }
+    ofsigma << std::endl;
+
+    for (int i=0; i<damping.size(); i++) {
+        ofsigma << std::scientific << damping[i];
+        Conductivity s = sigma0[i];
+        for( auto v : s ) {
+            for( auto r : v ) {
+                ofsigma << std::scientific << ", " << r.real();
+            }
+        }
+        ofsigma << std::endl;
+    }
     }
 // }}}
 }; // }}}
