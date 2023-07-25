@@ -36,8 +36,8 @@ double mu_cutoff_L;
 int mu_cutoff_mesh_T;
 int mu_cutoff_mesh_L;
 
-const int bandsL = 4; const int lowest_band_L = 9;
-//const int bandsL = 12; const int lowest_band_L = 5;
+//const int bandsL = 4; const int lowest_band_L = 9;
+const int bandsL = 12; const int lowest_band_L = 5;
 
 matrixReal band_edge_L;
 matrixReal band_edge_L_sign0 = { {-1e0,-1e0, 1e0, 1e0,-1e0,-1e0,-1e0,-1e0,-1e0,-1e0, 1e0, 1e0, -1e0,-1e0, 1e0, 1e0},
@@ -72,7 +72,8 @@ const std::string axises[] = {"x", "y", "z"};
 const int valleys = 3;
 
 const double sigma_imp = 8e0; // angstrom
-const vectorReal damping = {1e-5, 2e-5, 3e-5, 5e-5, 7e-5, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4}; // eV
+//const vectorReal damping = {1e-5, 2e-5, 3e-5, 5e-5, 7e-5, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4}; // eV
+const vectorReal damping = {1e-5, 5e-5, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4}; // eV
 double nu_F_T;
 double nu_F_L[3];
 

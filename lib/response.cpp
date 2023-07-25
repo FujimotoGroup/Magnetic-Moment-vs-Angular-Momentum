@@ -557,6 +557,7 @@ void set_conductivity_damping_dependence_at_Fermi_level_T(int band_index) { // {
 
     for (int i=0; i<damping.size(); i++) {
         double damping_constant = damping[i];
+        std::cout << "damping constant = " << damping_constant << "[" << i << "]" <<std::endl;
         Energy epsilon = damping_constant;
         chemical_potential mu = 0e0;
         int e_mesh = 47;
