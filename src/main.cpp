@@ -320,29 +320,30 @@ int main(){
         exit(0);
     }
 
-//    for(int valley=0; valley<valleys; valley++) {
-//        Energy epsilon = 5e-4; // eV
-//        chemical_potential mu = 0e0;
-//        int e_mesh = 47;
-//        double e_cut = 59e0*epsilon;
-//        double power = 9e-1;
-//
-//        band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
-//
-//        nu_F_L[valley] = bL.dos[e_mesh];
-//        double coef = damping_constant / nu_F_L[valley];
-//        Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon, coef);
-//        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
-//        vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
-////        vectorReal lifetime = get_lifetime_Gaussian_L(bL, valley, bL.ene[e_mesh], bL.tri[e_mesh], epsilon, coef);
-//        std::string name = "./dat/lifetime_L"+std::to_string(valley+1)+"-mu0e0";
-//        triangles_write_L(bL.tri[e_mesh], name, valley, lifetime);
-//    }
-
     for(int valley=0; valley<valleys; valley++) {
         int band_index = num_band[1];
-        set_conductivity_damping_dependence_at_Fermi_level_L(valley, band_index);
+        Energy epsilon = 5e-4; // eV
+        chemical_potential mu = 0e0;
+        int e_mesh = 47;
+        double e_cut = 59e0*epsilon;
+        double power = 9e-1;
+
+        band bL = set_band_2n_L(valley, band_index, mu, e_cut, e_mesh, power);
+
+        nu_F_L[valley] = bL.dos[e_mesh];
+        double coef = epsilon / (pi*nu_F);
+        Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon, coef);
+        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
+        vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
+//        vectorReal lifetime = get_lifetime_Gaussian_L(bL, valley, bL.ene[e_mesh], bL.tri[e_mesh], epsilon, coef);
+        std::string name = "./dat/lifetime_L"+std::to_string(valley+1)+"-mu0e0";
+        triangles_write_L(bL.tri[e_mesh], name, valley, lifetime);
     }
+
+//    for(int valley=0; valley<valleys; valley++) {
+//        int band_index = num_band[1];
+//        set_conductivity_damping_dependence_at_Fermi_level_L(valley, band_index);
+//    }
 // }}}
 
     auto calc_end_time = std::chrono::system_clock::now();
