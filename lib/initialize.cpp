@@ -36,8 +36,8 @@ double mu_cutoff_L;
 int mu_cutoff_mesh_T;
 int mu_cutoff_mesh_L;
 
-//const int bandsL = 4; const int lowest_band_L = 9;
-const int bandsL = 12; const int lowest_band_L = 5;
+const int bandsL = 4; const int lowest_band_L = 9;
+//const int bandsL = 12; const int lowest_band_L = 5;
 
 matrixReal band_edge_L;
 matrixReal band_edge_L_sign0 = { {-1e0,-1e0, 1e0, 1e0,-1e0,-1e0,-1e0,-1e0,-1e0,-1e0, 1e0, 1e0, -1e0,-1e0, 1e0, 1e0},
@@ -549,6 +549,9 @@ void initialize() {
     nu_F_L[1] = dos[2];
     nu_F_L[2] = dos[3];
 //    std::cout << "DOS: " << nu_F_T << ", " << nu_F_L[0] << ", " << nu_F_L[1] << ", " << nu_F_L[2] << std::endl;
+
+    nu_F = 0e0;
+    for (auto nu : dos) nu_F += nu;
 // }}}
 };
 
