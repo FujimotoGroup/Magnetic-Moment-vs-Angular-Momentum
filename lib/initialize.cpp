@@ -36,8 +36,8 @@ double mu_cutoff_L;
 int mu_cutoff_mesh_T;
 int mu_cutoff_mesh_L;
 
-const int bandsL = 4; const int lowest_band_L = 9;
-//const int bandsL = 12; const int lowest_band_L = 5;
+//const int bandsL = 4; const int lowest_band_L = 9;
+const int bandsL = 12; const int lowest_band_L = 5;
 
 matrixReal band_edge_L;
 matrixReal band_edge_L_sign0 = { {-1e0,-1e0, 1e0, 1e0,-1e0,-1e0,-1e0,-1e0,-1e0,-1e0, 1e0, 1e0, -1e0,-1e0, 1e0, 1e0},
@@ -74,6 +74,7 @@ const int valleys = 3;
 const double sigma_imp = 8e0; // angstrom
 //const vectorReal damping = {1e-5, 2e-5, 3e-5, 5e-5, 7e-5, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4}; // eV
 const vectorReal damping = {1e-5, 5e-5, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4}; // eV
+double nu_F;
 double nu_F_T;
 double nu_F_L[3];
 
@@ -531,7 +532,51 @@ void initialize() {
         }
     }
     // }}}
+//load data DOS @ Fermi level {{{
+    string file_name = "./lib/data/dos_mu0e0.dat";
+//    cout << file_name << endl;
+    ifstream file(file_name);
+    string line;
+    getline(file,line);
+    istringstream stream(line);
+    double r;
+    vectorReal dos;
+    while ( stream >> r ) {
+        dos.push_back(r);
+    }
+    nu_F_T    = dos[0];
+    nu_F_L[0] = dos[1];
+    nu_F_L[1] = dos[2];
+    nu_F_L[2] = dos[3];
+//    std::cout << "DOS: " << nu_F_T << ", " << nu_F_L[0] << ", " << nu_F_L[1] << ", " << nu_F_L[2] << std::endl;
+// }}}
 };
+
+void get_DOS_at_Fermi_level() { // {{{
+    int band_index = 4;
+    chemical_potential mu = 0e0;
+    triangles tri = get_triangles_T(band_index, mu);
+    nu_F_T = get_DOS_T(tri, band_index, mu);
+    nu_F = nu_F_T;
+    std::cout << std::scientific << std::setprecision(15) << "DOS of T = " << nu_F_T << std::endl;
+
+    for(int valley=0; valley<valleys; valley++) {
+        int band_index = 6; // for 12bands
+        triangles tri = get_triangles_L(valley, band_index, mu);
+        nu_F_L[valley] = get_DOS_L(tri, valley, band_index, mu);
+        std::cout <<  std::scientific << std::setprecision(15) << "DOS of L" << std::to_string(valley) << " = " << nu_F_L[valley] << std::endl;
+
+        nu_F = nu_F + nu_F_L[valley];
+    }
+
+    std::string filename = "lib/data/dos_mu0e0.dat";
+    std::ofstream of(filename);
+    of << std::scientific << std::setprecision(15) << nu_F_T;
+    for(int valley=0; valley<valleys; valley++) {
+        of <<  std::scientific << std::setprecision(15) << "  " << nu_F_L[valley];
+    }
+    of << std::endl;
+}; // }}}
 
 void show_impurity_potentials() { // {{{
     for(int valley=0; valley<valleys; valley++) {

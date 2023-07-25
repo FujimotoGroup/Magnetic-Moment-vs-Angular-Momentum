@@ -119,6 +119,7 @@ extern std::vector<std::vector<std::vector<matrixComplex>>> v_sigma_L;
 
 extern const double sigma_imp;
 extern const vectorReal damping;
+extern double nu_F;
 extern double nu_F_T;
 extern double nu_F_L[3];
 extern matrixComplex impurityV1_T;
@@ -202,6 +203,8 @@ void init(Complex& value, Complex& res);
 void init(vectorComplex& value, vectorComplex& res);
 void init(matrixComplex& value, matrixComplex& res);
 void init(tensor2Complex& value, tensor2Complex& res);
+
+void get_DOS_at_Fermi_level();
 
 double         add(double value, double a);
 Complex        add(Complex value, Complex a);
