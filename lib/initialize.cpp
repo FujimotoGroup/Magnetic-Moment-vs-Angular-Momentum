@@ -71,7 +71,7 @@ vectorReal kL[3];
 const std::string axises[] = {"x", "y", "z"};
 const int valleys = 3;
 
-const double sigma_imp = 2e1; // angstrom
+const double sigma_imp = 3e1; // angstrom
 //const vectorReal damping = {1e-5, 2e-5, 3e-5, 5e-5, 7e-5, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4}; // eV
 const vectorReal damping = {1e-5, 5e-5, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4}; // eV
 double nu_F;
