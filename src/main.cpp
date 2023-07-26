@@ -323,7 +323,7 @@ int main(){
     for(int valley=2; valley<valleys; valley++) {
 //    for(int valley=0; valley<valleys; valley++) {
         int band_index = num_band[1];
-        Energy epsilon = 5e-4; // eV
+        Energy epsilon = 5e-5; // eV
         chemical_potential mu = 0e0;
         int e_mesh = 47;
         double e_cut = 59e0*epsilon;
