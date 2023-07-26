@@ -571,9 +571,9 @@ Self_energy get_self_energy_born_k_L(band b, Energy ene, int valley, kpoint kp, 
 Green_function get_full_green_function_T(Complex ene, kpoint k, Self_energy se);
 Green_function get_full_green_function_L(Complex ene, int valley, kpoint k, Self_energy se);
 vectorReal get_lifetime_T(int band_index, Self_energy se, triangles tri);
-vectorReal get_lifetime_Gaussian_T(band b, chemical_potential mu, triangles tri, Energy epsilon);
 vectorReal get_lifetime_L(int band_index, Self_energy se, int valley, triangles tri);
-vectorReal get_lifetime_Gaussian_L(band b, int valley, chemical_potential mu, triangles tri, Energy epsilon);
+vectorReal get_lifetime_Gaussian_T(band b, chemical_potential mu, triangles tri, Energy epsilon, double coef);
+vectorReal get_lifetime_Gaussian_L(band b, int valley, chemical_potential mu, triangles tri, Energy epsilon, double coef);
 
 SHC get_SHC_T1(band b, Energy epsilon, chemical_potential mu);
 SHC get_SHC_T2(band b, Energy epsilon, chemical_potential mu);

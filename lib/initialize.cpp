@@ -36,8 +36,8 @@ double mu_cutoff_L;
 int mu_cutoff_mesh_T;
 int mu_cutoff_mesh_L;
 
-//const int bandsL = 4; const int lowest_band_L = 9;
-const int bandsL = 12; const int lowest_band_L = 5;
+const int bandsL = 4; const int lowest_band_L = 9;
+//const int bandsL = 12; const int lowest_band_L = 5;
 
 matrixReal band_edge_L;
 matrixReal band_edge_L_sign0 = { {-1e0,-1e0, 1e0, 1e0,-1e0,-1e0,-1e0,-1e0,-1e0,-1e0, 1e0, 1e0, -1e0,-1e0, 1e0, 1e0},
@@ -59,7 +59,7 @@ double dk[3];
 const int mu_mesh_T = 160;
 const int mu_mesh_L = 160;
 const int fermi_surface_mesh_lim_T = 3000;
-const int fermi_surface_mesh_lim_L = 3000;
+const int fermi_surface_mesh_lim_L = 1000;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
 const vectorReal b2 = { g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };

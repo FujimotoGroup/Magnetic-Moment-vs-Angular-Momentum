@@ -320,7 +320,8 @@ int main(){
         exit(0);
     }
 
-    for(int valley=0; valley<valleys; valley++) {
+    for(int valley=2; valley<valleys; valley++) {
+//    for(int valley=0; valley<valleys; valley++) {
         int band_index = num_band[1];
         Energy epsilon = 5e-4; // eV
         chemical_potential mu = 0e0;
@@ -332,10 +333,10 @@ int main(){
 
         nu_F_L[valley] = bL.dos[e_mesh];
         double coef = epsilon / (pi*nu_F);
-        Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon, coef);
-        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
-        vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
-//        vectorReal lifetime = get_lifetime_Gaussian_L(bL, valley, bL.ene[e_mesh], bL.tri[e_mesh], epsilon, coef);
+//        Self_energy se = get_self_energy_born_L(bL, 0e0, valley, mu, epsilon, coef);
+//        se = add(product(impurityV1_L[valley], product(se, impurityV1_L[valley])), product(impurityV2_L[valley], product(se, impurityV2_L[valley])));
+//        vectorReal lifetime = get_lifetime_L(band_index, se, valley, bL.tri[e_mesh]);
+        vectorReal lifetime = get_lifetime_Gaussian_L(bL, valley, bL.ene[e_mesh], bL.tri[e_mesh], epsilon, coef);
         std::string name = "./dat/lifetime_L"+std::to_string(valley+1)+"-mu0e0";
         triangles_write_L(bL.tri[e_mesh], name, valley, lifetime);
     }
