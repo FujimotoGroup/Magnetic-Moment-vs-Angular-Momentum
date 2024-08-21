@@ -222,8 +222,8 @@ int main(){
     int band_index = 4;
     mu_cutoff_T = -0.11e0;
     mu_cutoff_mesh_T = 20;
-    chemical_potential mu_min =-0.10e0;
-    chemical_potential mu_max = 0.10e0;
+    chemical_potential mu_min =-0.08e0;
+    chemical_potential mu_max = 0.08e0;
 //    band bT;
 //    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
     set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
