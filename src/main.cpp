@@ -218,72 +218,72 @@ int main(){
 //    }
 //// }}}
 
-// T point chemical potential dependence {{{
-    int band_index = 4;
-    mu_cutoff_T = -0.11e0;
-    mu_cutoff_mesh_T = 20;
-    chemical_potential mu_min =-0.08e0;
-    chemical_potential mu_max = 0.08e0;
-//    band bT;
-//    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
-    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
-// }}}
+//// T point chemical potential dependence {{{
+//    int band_index = 4;
+//    mu_cutoff_T = -0.11e0;
+//    mu_cutoff_mesh_T = 20;
+//    chemical_potential mu_min =-0.08e0;
+//    chemical_potential mu_max = 0.08e0;
+////    band bT;
+////    bT = set_band_T(band_index, mu_min, mu_max, mu_mesh_T);
+//    set_response_T(mu_min, mu_max, mu_mesh_T, band_index);
+//// }}}
 
-//// L points chemical potential dependence {{{
-//    int num_band[2];
-//    if (bandsL == 4) { // for 4bands
-//        num_band[0] = 0;
-//        num_band[1] = 2;
-//    } else if (bandsL == 8) { // for 8bands
-//        num_band[0] = 4;
-//        num_band[1] = 6;
-//    } else if (bandsL == 12) { // for 12bands
-//        num_band[0] = 4;
-//        num_band[1] = 6;
-//    } else {
-//        std::cerr << "'bandsL' should be 4, 8, 12" << std::endl;
-//        exit(0);
-//    }
-//    for(int valley=0; valley<valleys; valley++) {
-//        vectorReal e_min(2, 0e0);
-//        vectorReal e_max(2, 0e0);
-//        std::vector<int> e_mesh(2, 0);
-//
-//        e_min[0] = -1.0e-1;
-//        e_max[1] =  1.0e-1;
-//
-//        for(int i=0; i<mu_mesh_L; i++) {
-//            Energy de = (e_max[1] - e_min[0]) / double(mu_mesh_L);
-//            Energy e1 = e_min[0] + double(i)*de;
-//            Energy e2 = e_min[0] + double(i+1)*de;
-//            Energy e_tmp = EL[valley][num_band[0]] + (EL[valley][num_band[1]] - EL[valley][num_band[0]])*5e-1;
-//            if ( (e1 < e_tmp) & (e2 < e_tmp) ) {
-//                e_max[0] = e1;
-//                e_min[1] = e2;
-//
-//                e_mesh[0] = i + 1;
-//                e_mesh[1] = mu_mesh_L - i;
-//            }
-//        }
-//
-//        std::cout << e_min[0] << ", " << e_max[0] << ", " << e_mesh[0] << ", " << (e_max[0] - e_min[0]) / double(e_mesh[0]-1) << std::endl;
-//        std::cout << e_min[1] << ", " << e_max[1] << ", " << e_mesh[1] << ", " << (e_max[1] - e_min[1]) / double(e_mesh[1]-1)  << std::endl;
-//
-//        int band_index;
-//// L point band_index:4 (0) {{{
-//        band_index = num_band[0];
-//        mu_cutoff_L = -1.1e-1;
-//        mu_cutoff_mesh_L = 20;
-////        set_response_L(e_min[0], e_max[0], e_mesh[0], valley, band_index);
-//// }}}
-//// L point band_index:6 (2) {{{
-//        band_index = num_band[1];
-//        mu_cutoff_L = 1.1e-1;
-//        mu_cutoff_mesh_L = 20;
+// L points chemical potential dependence {{{
+    int num_band[2];
+    if (bandsL == 4) { // for 4bands
+        num_band[0] = 0;
+        num_band[1] = 2;
+    } else if (bandsL == 8) { // for 8bands
+        num_band[0] = 4;
+        num_band[1] = 6;
+    } else if (bandsL == 12) { // for 12bands
+        num_band[0] = 4;
+        num_band[1] = 6;
+    } else {
+        std::cerr << "'bandsL' should be 4, 8, 12" << std::endl;
+        exit(0);
+    }
+    for(int valley=0; valley<valleys; valley++) {
+        vectorReal e_min(2, 0e0);
+        vectorReal e_max(2, 0e0);
+        std::vector<int> e_mesh(2, 0);
+
+        e_min[0] = -1.0e-1;
+        e_max[1] =  1.0e-1;
+
+        for(int i=0; i<mu_mesh_L; i++) {
+            Energy de = (e_max[1] - e_min[0]) / double(mu_mesh_L);
+            Energy e1 = e_min[0] + double(i)*de;
+            Energy e2 = e_min[0] + double(i+1)*de;
+            Energy e_tmp = EL[valley][num_band[0]] + (EL[valley][num_band[1]] - EL[valley][num_band[0]])*5e-1;
+            if ( (e1 < e_tmp) & (e2 < e_tmp) ) {
+                e_max[0] = e1;
+                e_min[1] = e2;
+
+                e_mesh[0] = i + 1;
+                e_mesh[1] = mu_mesh_L - i;
+            }
+        }
+
+        std::cout << e_min[0] << ", " << e_max[0] << ", " << e_mesh[0] << ", " << (e_max[0] - e_min[0]) / double(e_mesh[0]-1) << std::endl;
+        std::cout << e_min[1] << ", " << e_max[1] << ", " << e_mesh[1] << ", " << (e_max[1] - e_min[1]) / double(e_mesh[1]-1)  << std::endl;
+
+        int band_index;
+// L point band_index:4 (0) {{{
+        band_index = num_band[0];
+        mu_cutoff_L = -1.1e-1;
+        mu_cutoff_mesh_L = 20;
+        set_response_L(e_min[0], e_max[0], e_mesh[0], valley, band_index);
+// }}}
+// L point band_index:6 (2) {{{
+        band_index = num_band[1];
+        mu_cutoff_L = 1.1e-1;
+        mu_cutoff_mesh_L = 20;
 //        set_response_L(e_min[1], e_max[1], e_mesh[1], valley, band_index);
-//// }}}
-//   }
-//// }}}
+// }}}
+   }
+// }}}
 
 //// T point @ Fermi level {{{
 //    int band_index = 4;
