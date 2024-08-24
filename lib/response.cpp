@@ -347,32 +347,6 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
         }
         of_angular_shc2 << std::endl;
 // }}}
-// init real SHC1 file {{{
-        filename = "dat/"+dir+"/real-spin-angular-conductivity1_eps"+std::to_string(epsilon)+".csv";
-        std::ofstream of_real_shc1(filename);
-        of_real_shc1 << "mu";
-        for(int external=0; external<space_dim; external++) {
-            for(int axis=0; axis<space_dim; axis++) {
-                for(int spin=0; spin<spin_dim; spin++) {
-                    of_real_shc1 << ", " << axises[external]+axises[axis]+axises[spin];
-                }
-            }
-        }
-        of_real_shc1 << std::endl;
-// }}}
-// init real SHC2 file {{{
-        filename = "dat/"+dir+"/real-spin-angular-conductivity2_eps"+std::to_string(epsilon)+".csv";
-        std::ofstream of_real_shc2(filename);
-        of_real_shc2 << "mu";
-        for(int external=0; external<space_dim; external++) {
-            for(int axis=0; axis<space_dim; axis++) {
-                for(int spin=0; spin<spin_dim; spin++) {
-                    of_real_shc2 << ", " << axises[external]+axises[axis]+axises[spin];
-                }
-            }
-        }
-        of_real_shc2 << std::endl;
-// }}}
 
         chemical_potential mu;
         for(int i_ene=0; i_ene<b_main.mesh; i_ene++) {
@@ -1145,32 +1119,6 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
             }
         }
         of_angular_shc2 << std::endl;
-// }}}
-// init real SHC1 file {{{
-        filename = "dat/"+dir+"/real-spin-angular-conductivity1_eps"+std::to_string(epsilon)+".csv";
-        std::ofstream of_real_shc1(filename);
-        of_real_shc1 << "mu";
-        for(int external=0; external<space_dim; external++) {
-            for(int axis=0; axis<space_dim; axis++) {
-                for(int spin=0; spin<spin_dim; spin++) {
-                    of_real_shc1 << ", " << axises[external]+axises[axis]+axises[spin];
-                }
-            }
-        }
-        of_real_shc1 << std::endl;
-// }}}
-// init real SHC2 file {{{
-        filename = "dat/"+dir+"/real-spin-angular-conductivity2_eps"+std::to_string(epsilon)+".csv";
-        std::ofstream of_real_shc2(filename);
-        of_real_shc2 << "mu";
-        for(int external=0; external<space_dim; external++) {
-            for(int axis=0; axis<space_dim; axis++) {
-                for(int spin=0; spin<spin_dim; spin++) {
-                    of_real_shc2 << ", " << axises[external]+axises[axis]+axises[spin];
-                }
-            }
-        }
-        of_real_shc2 << std::endl;
 // }}}
 
         chemical_potential mu;

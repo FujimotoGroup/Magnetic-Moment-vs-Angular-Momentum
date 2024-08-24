@@ -249,8 +249,10 @@ int main(){
         vectorReal e_max(2, 0e0);
         std::vector<int> e_mesh(2, 0);
 
-        e_min[0] = -1.0e-1;
-        e_max[1] =  1.0e-1;
+//        e_min[0] = -0.10e0;
+//        e_max[1] =  0.10e0;
+        e_min[0] = -0.08e0;
+        e_max[1] =  0.08e0;
 
         for(int i=0; i<mu_mesh_L; i++) {
             Energy de = (e_max[1] - e_min[0]) / double(mu_mesh_L);
@@ -280,7 +282,7 @@ int main(){
         band_index = num_band[1];
         mu_cutoff_L = 1.1e-1;
         mu_cutoff_mesh_L = 20;
-//        set_response_L(e_min[1], e_max[1], e_mesh[1], valley, band_index);
+        set_response_L(e_min[1], e_max[1], e_mesh[1], valley, band_index);
 // }}}
    }
 // }}}
