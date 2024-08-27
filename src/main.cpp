@@ -249,10 +249,10 @@ int main(){
         vectorReal e_max(2, 0e0);
         std::vector<int> e_mesh(2, 0);
 
-//        e_min[0] = -0.10e0;
-//        e_max[1] =  0.10e0;
-        e_min[0] = -0.08e0;
-        e_max[1] =  0.08e0;
+        e_min[0] = -0.10e0;
+        e_max[1] =  0.10e0;
+//        e_min[0] = -0.08e0;
+//        e_max[1] =  0.08e0;
 
         for(int i=0; i<mu_mesh_L; i++) {
             Energy de = (e_max[1] - e_min[0]) / double(mu_mesh_L);
