@@ -607,32 +607,31 @@ kpoint bisec_L(int valley, int band_index, chemical_potential mu, double ene, kp
 }; // }}}
 
 velocity get_velocity_L(int valley, int band_index, chemical_potential mu, kpoint k) { // {{{
-//    velocity v = {0e0, 0e0, 0e0};
-//    double epsilon = 1e-8;
-//    for(int axis=0; axis<space_dim; axis++) {
-//        for(int i=0; i<2; i++) {
-//            double p = std::pow(-1e0, i);
-//            kpoint kp = k;
-//            kp.vec[axis] += epsilon*p;
-//            double ene = get_E_L(valley, band_index, mu, kp);
-//            v.vec[axis] += ene*p;
-//        }
-//        v.vec[axis] = v.vec[axis] / (2e0*epsilon);
-//    }
-//
     velocity v = {0e0, 0e0, 0e0};
-    double epsilon = 1e-5;
     for(int axis=0; axis<space_dim; axis++) {
-        double p;
-        vectorReal index = {-2e0, -1e0, 1e0, 2e0};
-        vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
-        for (int i=0; i<index.size(); i++) {
+        for(int i=0; i<2; i++) {
+            double p = std::pow(-1e0, i);
             kpoint kp = k;
-            kp.vec[axis] += epsilon*index[i];
-            v.vec[axis] += get_E_L(valley, band_index, mu, kp)*coeff[i];
+            kp.vec[axis] += eps_phys*p;
+            double ene = get_E_L(valley, band_index, mu, kp);
+            v.vec[axis] += ene*p;
         }
-        v.vec[axis] = v.vec[axis] / (12e0*epsilon);
+        v.vec[axis] = v.vec[axis] / (2e0*eps_phys);
     }
+
+//    velocity v = {0e0, 0e0, 0e0};
+//    double epsilon = 1e-5;
+//    for(int axis=0; axis<space_dim; axis++) {
+//        double p;
+//        vectorReal index = {-2e0, -1e0, 1e0, 2e0};
+//        vectorReal coeff = { 1e0, -8e0, 8e0,-1e0};
+//        for (int i=0; i<index.size(); i++) {
+//            kpoint kp = k;
+//            kp.vec[axis] += epsilon*index[i];
+//            v.vec[axis] += get_E_L(valley, band_index, mu, kp)*coeff[i];
+//        }
+//        v.vec[axis] = v.vec[axis] / (12e0*epsilon);
+//    }
 
 //    velocity v = {0e0, 0e0, 0e0};
 //    velocity v_old = {0e0, 0e0, 0e0};
