@@ -225,16 +225,16 @@ def plot_L3_ratio(conductivity, conductivity0, label1, label2, label): # {{{
     ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
     i = 0
     for key, val in plot_list_conductivity_diagonal.items():
-        ax.scatter(ratio[0]*1e3,  ratio[key],  marker=markers[i], s=30, label=label1+" "+val)
+        ax.scatter(ratio[0]*1e3,  ratio[key], marker=markers[i], s=30, c=colors[i], label=label1+" "+val)
         i = i + 1
     i = 0
     for key, val in plot_list_conductivity_diagonal.items():
         ax.scatter(ratio0[0]*1e3, ratio0[key], marker=markers[i], s=70, edgecolors=colors[i], facecolor='None', label=label2+" "+val)
         i = i + 1
-#    data = [1, 0.02, 0.62]
-#    padding = [0.01, 0.01, -0.04]
-    data = [1, 0.007, 0.67]
+    data = [1, 0.02, 0.62]
     padding = [0.01, 0.01, -0.04]
+#    data = [1, 0.007, 0.67]
+#    padding = [0.01, 0.01, -0.04]
     for i in range(len(data)):
         ax.plot([ratio[0][0], ratio[0][-1]*1e3], [data[i], data[i]])
         ax.text(ratio[0][0], data[i]+padding[i], str(data[i]))

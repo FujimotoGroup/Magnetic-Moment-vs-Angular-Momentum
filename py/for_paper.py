@@ -68,7 +68,6 @@ upper_band_L = 2
 #upper_band_L = 6
 
 axises = {"x":0, "y":1, "z":2}
-e_cutoff = 0.08e0
 k_cutoff = 0.27722e0
 
 cutoffs = ["0.08", "0.10"]
@@ -89,7 +88,7 @@ def decimal_normalize(f, r='0.001'):
     b = _remove_exponent(a)
     return str(b)
 
-xticks = np.linspace(-float(cutoff), float(cutoff), 8+1)
+xticks = np.linspace(-float(cutoff), float(cutoff), 4+1)
 xticklabels = ["$"+decimal_normalize(tick)+"$" for tick in xticks]
 
 def plot_dispersion(point, full, effective, output): # dispersion {{{
@@ -103,7 +102,7 @@ def plot_dispersion(point, full, effective, output): # dispersion {{{
     for axis, val in axises.items():
         axes[val].set_xlabel("$k_"+axis+"$")
         axes[val].set_ylim(-0.2,0.2)
-#        axes[val].axhspan(-e_cutoff, e_cutoff, color="gray", alpha=0.3)
+#        axes[val].axhspan(-float(cutoff), float(cutoff), color="gray", alpha=0.3)
         axes[val].axvspan(-k_cutoff, k_cutoff, color="tab:cyan", alpha=0.2)
 
     for axis, val in full.items():
@@ -320,7 +319,9 @@ def plot_spin_conductivity_valleys(sign, titles, conductivity, conductivity_vall
         ax.set_xlabel("$\mu~\mathrm{[eV]}$")
         ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
         ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
-        ax.set_xlim(-0.08, 0.08)
+        ax.set_xlim(-float(cutoff), float(cutoff))
+        ax.set_xticks(xticks)
+        ax.set_xticklabels(xticklabels)
         ax.set_ylim(window)
 
     for s in np.arange(0,3):
@@ -399,10 +400,10 @@ def plot_spin_conductivity(sign, conductivity1_valley, conductivity2_valley, out
 
     for ax_list in axes:
         for ax in ax_list:
-            ax.set_xlim(-float(cutoff), float(cutoff))
             ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
             ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
             ax.grid()
+            ax.set_xlim(-float(cutoff), float(cutoff))
             ax.set_xticks(xticks)
             ax.set_xticklabels(xticklabels)
     for ax in axes.T[4]:
@@ -481,6 +482,8 @@ def plot_total_spin_conductivity(sign, titles, conductivity1_valley, conductivit
         ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
         ax.ticklabel_format(style="sci",  axis="y", scilimits=(0,0))
         ax.set_xlim(-float(cutoff), float(cutoff))
+        ax.set_xticks(xticks)
+        ax.set_xticklabels(xticklabels)
         ax.set_ylim(window)
 
     for s in np.arange(0,3):
@@ -541,6 +544,9 @@ def main():
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'dos_eps'+label+'.csv'
         d4 = pd.read_csv(readfile,header=None).values
+        e = d4[:,0]
+        d4 = - d4
+        d4[:,0] = e
         e_max.append(d4[:,0].max())
         e_min.append(d4[:,0].min())
 
@@ -571,6 +577,9 @@ def main():
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'mu-dependence/conductivity_eps'+label+'.csv'
         d4 = pd.read_csv(readfile,header=0).values
+        e = d4[:,0]
+        d4 = - d4
+        d4[:,0] = e
         conductivity.append(d4)
 
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+param+'/'
@@ -590,6 +599,7 @@ def main():
 
     data = data0+'T_'+str(bandsT)+'bands/band_index4/'+param+'/'
     readfile = data+'mu-dependence/spin-magnetic-conductivity1_eps'+label+'.csv'
+    print(readfile)
     df = pd.read_csv(readfile,header=0)
     titles = df.columns.values
     d = df.values
@@ -599,11 +609,16 @@ def main():
     for valley in np.arange(1,4):
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'mu-dependence/spin-magnetic-conductivity1_eps'+label+'.csv'
+        print(readfile)
         d4 = pd.read_csv(readfile,header=0).values
+        e = d4[:,0]
+        d4 = - d4
+        d4[:,0] = e
         conductivity1.append(d4)
 
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+param+'/'
         readfile = data+'mu-dependence/spin-magnetic-conductivity1_eps'+label+'.csv'
+        print(readfile)
         d6 = pd.read_csv(readfile,header=0).values
         conductivity1.append(d6)
 
@@ -626,6 +641,9 @@ def main():
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'mu-dependence/spin-magnetic-conductivity2_eps'+label+'.csv'
         d4 = pd.read_csv(readfile,header=0).values
+        e = d4[:,0]
+        d4 = - d4
+        d4[:,0] = e
         conductivity2.append(d4)
 
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+param+'/'
@@ -663,6 +681,9 @@ def main():
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'mu-dependence/spin-angular-conductivity1_eps'+label+'.csv'
         d4 = pd.read_csv(readfile,header=0).values
+        e = d4[:,0]
+        d4 = - d4
+        d4[:,0] = e
         conductivity1.append(d4)
 
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+param+'/'
@@ -689,6 +710,9 @@ def main():
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'mu-dependence/spin-angular-conductivity2_eps'+label+'.csv'
         d4 = pd.read_csv(readfile,header=0).values
+        e = d4[:,0]
+        d4 = - d4
+        d4[:,0] = e
         conductivity2.append(d4)
 
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+param+'/'
