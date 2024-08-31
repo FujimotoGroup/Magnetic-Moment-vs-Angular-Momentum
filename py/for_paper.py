@@ -390,8 +390,8 @@ def plot_spin_conductivity(sign, conductivity1_valley, conductivity2_valley, out
         tmp = np.array(tmp) * 1.1e0
         window.append(tmp)
 
-    window[3] = window[3]*10e0
-    window[4] = window[4]*10e0
+    window[3] = window[2]
+    window[4] = window[2]
 
     col_num = 3
     row_num = 5
@@ -544,9 +544,6 @@ def main():
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'dos_eps'+label+'.csv'
         d4 = pd.read_csv(readfile,header=None).values
-        e = d4[:,0]
-        d4 = - d4
-        d4[:,0] = e
         e_max.append(d4[:,0].max())
         e_min.append(d4[:,0].min())
 
@@ -577,9 +574,6 @@ def main():
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'mu-dependence/conductivity_eps'+label+'.csv'
         d4 = pd.read_csv(readfile,header=0).values
-        e = d4[:,0]
-        d4 = - d4
-        d4[:,0] = e
         conductivity.append(d4)
 
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+param+'/'
@@ -611,9 +605,6 @@ def main():
         readfile = data+'mu-dependence/spin-magnetic-conductivity1_eps'+label+'.csv'
         print(readfile)
         d4 = pd.read_csv(readfile,header=0).values
-        e = d4[:,0]
-        d4 = - d4
-        d4[:,0] = e
         conductivity1.append(d4)
 
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+param+'/'
@@ -641,9 +632,6 @@ def main():
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'mu-dependence/spin-magnetic-conductivity2_eps'+label+'.csv'
         d4 = pd.read_csv(readfile,header=0).values
-        e = d4[:,0]
-        d4 = - d4
-        d4[:,0] = e
         conductivity2.append(d4)
 
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+param+'/'
@@ -681,9 +669,6 @@ def main():
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'mu-dependence/spin-angular-conductivity1_eps'+label+'.csv'
         d4 = pd.read_csv(readfile,header=0).values
-        e = d4[:,0]
-        d4 = - d4
-        d4[:,0] = e
         conductivity1.append(d4)
 
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+param+'/'
@@ -710,9 +695,6 @@ def main():
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+param+'/'
         readfile = data+'mu-dependence/spin-angular-conductivity2_eps'+label+'.csv'
         d4 = pd.read_csv(readfile,header=0).values
-        e = d4[:,0]
-        d4 = - d4
-        d4[:,0] = e
         conductivity2.append(d4)
 
         data = data0+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+param+'/'
