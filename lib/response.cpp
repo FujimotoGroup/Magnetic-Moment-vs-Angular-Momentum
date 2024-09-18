@@ -14,7 +14,8 @@ void set_response_T(chemical_potential ene_min, chemical_potential ene_max, int 
     set_output_directory(dir);
 
     for(int i=5; i<6; i++) {
-        double epsilon = double(i)*1e-4;
+//        double epsilon = double(i)*1e-4;
+        double epsilon = damping_T;
         std::cout << std::scientific << "epsilon = " << epsilon << std::endl;
 
         chemical_potential d_ene = (ene_max - ene_min) / double(ene_mesh-1);
@@ -788,7 +789,8 @@ void set_response_L(chemical_potential ene_min, chemical_potential ene_max, int 
     set_output_directory(dir);
 
     for(int i=5; i<6; i++) {
-        double epsilon = double(i)*1e-4;
+//        double epsilon = double(i)*1e-4;
+        double epsilon = damping_L;
         std::cout << std::scientific << "epsilon = " << epsilon << std::endl;
 
         chemical_potential d_ene = (ene_max - ene_min) / double(ene_mesh-1);

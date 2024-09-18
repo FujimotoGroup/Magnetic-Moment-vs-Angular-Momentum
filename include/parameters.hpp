@@ -96,6 +96,8 @@ extern const int mu_mesh_T;
 extern const int mu_mesh_L;
 extern const int fermi_surface_mesh_lim_T;
 extern const int fermi_surface_mesh_lim_L;
+extern const double damping_T;
+extern const double damping_L;
 
 extern const std::string axises[];
 extern const int valleys;
