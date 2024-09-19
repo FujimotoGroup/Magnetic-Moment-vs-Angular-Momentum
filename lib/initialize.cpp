@@ -60,7 +60,7 @@ const int mu_mesh_T = 160;
 const int mu_mesh_L = 160;
 const int fermi_surface_mesh_lim_T = 3000;
 const int fermi_surface_mesh_lim_L = 3000;
-const double damping_T = 1.0e-4;
+const double damping_T = 0.5e-4;
 const double damping_L = 1.6e-4;
 
 const vectorReal b1 = {-g0    ,-std::sqrt(3e0)*g0/3e0       , (a/c)*g0 };
