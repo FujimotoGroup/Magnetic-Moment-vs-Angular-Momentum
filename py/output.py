@@ -83,10 +83,10 @@ def set_1x1():
     return fig, ax
 
 def dos_T(params): # dos T {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
-#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
-    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
+    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
     readfile = data+'dos_eps'+label_eps+'.csv'
     x = pd.read_csv(readfile,header=None)[0].values
     d = pd.read_csv(readfile,header=None)[1].values
@@ -111,26 +111,26 @@ def dos_T(params): # dos T {{{
 
         fig.tight_layout()
         plt.savefig(pdf_dir+"dos_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     return x, d
 # }}}
 def dos_L(params): # dos L {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
 
     dos_lower = []
     dos_upper = []
     for valley in np.arange(1,4):
-#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
         readfile = data+'dos_eps'+label_eps+'.csv'
         x_lower = pd.read_csv(readfile,header=None)[0].values
         d_lower = pd.read_csv(readfile,header=None)[1].values
         dos_lower.append(d_lower)
 
-#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
         readfile = data+'dos_eps'+label_eps+'.csv'
         x_upper = pd.read_csv(readfile,header=None)[0].values
         d_upper = pd.read_csv(readfile,header=None)[1].values
@@ -161,7 +161,7 @@ def dos_L(params): # dos L {{{
 
         fig.tight_layout()
         plt.savefig(pdf_dir+"dos_L"+str(bandsL)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     dos_lower = dos_lower[0] + dos_lower[1] + dos_lower[2]
     dos_upper = dos_upper[0] + dos_upper[1] + dos_upper[2]
@@ -172,7 +172,7 @@ def dos_L(params): # dos L {{{
     return x, dos
 # }}}
 def dos(params): # individual + total dos {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
 
     d_T = dos_T(params)
@@ -208,18 +208,18 @@ def dos(params): # individual + total dos {{{
         ax.legend()
         fig.tight_layout()
         plt.savefig(pdf_dir+"dos_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     return dos_total
 # }}}
 
 def electric_conductivity_T(params):# electric conductivity T {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
-#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
-    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
+    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
     readfile = data+'mu-dependence/conductivity_eps'+label_eps+'.csv'
     df = pd.read_csv(readfile,header=0)
     d = df.values
@@ -274,12 +274,12 @@ def electric_conductivity_T(params):# electric conductivity T {{{
         fig.tight_layout()
         plt.savefig(pdf_dir+"conductivity_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
         #plt.show()
-        plt.close()
+        plt.close(fig)
 
     return d
 # }}}
 def electric_conductivity_L(params):# electric conductivity L {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -287,8 +287,8 @@ def electric_conductivity_L(params):# electric conductivity L {{{
     for valley in np.arange(1,4):
         col = valley - 1
 
-#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
         readfile = data+'mu-dependence/conductivity_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_lower = df.values
@@ -301,8 +301,8 @@ def electric_conductivity_L(params):# electric conductivity L {{{
             if titles[key].strip() != val:
                 print(titles[key], val)
 
-#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
         readfile = data+'mu-dependence/conductivity_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_upper = df.values
@@ -384,7 +384,7 @@ def electric_conductivity_L(params):# electric conductivity L {{{
 #        plt.show()
         fig.tight_layout()
         plt.savefig(pdf_dir+"conductivity_L"+str(bandsL)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     e = conductivity[0][:,0]
     conductivity = conductivity[0] + conductivity[1] + conductivity[2]
@@ -436,12 +436,12 @@ def electric_conductivity_L(params):# electric conductivity L {{{
         fig.tight_layout()
         fig.savefig(pdf_dir+"conductivity_sum_L"+str(bandsL)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
         plt.clf()
-        plt.close()
+        plt.close(fig)
 
     return conductivity
 # }}}
 def electric_conductivity(params): # individual + total electric conductivity {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -516,18 +516,18 @@ def electric_conductivity(params): # individual + total electric conductivity {{
 #        plt.show()
         fig.tight_layout()
         plt.savefig(pdf_dir+"conductivity_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     return conductivity
 # }}}
 
 def spin_magnetic_conductivity_T(params, N):# spin magnetic conductivity T {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
-#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
-    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
+    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
     readfile = data+'mu-dependence/spin-magnetic-conductivity'+str(N)+'_eps'+label_eps+'.csv'
     df = pd.read_csv(readfile,header=0)
     d = df.values
@@ -596,12 +596,12 @@ def spin_magnetic_conductivity_T(params, N):# spin magnetic conductivity T {{{
         fig.tight_layout()
         fig.savefig(pdf_dir+"spin_magnetic_conductivity"+str(N)+"_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
         #plt.show()
-        plt.close()
+        plt.close(fig)
 
     return d
 # }}}
 def spin_magnetic_conductivity_T_sum(params): # {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -649,14 +649,14 @@ def spin_magnetic_conductivity_T_sum(params): # {{{
 
 # }}}
 def spin_magnetic_conductivity_L(params, N):# spin magnetic conductivity L {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
     conductivity = []
     for valley in np.arange(1,4):
-#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
         readfile = data+'mu-dependence/spin-magnetic-conductivity'+str(N)+'_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_lower = df.values
@@ -667,8 +667,8 @@ def spin_magnetic_conductivity_L(params, N):# spin magnetic conductivity L {{{
                 if titles[key].strip() != val:
                     print(titles[key].strip(), val)
 
-#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
         readfile = data+'mu-dependence/spin-magnetic-conductivity'+str(N)+'_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_upper = df.values
@@ -735,7 +735,7 @@ def spin_magnetic_conductivity_L(params, N):# spin magnetic conductivity L {{{
 #        plt.show()
         fig.tight_layout()
         plt.savefig(pdf_dir+"spin_magnetic_conductivity"+str(N)+"_L"+str(bandsL)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     e = conductivity[0][:,0]
     conductivity = conductivity[0] + conductivity[1] + conductivity[2]
@@ -744,7 +744,7 @@ def spin_magnetic_conductivity_L(params, N):# spin magnetic conductivity L {{{
     return conductivity
 # }}}
 def spin_magnetic_conductivity_L_sum(params): # {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -792,7 +792,7 @@ def spin_magnetic_conductivity_L_sum(params): # {{{
 
 # }}}
 def spin_magnetic_conductivity(params, N): # individual spin magnetic conductivity {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -863,13 +863,13 @@ def spin_magnetic_conductivity(params, N): # individual spin magnetic conductivi
 #        plt.show()
         fig.tight_layout()
         fig.savefig(pdf_dir+"spin_magnetic_conductivity"+str(N)+"_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     return conductivity
 
 # }}}
 def total_spin_magnetic_conductivity(params): # total spin magnetic conductivity {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -935,18 +935,18 @@ def total_spin_magnetic_conductivity(params): # total spin magnetic conductivity
 #        plt.show()
         fig.tight_layout()
         fig.savefig(pdf_dir+"spin_magnetic_conductivity_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     return conductivity
 # }}}
 
 def spin_angular_conductivity_T(params, N):# spin magnetic conductivity T {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
-#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
-    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
+    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'+label_cutoff+"/"
+#    data = dat_dir+'T_'+str(bandsT)+'bands/band_index4/'
     readfile = data+'mu-dependence/spin-angular-conductivity'+str(N)+'_eps'+label_eps+'.csv'
     df = pd.read_csv(readfile,header=0)
     d = df.values
@@ -1014,12 +1014,12 @@ def spin_angular_conductivity_T(params, N):# spin magnetic conductivity T {{{
 #        plt.show()
         fig.tight_layout()
         fig.savefig(pdf_dir+"spin_angular_conductivity"+str(N)+"_T"+str(bandsT)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     return d
 # }}}
 def spin_angular_conductivity_T_sum(params): # {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -1067,14 +1067,14 @@ def spin_angular_conductivity_T_sum(params): # {{{
 
 # }}}
 def spin_angular_conductivity_L(params, N):# spin magnetic conductivity L {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
     conductivity = []
     for valley in np.arange(1,4):
-#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(lower_band_L)+'/'
         readfile = data+'mu-dependence/spin-angular-conductivity'+str(N)+'_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_lower = df.values
@@ -1085,8 +1085,8 @@ def spin_angular_conductivity_L(params, N):# spin magnetic conductivity L {{{
                 if titles[key].strip() != val:
                     print(titles[key].strip(), val)
 
-#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
-        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
+        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'+label_cutoff+'/'
+#        data = dat_dir+'L'+str(valley)+'_'+str(bandsL)+'bands/band_index'+str(upper_band_L)+'/'
         readfile = data+'mu-dependence/spin-angular-conductivity'+str(N)+'_eps'+label_eps+'.csv'
         df = pd.read_csv(readfile,header=0)
         d_upper = df.values
@@ -1153,7 +1153,7 @@ def spin_angular_conductivity_L(params, N):# spin magnetic conductivity L {{{
 #        plt.show()
         fig.tight_layout()
         plt.savefig(pdf_dir+"spin_angular_conductivity"+str(N)+"_L"+str(bandsL)+"bands_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     e = conductivity[0][:,0]
     conductivity = conductivity[0] + conductivity[1] + conductivity[2]
@@ -1162,7 +1162,7 @@ def spin_angular_conductivity_L(params, N):# spin magnetic conductivity L {{{
     return conductivity
 # }}}
 def spin_angular_conductivity_L_sum(params): # {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -1210,7 +1210,7 @@ def spin_angular_conductivity_L_sum(params): # {{{
 
 # }}}
 def spin_angular_conductivity(params, N): # individual spin magnetic conductivity {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -1281,13 +1281,13 @@ def spin_angular_conductivity(params, N): # individual spin magnetic conductivit
 #        plt.show()
         fig.tight_layout()
         plt.savefig(pdf_dir+"spin_angular_conductivity"+str(N)+"_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     return conductivity
 
 # }}}
 def total_spin_angular_conductivity(params): # total spin magnetic conductivity {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -1353,13 +1353,13 @@ def total_spin_angular_conductivity(params): # total spin magnetic conductivity 
 #        plt.show()
         fig.tight_layout()
         plt.savefig(pdf_dir+"spin_angular_conductivity_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 
     return conductivity
 # }}}
 
 def plot_total(params): # {{{
-    label_cutoff = 'cutoff'+str(params['cutoff'])+'eV'
+    label_cutoff = 'cutoff{:.2f}'.format(params['cutoff'])
     label_eps = "{:.6f}".format(params['eps'])
     str_damping = "$\gamma = "+decimal_normalize(params['eps']*1e3)+"~\mathrm{meV}$"
 
@@ -1405,7 +1405,7 @@ def plot_total(params): # {{{
 #        plt.show()
         fig.tight_layout()
         plt.savefig(pdf_dir+"total_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 # }}}
 
 def cutoff_dependences(params): # {{{
@@ -1470,7 +1470,7 @@ def cutoff_dependences(params): # {{{
 #        plt.show()
         fig.tight_layout()
         plt.savefig(pdf_dir+"cutoff_dependences_gamma"+label_eps+".pdf", bbox_inches = 'tight', dpi=300)
-        plt.close()
+        plt.close(fig)
 # }}}
 
 
@@ -1480,10 +1480,12 @@ if __name__ == "__main__":
     params['eps'] = 5e-4
     params['slice'] = 100
     params['cutoffs'] = [0.08, 0.09, 0.1]
-    params['cutoffs'] = [0.08]
+    params['cutoffs'] = [0.10]
+#    params['cutoffs'] = [0.08]
     cutoff_dependences(params)
 
-    params['cutoff'] = 0.08
+    params['cutoff'] = 0.10
+#    params['cutoff'] = 0.08
     spin_magnetic_conductivity_T_sum(params)
     spin_angular_conductivity_T_sum(params)
     spin_magnetic_conductivity_L_sum(params)
